@@ -20,7 +20,18 @@ Rule: references are a QUALITY BAR only. Ship original designs, names, emblems. 
 - A Decal id is NOT an image id. Resolve in Studio: `InsertService:LoadAsset(decalId)` -> `:FindFirstChildWhichIsA("Decal",true).Texture`, put that in Shirt.ShirtTemplate / Pants.PantsTemplate. The raw decal id renders black.
 - Studio local files: app content folder is write-protected, so avatars cannot load local files; upload is required.
 
-## Studio (computer-use, grant RobloxStudio)
+
+## Studio MCP (preferred over screen driving) - verified 2026-11-09
+Roblox Studio ships its own MCP server: `/Applications/RobloxStudio.app/Contents/MacOS/StudioMCP` (stdio proxy to the running Studio; Studio shows "MCP - 1" at the bottom right when connected).
+It was NOT available in earlier sessions because nothing registered it with Claude. Register once:
+```bash
+claude mcp add --scope user roblox-studio -- /Applications/RobloxStudio.app/Contents/MacOS/StudioMCP
+claude mcp list   # roblox-studio: ... Connected   (Studio must be running)
+```
+MCP tools only load at session start: start a NEW session after adding it. Tools (35 in `~/Library/Roblox/StudioMCP/tools-cache.json`) include `execute_luau`, `get_console_output`, `inspect_instance`, `insert_asset`, `screen_capture`, `search_game_tree`, `get_studio_state`, `start_stop_play`, `auto_setup_avatar`, `generate_mesh/texture/avatar`, `http_get`, `open_cloud_invoke`.
+With these, run the wear script (`docs/studio/wear_crystal_vanguard.lua`) via `execute_luau` and take views with `screen_capture`: no clicking, no command-bar typing. Fall back to the computer-use method above only if the tools are missing.
+
+## Studio (computer-use fallback, grant RobloxStudio)
 - MCP toggle: bottom-right "MCP off" label -> Assistant Settings > MCP Servers > Enable Studio as MCP server. Session must restart to see MCP tools.
 - Command bar at bottom runs Luau: app_type (mode replace) into it, then click the Run button by coordinate (Return only adds a newline).
 - Output panel: Window > Output (not View). Use it to read errors/prints.

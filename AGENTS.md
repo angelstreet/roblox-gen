@@ -14,3 +14,5 @@ shoulder plates, belt, skirt) and, later, experiences.
 4. Upload privately and test in Roblox Studio first. Do NOT publish to the Marketplace or pay fees without the human's
    explicit yes. Re-verify current fees/rules on create.roblox.com.
 5. Originality: references are a quality bar only. Never copy another creator's outfit, emblem or name.
+
+Studio: prefer the Studio MCP tools; see the skill's "Studio MCP" section.
