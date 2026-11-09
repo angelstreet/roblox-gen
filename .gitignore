@@ -1,0 +1,6 @@
+.env
+*.rbxl
+*.rbxlx
+out/
+__pycache__/
+.DS_Store
