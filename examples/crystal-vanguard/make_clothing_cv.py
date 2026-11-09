@@ -56,8 +56,10 @@ def sleeve(f, w, h, seam=False):
     gold(f, [(0, 60), (w, 60)], 2.2); gold(f, [(0, 90), (w, 90)], 1.6)
     for i in range(6, w, 12): fil(f, [(i, 66), (i + 3, 80)])
     gem(f, w / 2, 75, 3.2, 1.3)
-    plate(f, 4, 94, w - 4, 126, 4)                                    # gauntlet
+    # r5: gauntlet is now navy with gold filigree (was a silver plate), so the sleeve is mostly navy
+    f.grad_rect(0, 94, w, 128, NAVY_T, NAVY_B)
     gold(f, [(4, 110), (w - 4, 110)], 1.2)
+    for i in range(8, w - 6, 14): fil(f, [(i, 98), (i + 5, 106), (i + 10, 98)]); fil(f, [(i + 3, 118), (i + 8, 124)])
 
 
 def shirt():
@@ -78,6 +80,8 @@ def shirt():
                 gem(f, cx + sg * 48, 46, 4, 1.4)
             gem(f, cx, 34, 11, 1.5)
             fil(f, [(cx - 20, 8), (cx - 12, 56), (cx, 78), (cx + 12, 56), (cx + 20, 8)])
+            # r5: a few gold swirl lines inside the navy V (concept filigree)
+            for sg in (-1, 1): fil(f, [(cx + sg * 6, 14), (cx + sg * 18, 26), (cx + sg * 10, 40), (cx + sg * 20, 52)])
             f.grad_rect(0, 96, w, 108, (214, 224, 250), (150, 168, 214))   # belt
             gold(f, [(0, 96), (w, 96)], 1.8); gold(f, [(0, 108), (w, 108)], 1.8)
             gem(f, cx, 102, 3.6, 1.3)

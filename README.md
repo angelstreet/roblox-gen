@@ -9,6 +9,10 @@ can reproduce the default example, then make your own set.
 *Default example: "Tidewatch Warden", an original hooded outfit (classic shirt + pants, hood, mantle, cape, shoulder
 plates, belt, skirt). Rendered on a block R15 proxy in Blender.*
 
+![Crystal Vanguard sheet](docs/crystal-vanguard-sheet.png)
+
+*Second set: Crystal Vanguard, built by Sonnet, refined by Haiku from the same repo.*
+
 ## What you can generate
 | Output | How | Status |
 |---|---|---|

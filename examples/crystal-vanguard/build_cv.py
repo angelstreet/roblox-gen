@@ -118,13 +118,13 @@ def build_pauldron():
                 for i in range(NU + 1):
                     phi = 2 * math.pi * i / NU; s, c = math.sin(phi), math.cos(phi); inner = sm((s + 0.2) / 1.2)
                     if v < 0.4:
-                        t = v / 0.4; r = math.sin(t * math.pi / 2); z = zt - 0.17 * (1 - math.cos(t * math.pi / 2))
+                        t = v / 0.4; r = math.sin(t * math.pi / 2); z = zt - 0.08 * (1 - math.cos(t * math.pi / 2))   # r4: flatter dome (was 0.17)
                     else:
-                        t = (v - 0.4) / 0.6; r = 1.0 + 0.05 * t; zb = zh + (0.05 - zh) * inner ** 1.5; z = (zt - 0.17) + (zb - (zt - 0.17)) * t
+                        t = (v - 0.4) / 0.6; r = 1.0 + 0.05 * t; zb = zh + (0.05 - zh) * inner ** 1.5; z = (zt - 0.08) + (zb - (zt - 0.08)) * t
                     p = Vector((hx * (1 - 0.18 * inner) * r * spow(s, 2 / E), hy * r * spow(c, 2 / E), z))
                     row.append(p if j else Vector((0, 0, zt)))
                 grid.append(row)
-            b.sheet(grid, 0.06, (0.0, v0, 0.6, v1), "silver", rim="gold", closed_u=True, pole_row0=True, normal_hint=lambda p: Vector((p.x, p.y, p.z + 0.3)))
+            b.sheet(grid, 0.09, (0.0, v0, 0.6, v1), "silver", rim="gold", closed_u=True, pole_row0=True, normal_hint=lambda p: Vector((p.x, p.y, p.z + 0.3)))   # r4: thicker plate, rim shows
         else:
             NV = 6
             for j in range(NV + 1):
@@ -139,7 +139,7 @@ def build_pauldron():
             b.sheet(grid, 0.06, (0.0, v0, 0.6, v1), "silver", rim="gold", normal_hint=lambda p: Vector((p.x, p.y, 0)))
     # gem set in a gold diamond on the outer face, plus 3 crystal shards on top
     cen = Vector((-0.80, -0.02, -0.18))
-    b.gem(cen, 0.10, 0.17, Vector((-1, -0.1, 0)), "crystal")
+    b.gem(cen, 0.17, 0.26, Vector((-1, -0.1, 0)), "crystal")   # r4: bigger gem (was 0.10 x 0.17)
     for dx, hh, tilt in ((-0.28, 0.46, -0.25), (0.0, 0.38, 0.0), (0.25, 0.32, 0.2)):
         bipyramid(b, Vector((dx * 0.8 - 0.05, 0.05, 0.1)), Vector((tilt * 0.6, 0.15, 1.0)), 0.075, hh, 6)
     ob = b.finish(); tex_material(ob.data, "cv_pauldron_r"); return ob
@@ -169,12 +169,13 @@ def build_cape():
         row = []
         for i in range(NU2 + 1):
             phi = math.radians(-100 + 200 * i / NU2); lump = 0.035 * math.sin(i * 1.9 + j) * (1 if 0 < j < 3 else 0)
-            row.append(Vector(((rx + lump) * math.sin(phi), (ry + lump) * math.cos(phi), z)))
+            # r3: collar scaled to 0.7 in x/y and 0.75 in z (was a big block), thinner shell
+            row.append(Vector(((rx + lump) * 0.7 * math.sin(phi), (ry + lump) * 0.7 * math.cos(phi), z * 0.75)))
         gc.append(row)
-    b.sheet(gc, 0.10, cell("white"), "silver", rim="silver", normal_hint=lambda p: Vector((p.x, p.y, 0.1)))
-    # gem clasp holders at the front of the collar ends
+    b.sheet(gc, 0.06, cell("white"), "silver", rim="silver", normal_hint=lambda p: Vector((p.x, p.y, 0.1)))
+    # gem clasp holders at the front of the collar ends (moved in with the smaller collar)
     for sg in (-1, 1):
-        b.gem(Vector((sg * 0.93, 0.02, -0.12)), 0.06, 0.09, Vector((sg, -0.5, 0.0)), "crystal")
+        b.gem(Vector((sg * 0.65, 0.02, -0.09)), 0.05, 0.07, Vector((sg, -0.5, 0.0)), "crystal")
     ob = b.finish(); tex_material(ob.data, "cv_cape"); return ob
 
 
@@ -275,7 +276,7 @@ def build_sword():
 def place_sword(ob):
     """wearable pose: pommel low on the back (WaistBackAttachment frame is the export origin), blade rising diagonally over the right shoulder"""
     R = Matrix.Rotation(math.radians(-36), 3, "Y") @ Matrix.Rotation(math.radians(6.5), 3, "X"); sc = 0.85
-    P0 = Vector((0.80, 1.30, -2.95))
+    P0 = Vector((0.80, 1.95, -2.95))   # r2: was y 1.30, inside the flared cape hem (cape reaches y ~1.4 low down)
     ob.data.transform(Matrix.Translation(P0) @ (R.to_4x4() @ Matrix.Scale(sc, 4)))
 
 
