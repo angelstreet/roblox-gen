@@ -1,4 +1,4 @@
--- Wears the Crystal Vanguard set (r21) on a new rig. Paste into Roblox Studio's command bar and Run, or send it with the
+-- Wears the Crystal Vanguard set (r25) on a new rig. Paste into Roblox Studio's command bar and Run, or send it with the
 -- Studio MCP `execute_luau` tool (datamodel Edit). Edit the CONFIG block to test other bodies.
 -- Asset IDs are private test uploads of the repo owner's account (only that account can load them); re-upload with
 -- scripts/upload_assets.py under your own account and replace the IDs (README "Make your own set" steps 5-6).
@@ -24,8 +24,8 @@ for k, v in pairs(CONFIG.scales) do desc[k] = v end
 local rig = P:CreateHumanoidModelFromDescription(desc, CONFIG.rigType)
 rig.Name = CONFIG.name; rig.Parent = workspace; rig:PivotTo(CFrame.new(CONFIG.position))
 for _, p in ipairs(rig:GetChildren()) do if p:IsA("BasePart") then p.Color = Color3.fromRGB(234, 184, 146) end end
-local sh = Instance.new("Shirt"); sh.ShirtTemplate = img(131364842624653); sh.Parent = rig   -- r21 shirt
-local pa = Instance.new("Pants"); pa.PantsTemplate = img(79782937213545); pa.Parent = rig     -- r21 pants
+local sh = Instance.new("Shirt"); sh.ShirtTemplate = img(101773159774260); sh.Parent = rig   -- r24 shirt
+local pa = Instance.new("Pants"); pa.PantsTemplate = img(101822096598191); pa.Parent = rig    -- r24 pants
 if CONFIG.face then
   -- The default R15 head is a dynamic MeshPart head: a Decal on it maps into the mesh UVs (lands as a speck) and the default
   -- face is painted in its TextureID. So: clear that texture and put the face on a thin plate welded in front of the head.
@@ -37,13 +37,13 @@ if CONFIG.face then
   local f = Instance.new("Decal"); f.Name = "face"; f.Face = Enum.NormalId.Front; f.Texture = img(135398494225892); f.Parent = plate
   local w = Instance.new("WeldConstraint"); w.Part0 = h; w.Part1 = plate; w.Parent = plate; plate.Parent = rig
 end
-local items = {  -- {mesh FBX id, texture Decal id, attachment, emissive mask Decal id}  (r21, private uploads 2026-11-09)
-  {102504012631494, 103734755245021, "HatAttachment",           71350189875260},   -- crown + swept hair, back locks (Hair box)
-  {70719211597742,  93359691730948,  "RightShoulderAttachment", 135901164997081},  -- pauldron R (one shell + lame)
-  {117628352216085, 93359691730948,  "LeftShoulderAttachment",  135901164997081},  -- pauldron L (shares the R texture)
-  {98486225896865,  134894248556722, "BodyBackAttachment",      71173472629586},   -- cape with lining, rolled collar, pointed hem
-  {126511502069863, 134997260146198, "NeckAttachment",          71452399300364},   -- thick scarf wrap
-  {113108359427829, 109618034074197, "WaistBackAttachment",     115937923296136},  -- sword (welded, along the cape flare)
+local items = {  -- {mesh FBX id, texture Decal id, attachment, emissive mask Decal id}  (r25, private uploads 2026-11-09)
+  {118900723489336, 103473604786167, "HatAttachment",           124669010937682},  -- crown + swept hair, back locks (Hair box) [r24]
+  {96526145814784,  139728264928439, "RightShoulderAttachment", 94076186830413},   -- pauldron R, 2048 texture [r25]
+  {123519023414526, 139728264928439, "LeftShoulderAttachment",  94076186830413},   -- pauldron L (shares the R texture) [r25]
+  {135297064673637, 120673283775032, "BodyBackAttachment",      96649979522045},   -- cape, fur collar [mesh r24, texture r25]
+  {112876307276367, 97075679174090,  "NeckAttachment",          131312844800724},  -- thick scarf wrap [r24]
+  {113108359427829, 109618034074197, "WaistBackAttachment",     115937923296136},  -- sword (unchanged since r21)
 }
 local log = {}
 for _, it in ipairs(items) do

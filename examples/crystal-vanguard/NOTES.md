@@ -1,4 +1,4 @@
-# Crystal Vanguard (current: r21, see Rounds 5-6 at the end; Studio results in STUDIO_TEST.md are from r10)
+# Crystal Vanguard (current: r25, see Rounds 5-8 at the end; Studio results: STUDIO_TEST.md (r10) and docs/studio/r21/)
 The tables and "Weak points" right below are the round-1 cold-agent build (history, oldest first); numbers there are not current.
 Run `./run_all.sh <tag>` (tag required, e.g. r10; uses `blender` on PATH, else the macOS app; override with `BLENDER=/path/to/blender`).
 Order: make_clothing_cv -> make_face_cv -> build_cv (meshes, meta.json, Cycles AO) -> paint_cv -> render_cv -> compose_cv -> release_cv (~1 min; `NOBAKE=1` skips the AO bakes). Outputs go to `out/`; the files in this folder are
@@ -91,7 +91,7 @@ box), the concept shows it held; the blade glow is only an emissive mask (no blo
 breastplate or boots allowed for classic clothing); the collar is a smooth roll, not fur. Not done this round: Studio re-test (wear script,
 animation clipping of the new collar/scarf/tufts), cages/layered clothing, hand-sculpted strands.
 
-## Round 6 (r19-r21, Fable, 2026-11-09; sheet `render_sheet.png` = r21) - coordinator review of r18: back of head, spikes, pauldron silhouette
+## Round 6 (r19-r21, Fable, 2026-11-09; r21 = commit 081a147, Studio-tested, screenshots docs/studio/r21/) - coordinator review of r18: back of head, spikes, pauldron silhouette
 Judged on `out/<tag>_vs_concept.png` and a head close-up from the back / 3/4 back (`out/r21_head_back_closeup.png`).
 | Round | Change | Decision |
 |---|---|---|
@@ -109,3 +109,44 @@ Final export (attachment frame, Blender axes x / y depth (+y behind) / z up; all
 Still different from the concept: spikes are smooth petals rather than razor-sharp anime locks (7-sided tapered tubes, ~70 tris each); the back
 locks are 7 tubes, the concept has finer layered strands; the pauldron shell is a superellipse cap, the concept's has a sculpted ridge; the
 folded collar is smooth cloth, not fur. Not re-tested in Studio (collar/lock clipping in animation unknown).
+
+## Round 7 (r22-r24, Fable, 2026-11-09; r24 Studio-checked by the coordinator: collar gaps fixed, fur collar good) - polish of what the r21 Studio test showed
+Close-ups: `out/r24_pauldron_top_closeup.png` (3/4 + a top-down view), `out/r24_collar_back_closeup.png` (r21 back, r24 back, r24 low rear view).
+| Round | Finding (docs/studio/r21/) | Fix | Decision |
+|---|---|---|---|
+| r22 | Pauldron top cartouche blurry (front.jpg, back.jpg) | Cause: the outer-face scroll image was projected along x and spilled onto the near-horizontal cap = grazing projection (smear), not a texel problem (cap has ~300 px/stud). Outer scrolls now masked to the skirt (z < 0.08); the cap gets its own cartouche (`FIL_TOP`) projected along z (axes x,y), crisper strokes (outline 1.6 w, highlight 0.4 w) | kept |
+| r22 | Two navy triangles through the white collar behind the neck (back.jpg) | Cause: the navy SCARF ring (radius 0.80-0.84 at +-45 deg behind) poked through the collar wall (inner surface ~0.76). Scarf back half scaled by 1-0.14*|cos|^0.7, collar upper rows +0.04 wider. `clip_check.py` now also reports scarf/crown vs cape and pauldrons | kept |
+| r22 | Fall pose: white cavity under the shell, shell grazes the hair | Shell + lame inner shells painted navy (swatch) = armour interior; inner (torso-side) edge of the shell shrunk 0.30 -> 0.37 | kept |
+| r22 | Optional: fur collar, sharper spikes | Collar top row zigzag tufts (+0.05/-0.01 alternating) + 160 soft fur streaks painted on both collar faces; strand taper exponent 0.65 -> 0.85 (sharper tips) | kept |
+| r23 | Overlap check: scarf vs pauldrons 66/68 pairs, scarf vs collar 362 | Scarf bottom rows narrower (did not change the pauldron count: wrong cause) | partial |
+| r24 | Located the overlaps (`out/_overlap_where.py`): the shell's gold RIM RING ignored the inner shrink, its torso-side arc sat at x 0.47 from the torso centre, inside the torso and the scarf (hidden under the shell since r11); scarf sides crossed the collar's end columns at the shoulders | rim ring follows the shell's inner shrink (pauldron inner edge local 1.03 -> 0.70); scarf side rows rx 0.78-0.83 -> 0.74-0.78 | kept = final: scarf vs pauldrons 0 |
+Final export (attachment frame, Blender axes x / y depth (+y behind) / z up; all 0 open edges):
+| FBX | Tris | bbox x / y / z | Box (Slender) |
+|---|---|---|---|
+| crystal_crown (Hair) | 3412 | -0.88..0.88 / -0.92..1.17 / -1.21..0.79 | PASS |
+| navy_scarf | 1228 | -0.76..0.81 / -0.86..0.62 / -0.89..0.26 | PASS |
+| sapphire_cape | 3740 | -1.35..1.35 / -0.55..1.51 / -2.86..1.35 | PASS |
+| vanguard_pauldron_r / _l | 2580 | -1.17..0.70 / -0.89..0.89 / -1.04..0.55 (L mirrored) | PASS |
+| crystal_vanguard_blade | 1866 | -1.04..0.89 / 0.33..1.45 / -1.28..1.36 | PASS |
+`clip_check.py` (rest pose): sword vs everything 0; scarf vs pauldrons 0; remaining volume overlaps that do not show in any view: scarf vs cape collar
+108 triangle pairs (scarf sides inside the collar wall at the shoulders) and crown vs cape 206 (the back locks pass through the collar wall on
+their way out, tips lie over the collar as intended). Not re-tested in Studio after r21.
+
+## Round 8 (r25, Fable, 2026-11-09; sheet `render_sheet.png` = r25) - pauldron texel density
+Correction from the r24 Studio check: the blurry ornament was the cartouche + enamel band on the pauldron's FRONT/outer face (pixelated with
+horizontal stair-steps at 2.6 studs), not the cap top: that face had too few texels in u. Blender close-ups hid it (higher pixel density than Studio).
+Measured with the new `texel_density.py` (px/stud from meta.json positions, u = around, v = top->hem; mean / worst row or column):
+| Region | r24 (1024) u / v | r25 (2048, rects rebalanced) u / v |
+|---|---|---|
+| shell (lame0) whole | 204/149 / 319/240 | 408/298 / 993/747 |
+| shell front face (y < -0.5) | 198/170 / 529/322 | 396/340 / 1646/1001 |
+| shell outer face (x < -0.6) | 191/135 / 329/289 | 381/271 / 1024/900 |
+| lame1 whole | 280/267 / 1015/754 | 561/534 / 1354/1005 |
+| cape outer (2048) | 406/225 / 384/360 | unchanged (min 225 only on the widest zigzag hem row) |
+| cape collar (2048) | 332/316 / 566/520 | unchanged |
+| crown dome (1024) | 279/190 / 281/213 | unchanged (plain white + streaks + AO, no ornament) |
+| scarf ring (1024) | 232/212 / 570/508 | unchanged (plain navy knit, no ornament) |
+Change: pauldron atlas 1024 -> 2048 (`Tex("cv_pauldron_r", 2048, ss=1)`, AO bake 1024 for pauldron and cape), shell UV v 0.55..1.0 -> 0.30..1.0, lame
+0.20..0.50 -> 0.08..0.28. Every shell face is now >= 270 px/stud in u (front face 340 worst) and >= 740 in v. Proof at Studio-like density: a 400 px
+wide front render, pauldron crop blown up 4x NEAREST, r24 vs r25: `out/r25_lowres_pauldron_before_after.png` (`out/_lowres.py`). Export numbers,
+clip_check and boxes unchanged from r24 (all PASS, 0 open edges). Texture sizes now: pauldron 2048, cape 2048, crown/scarf/sword 1024. Not re-tested in Studio.

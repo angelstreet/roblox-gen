@@ -77,7 +77,7 @@ def build_crown():
             side = d.cross(rad0)
             if side.length < 1e-4: side = d.cross(Vector((0, 0, 1)))
             side.normalize(); s2 = side.cross(d).normalized()
-            w = w0 * (1 - k / n) ** 0.65
+            w = w0 * (1 - k / n) ** 0.85                          # r22: sharper tips
             rings.append([b.bm.verts.new(CL(c + (side * math.cos(2 * math.pi * q / sides) * flat + s2 * math.sin(2 * math.pi * q / sides) * 0.5) * w)) for q in range(sides)])
             vs_uv.append(HR[1] + (HR[3] - HR[1]) * k / n)
         tip = b.bm.verts.new(path[-1]); uvt = (HR[0] + 0.5, HR[3])
@@ -179,13 +179,14 @@ def build_pauldron():
                 phi = math.radians(arc[0]) + math.radians(arc[1] - arc[0]) * i / NU if arc else 2 * math.pi * i / NU
                 s, c = math.sin(phi), math.cos(phi)
                 zz = z + dz - pt * max(0, -s) ** 3
-                if zin is not None: zz += (zin - z) * inner_f(s) ** 1.5
-                row.append(Vector(((hx + dr) * spow(s, 2 / E), (hy + dr) * spow(c, 2 / E), zz)))
+                kx = 1.0
+                if zin is not None: zz += (zin - z) * inner_f(s) ** 1.5; kx = 1 - 0.37 * inner_f(s)   # r24: follow the shell's inner shrink (the rim reached into the torso)
+                row.append(Vector(((hx + dr) * kx * spow(s, 2 / E), (hy + dr) * spow(c, 2 / E), zz)))
             g.append(row)
         b.sheet(g, 0.03, cell("gold"), "gold_dark", rim="gold", closed_u=(arc is None), normal_hint=lambda p: Vector((p.x, p.y, 0)))
     # (z top, z hem, half x, half y, outer point depth, uv v0, v1)
     # r19: ONE dominant broad curved shell (deep cap, flaring skirt, sharp outer point) + one small lame tucked under it
-    tiers = [(0.36, -0.52, 0.94, 0.80, 0.28, 0.55, 1.00), (-0.60, -0.86, 0.70, 0.64, 0.14, 0.20, 0.50)]
+    tiers = [(0.36, -0.52, 0.94, 0.80, 0.28, 0.30, 1.00), (-0.60, -0.86, 0.70, 0.64, 0.14, 0.08, 0.28)]   # r25: UV v ranges rebalanced for a 2048 atlas
     for k, (zt, zh, hx, hy, pt, v0, v1) in enumerate(tiers):
         grid = []
         if k == 0:
@@ -200,10 +201,10 @@ def build_pauldron():
                         t = (v - 0.45) / 0.55; r = 1.0 + 0.08 * t
                         zb = zh - pt * max(0, -s) ** 3; zb = zb + (0.02 - zb) * inn ** 1.5
                         z = (zt - 0.24) + (zb - (zt - 0.24)) * t
-                    hx_ = hx * (1 - 0.30 * inn)
+                    hx_ = hx * (1 - 0.37 * inn)                 # r22: inner edge further from the head (fall pose grazed the hair)
                     row.append(Vector((hx_ * r * spow(s, 2 / E), hy * r * spow(c, 2 / E), z)) if j else Vector((-0.10, 0, zt)))
                 grid.append(row)
-            b.sheet(grid, 0.06, (0.0, v0, 1.0, v1), "silver", rim="silver", closed_u=True, pole_row0=True, normal_hint=lambda p: Vector((p.x, p.y, p.z + 0.4)), key="lame0")
+            b.sheet(grid, 0.06, (0.0, v0, 1.0, v1), "navy", rim="silver", closed_u=True, pole_row0=True, normal_hint=lambda p: Vector((p.x, p.y, p.z + 0.4)), key="lame0")   # r22: navy interior
             rim_ring(zh, hx * 1.04, hy * 1.04, pt=pt, zin=0.02)
         else:
             NV = 4; A0, A1 = 130, 410                               # open on the torso side (phi 90 deg)
@@ -214,7 +215,7 @@ def build_pauldron():
                     z = zt + (zh - zt) * v - pt * max(0, -s) ** 3 * v; r = 0.92 + 0.10 * math.sin(v * math.pi / 2)
                     row.append(Vector((hx * r * spow(s, 2 / E), hy * r * spow(c, 2 / E), z)))
                 grid.append(row)
-            b.sheet(grid, 0.055, (0.0, v0, 1.0, v1), "silver", rim="silver", normal_hint=lambda p: Vector((p.x, p.y, 0)), key=f"lame{k}")
+            b.sheet(grid, 0.055, (0.0, v0, 1.0, v1), "navy", rim="silver", normal_hint=lambda p: Vector((p.x, p.y, 0)), key=f"lame{k}")
             rim_ring(zh, hx * 1.04, hy * 1.04, arc=(A0, A1), pt=pt)
     # big gem in a gold diamond frame on the outer face of the top plate
     xo = -0.94 * 1.04
@@ -252,13 +253,14 @@ def build_cape():
     # tall collar: half ring behind the neck, bottom row resting on the shoulders, leaning back; own UV rects below the cape rects
     gc, fc = [], []; NU2 = 24
     # r19: folded hood lying on the shoulders under the hair tips: lower (top 0.20), dips at the back centre, bigger folds
-    rows = ((0.22, 0.70, 0.74), (0.18, 0.76, 0.80), (0.02, 0.82, 0.84), (-0.16, 0.88, 0.82), (-0.34, 0.92, 0.74), (-0.42, 0.90, 0.70))
+    rows = ((0.24, 0.74, 0.78), (0.19, 0.80, 0.84), (0.02, 0.86, 0.86), (-0.16, 0.90, 0.82), (-0.34, 0.92, 0.74), (-0.42, 0.90, 0.70))
     for j, (z, rx, ry) in enumerate(rows):
         row, frow = [], []
         for i in range(NU2 + 1):
             phi = math.radians(-92 + 184 * i / NU2); lump = 0.045 * math.sin(i * 1.7 + j * 0.8) * (1 if 0 < j < 4 else 0.4)
             dip = -0.03 * math.cos(phi) ** 2 * (1 if j < 2 else 0.3)
-            row.append(Vector(((rx + lump) * math.sin(phi), (ry + lump) * math.cos(phi) + 0.02, z + dip))); frow.append(math.sin(i * 1.7 + j * 0.8))
+            tuft = (0.05 if i % 2 else -0.01) * (1 if j == 0 else 0.3 if j == 1 else 0)     # r22: fur-like tufted rim
+            row.append(Vector(((rx + lump) * math.sin(phi), (ry + lump) * math.cos(phi) + 0.02, z + dip + tuft))); frow.append(math.sin(i * 1.7 + j * 0.8))
         gc.append(row); fc.append(frow)
     b.sheet(gc, 0.07, (0.02, 0.08, 0.48, 0.28), (0.52, 0.08, 0.98, 0.28), rim="silver", normal_hint=lambda p: Vector((p.x, p.y, 0.15)), fold=fc, key="collar")
     # gem clasps at the collar ends
@@ -272,14 +274,15 @@ def build_scarf():
     """r13: thick navy wrap around the neck up to the chin (concept), lower at the back under the cape collar, a wide bib tail
     hanging on the chest with folds, gold clasp + small crystal. Ring UV (0,0.36,1,0.66), tail UV (0,0.70,1,1); fold maps exported."""
     b = Builder("cv_scarf"); NU = 32; grid, folds = [], []
-    rows = [(0.26, 0.60, 0.56), (0.20, 0.70, 0.62), (0.08, 0.80, 0.68), (-0.08, 0.86, 0.72), (-0.20, 0.88, 0.74), (-0.26, 0.86, 0.72)]
+    rows = [(0.26, 0.60, 0.56), (0.20, 0.68, 0.62), (0.08, 0.74, 0.68), (-0.08, 0.77, 0.72), (-0.20, 0.78, 0.74), (-0.26, 0.76, 0.72)]   # r24: sides narrower (crossed the cape collar ends)
     for j, (z, rx, ry) in enumerate(rows):
         row, frow = [], []
         for i in range(NU + 1):
             phi = math.pi + 2 * math.pi * i / NU; s, c = math.sin(phi), math.cos(phi)
             fd = math.sin(7 * phi + 0.4 + j * 0.5); d = 0.035 * fd * (0.4 + j / 6)
             back = max(0.0, -c) ** 1.5                                  # back of the ring sits lower (under the collar)
-            row.append(Vector(((rx + d) * spow(s, 2 / 2.6), -(ry + d) * spow(c, 2 / 2.6), z - 0.22 * back * (1 if j < 3 else 0.5)))); frow.append(fd)
+            tuck = 1 - 0.18 * max(0.0, -c) ** 0.7                       # r22: back half smaller so it stays inside the cape collar (navy showed through it)
+            row.append(Vector(((rx + d) * tuck * spow(s, 2 / 2.6), -(ry + d) * tuck * spow(c, 2 / 2.6), z - 0.22 * back * (1 if j < 3 else 0.5)))); frow.append(fd)
         grid.append(row); folds.append(frow)
     b.sheet(grid, 0.09, (0, 0.36, 1, 0.66), "navy", rim="navy", closed_u=True, normal_hint=lambda p: Vector((p.x, p.y, 0.1)), fold=folds, key="ring")
     # bib tail: wide at the top, pointed, lying on the chest, folds
@@ -432,6 +435,6 @@ if __name__ == "__main__":
     with open(os.path.join(OUT, "meta.json"), "w") as fh: json.dump(B.META, fh)     # UV regions + positions + edge distances for paint_cv.py
     if os.environ.get("NOBAKE") != "1":                                              # r11: per-item AO (NOBAKE=1 skips, textures then have no AO)
         items = [o for o in (crown, r, cape, scarf) if o.name in B.META]; t0 = time.time()
-        for o in items: bake_ao(o, 512, [x for x in (crown, r, l, cape, scarf, sword, disp) if x is not o])
+        for o in items: bake_ao(o, 1024 if o.name in ('cv_pauldron_r', 'cv_cape') else 512, [x for x in (crown, r, l, cape, scarf, sword, disp) if x is not o])
         print("AO baked", [o.name for o in items], "in %.1fs" % (time.time() - t0))
     bpy.ops.wm.save_as_mainfile(filepath=os.path.join(OUT, "cv_build.blend")); print("DONE")

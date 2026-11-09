@@ -78,13 +78,13 @@ def sample_rgba(img, ex, ey):
 
 
 def gold_lines(d, paths, w):
-    """filigree stroke: dark gold outline, gold body, thin light highlight offset up-left (PIL draw, pixel coords)"""
+    """filigree stroke: crisp dark outline, gold body, light highlight offset up-left (PIL draw, pixel coords)"""
     for p in paths:
-        d.line(p, fill=tuple(int(c) for c in G_DK) + (255,), width=int(w * 1.7), joint="curve")
+        d.line(p, fill=tuple(int(c) for c in G_DK) + (255,), width=int(w * 1.6), joint="curve")
     for p in paths:
         d.line(p, fill=tuple(int(c) for c in G_MI) + (255,), width=int(w), joint="curve")
     for p in paths:
-        d.line([(x - w * 0.25, y - w * 0.3) for x, y in p], fill=tuple(int(c) for c in G_HI) + (255,), width=max(1, int(w * 0.35)), joint="curve")
+        d.line([(x - w * 0.22, y - w * 0.28) for x, y in p], fill=tuple(int(c) for c in G_HI) + (255,), width=max(1, int(w * 0.4)), joint="curve")
 
 
 def curl(pts, s, r, sweep=1.6 * math.pi, n=14):
@@ -114,6 +114,11 @@ def filigree_img(S=1024, kind="corners"):
             for sy in (-1, 1):
                 paths.append(P([(sx * x, sy * y) for x, y in scroll((0.30, 0.62), (0.82, 0.30), 0.09, 1.0, (1 * sx * sy, -1 * sx * sy), 0.10)]))
                 paths.append(P([(sx * x, sy * y) for x, y in scroll((0.52, 0.82), (0.86, 0.60), 0.05, 1.0, (0, -1 * sx * sy), 0.07, 16)]))
+    elif kind == "top":                                              # cartouche for the cap top: mirrored scroll pairs around a small diamond
+        for sx in (-1, 1):
+            for sy in (-1, 1):
+                paths.append(P([(sx * x, sy * y) for x, y in scroll((0.18, 0.30), (0.78, 0.12), 0.08, 1.0, (0, -sx * sy), 0.11)]))
+        paths.append(P([(0, -0.22), (0.14, 0), (0, 0.22), (-0.14, 0), (0, -0.22)]))
     elif kind == "crest":                                            # a pair of mirrored scrolls meeting at the top (for lames)
         for sx in (-1, 1):
             paths.append(P([(sx * x, y) for x, y in scroll((0.05, -0.55), (0.85, 0.20), 0.12, 1.0, (0, -sx), 0.12)]))
@@ -206,7 +211,7 @@ class Tex:
         ek.save(os.path.join(OUT, f"emit_{self.item}.png")); print("emit", self.item)
 
 
-FIL_CORNERS, FIL_CREST, DIAMOND = filigree_img(kind="corners"), filigree_img(kind="crest"), diamond_img()
+FIL_CORNERS, FIL_CREST, FIL_TOP, DIAMOND = filigree_img(kind="corners"), filigree_img(kind="crest"), filigree_img(kind="top"), diamond_img()
 
 
 
@@ -243,15 +248,16 @@ def pauldron():
     """r11: white plates with AO, gold hem trims + enamel band as distance bands, corner filigree + framed gem area on the outer face,
     enamel diamonds on the front/back faces of the lames."""
     if "cv_pauldron_r" not in META: return pauldron_legacy()
-    t = Tex("cv_pauldron_r")
+    t = Tex("cv_pauldron_r", 2048, ss=1)                                                                          # r25: 2048 (front face was ~200 px/stud in u at 1024: pixelated in Studio)
     for k in range(2):                                                                                             # r19: shell + one lame
         R = t.sheet(f"lame{k}", light=lambda p: 0.22 * np.clip(p[..., 2] + 0.6, -0.5, 0.6) - 0.10 * np.clip(p[..., 0] + 0.2, -0.4, 0.4))
         if k == 0:
-            t.emblem(R, FIL_CORNERS, 0.0, -0.20, 0.66, axes=(1, 2), facing=lambda p: p[..., 0] < -0.6, aspect=0.6)    # outer face: scrolls around the gem frame
+            # r22: outer-face scrolls only on the skirt (projecting along x onto the near-horizontal cap smeared them in Studio);
+            # the cap gets its own cartouche projected along z (dense texels, sharp strokes)
+            t.emblem(R, FIL_CORNERS, 0.0, -0.22, 0.66, axes=(1, 2), facing=lambda p: (p[..., 0] < -0.6) & (p[..., 2] < 0.08), aspect=0.55)
+            t.emblem(R, FIL_TOP, -0.22, 0.0, 0.46, axes=(0, 1), facing=lambda p: p[..., 2] > 0.14, aspect=0.9)
             t.emblem(R, FIL_CREST, 0.0, -0.12, 0.34, axes=(0, 2), facing=lambda p: p[..., 1] < -0.6, aspect=0.8)   # front face
             t.emblem(R, FIL_CREST, 0.0, -0.12, 0.34, axes=(0, 2), facing=lambda p: p[..., 1] > 0.6, aspect=0.8, flip=True)
-            top = R["pos"][..., 2] > 0.16                                                                         # ridge line on the cap
-            R["col"] = np.where((top & (np.abs(R["pos"][..., 1]) < 0.025))[..., None], metal_ramp(np.clip(np.abs(R["pos"][..., 1]) / 0.025, 0, 1) * 0.6), R["col"])
         else:
             for fy, fl in ((-1, False), (1, True)):
                 t.emblem(R, DIAMOND, 0.0, -0.72, 0.09, axes=(0, 2), facing=lambda p, fy=fy: p[..., 1] * fy > 0.45, aspect=1.5, flip=fl, emit=0.8)
@@ -348,8 +354,14 @@ def cape():
     I = t.sheet("outer", inner=True, fold_k=0.9, base=(F((226, 232, 250)), F((150, 165, 210))), noise=0.03)
     t.band(I, ["u0", "u1", "v1"], 0.0, 0.07); t.put(I)
     for inner in (False, True):
-        Cc = t.sheet("collar", inner=inner, fold_k=0.6, base=(F((252, 252, 255)), F((190, 200, 232))), noise=0.05)
-        t.band(Cc, ["v0"], 0.0, 0.03, kind="metal"); t.put(Cc)
+        Cc = t.sheet("collar", inner=inner, fold_k=0.6, base=(F((252, 252, 255)), F((196, 206, 236))), noise=0.05)
+        h, w = Cc["col"].shape[:2]; rng = np.random.default_rng(13); yy, xx = np.mgrid[0:h, 0:w]; fur = np.zeros((h, w), np.float32)
+        for k in range(160):                                                    # r22: soft fur strands along the collar height
+            x0 = rng.uniform(0, w); amp = rng.uniform(3, 10); ph = rng.uniform(0, 6); wd = rng.uniform(1.5, 3.5); dark = rng.uniform(0.3, 1.0)
+            xc = x0 + amp * np.sin(yy / h * 5 + ph); dd = np.abs(xx - xc)
+            fur = np.maximum(fur, np.clip(1 - dd / wd, 0, 1) * dark)
+        Cc["col"] = Cc["col"] * (1 - 0.18 * fur[..., None]) + F((170, 186, 230)) * 0.18 * fur[..., None]
+        t.put(Cc)
     t.save(ao_k=0.75)
 
 
