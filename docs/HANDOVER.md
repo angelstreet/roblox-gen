@@ -19,7 +19,7 @@ Repo: https://github.com/angelstreet/roblox-gen (public, MIT). Local clone: `~/r
 1. DONE 2026-11-09 (MCP works, see STUDIO_TEST.md). Confirm the Studio MCP tools work; re-run `docs/studio/wear_crystal_vanguard.lua` through `execute_luau`, take front/back/side/3-4 screenshots with `screen_capture`.
 2. DONE 2026-11-09 (run back-kick clips the cape; rest OK; see STUDIO_TEST.md). Test walk/jump animation clipping (cape, sword, pauldrons), then R6 and Rthro.
 3. DONE 2026-11-09 (docs/MARKETPLACE_RULES.md, ugc_check.lua: crown and sword fail bounds + watertight). Check Roblox accessory size limits for back/shoulder/hat items (cape is 3.36 studs tall, crown 2.37 deep) from official docs; run Roblox's UGC validation tool; verify current Marketplace fees and requirements on create.roblox.com.
-4. Quality: replace the placeholder face, hair as real swept mane, real glow (emissive via SurfaceAppearance/neon parts or particles in-experience), richer shirt/pants filigree, longer flowing cape.
+4. DONE 2026-11-09 as r10 (NOTES.md Round 4; open: run-kick cape clip, hair side block). Quality: replace the placeholder face, hair as real swept mane, real glow (emissive via SurfaceAppearance/neon parts or particles in-experience), richer shirt/pants filigree, longer flowing cape.
 5. Tidewatch: fix cape tab above the mantle, rigid skirt clipping, side view.
 6. Repo: add a `run_all.sh` for tidewatch, merge the duplicated scripts in the two examples into shared modules, add an experiences (places/scripts) track.
 7. Re-run a cold Haiku and a cold Sonnet on the repo after each doc change to keep the score up; target 9/10.

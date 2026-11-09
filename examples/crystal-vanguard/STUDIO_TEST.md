@@ -87,3 +87,13 @@ All Plastic, Transparency 0; the only extra child is the engine-added `OriginalS
 To fix in the next build: crown+hair <= 1.78 wide and <= 1.19 behind its attachment (submit as Hair), closed shells;
 sword moved down >= 0.55 so it stays <= 1.41 above WaistBack, closed shells. The cape may grow ~1.6 studs longer (Back: 3.5 down Classic).
 The real validator (Save to Roblox > Avatar Asset) was not run: it is the paid upload flow.
+
+## r10 (2026-11-09, Studio MCP; shots `docs/studio/r10/`; wear script = r10 ids)
+New private uploads: crown+mane FBX 129396675939617, cape FBX 117927101168588 + texture Decal 84307101637758, sword FBX 107433499133729,
+shirt 137926471035226, pants 128873900212839, face 135398494225892, emissive masks (Decal) crown 125615870753450,
+pauldron 111757635753589, scarf 90049570495779, cape 111720663243190, sword 92076649973247.
+- `ugc_check.lua` on R6: every item passes Classic/Normal/Slender (crown as Hair), 0 open edges, all <= 3976 tris.
+- Looks (front/back/3-4): matches the r10 Blender sheet; emblem and crystals glow crisply; face reads; long cape visible beside the legs from 3/4.
+- Run 0.34 (peak back-kick): the boot still passes through the lower cape (`run_kick_clip.jpg`). Walk/jump/fall not re-shot (cape and sword changed only below/behind the r9 positions).
+- Face trap: the default R15 head is a dynamic MeshPart head; a Decal on it maps into the mesh UVs (a speck on the cheek) and its TextureID carries the default face.
+  Fix used: TextureID = "" and the face Decal on a 0.05-thick plate welded in front, Transparency 0.98 (at 1 the decal is not drawn).

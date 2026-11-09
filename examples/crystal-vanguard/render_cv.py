@@ -58,7 +58,7 @@ if args.get("preview2d") == "1":     # clothing only on the block R15 proxy
         sc.render.filepath = os.path.join(OUT, f"pv_{n}.png"); bpy.ops.render.render(write_still=True)
     sys.exit(0)
 if args.get("closeup") == "1":      # sword alone, upright, front and 3/4
-    for nm in list(ITEMS) + [o.name for o in bpy.data.objects if o.get("body") or o.name in ("torso", "armR", "armL", "legR", "legL", "head") or o.name.startswith(("Cube", "eye"))]:
+    for nm in list(ITEMS) + [o.name for o in bpy.data.objects if o.get("body") or o.name in ("torso", "armR", "armL", "legR", "legL", "head", "face") or o.name.startswith(("Cube", "eye"))]:
         if nm in bpy.data.objects: bpy.data.objects[nm].hide_render = True
     bpy.data.objects["cv_sword_display"].hide_render = False
     cam.data.ortho_scale = 5.0; sc.render.resolution_x, sc.render.resolution_y = 600, 1000

@@ -65,24 +65,61 @@ def build_crown():
     # --- hair spikes (tufts) on the dome
     def dome(phi, th, r=R + 0.02):
         return Vector((r * spow(math.sin(th), .5) * spow(math.sin(phi), .5), -r * spow(math.sin(th), .5) * spow(math.cos(phi), .5), HC + r * spow(math.cos(th), .5)))
-    # r5: messy swept-back tufts: each is a curved 3-ring blade (base -> bent mid -> tip), flowing back (+y) and up
-    NT = 64
-    for k in range(NT):
-        phi = rnd.uniform(0, 2 * math.pi) if k < 40 else rnd.uniform(0.5 * math.pi, 1.5 * math.pi)
-        th = rnd.uniform(0.15, 1.2) if k < 40 else rnd.uniform(0.7, 1.7)
-        if math.cos(phi) > 0.2 and th > 0.95: th = 0.9           # keep the forehead clear (band sits there)
-        base = dome(phi, th, R * 0.98); out = (base - Vector((0, 0, HC))).normalized()
-        sweep = Vector((rnd.uniform(-.3, .3), 0.85, 0.45 + 0.3 * (1 - th / 1.3)))
-        d = (out * 0.28 + sweep + Vector((rnd.uniform(-.2, .2), 0, rnd.uniform(0, .3)))).normalized()
-        hgt = rnd.uniform(0.38, 0.7) * (1.15 if th < 0.7 else 0.95) * (1.25 if k >= 40 else 1.0); wd = rnd.uniform(0.07, 0.12)
-        t = d.cross(Vector((0, 0, 1))).normalized(); s2 = d.cross(t); sw = ("silver", "white", "ice", "white")[k % 4]
-        bend = Vector((rnd.uniform(-.1, .1), 0.22 + rnd.uniform(0, .1), -0.05))          # tip curls further back and slightly down
-        def ring(c, w): return [b.bm.verts.new(c + (t * math.cos(a) + s2 * math.sin(a)) * w) for a in (0, math.pi / 2, math.pi, 3 * math.pi / 2)]
-        r0 = ring(base - d * 0.03, wd); r1 = ring(base + d * hgt * 0.5, wd * 0.7); tip = b.bm.verts.new(base + d * hgt + bend * hgt)
+    # r10: swept mane made of CLOSED tapered strands (5-gon rings + capped base -> watertight), four groups.
+    # Hair box (Rthro Slender/Normal, attachment = HC + 0.635): |x| <= 0.89, behind <= 1.19, front <= 0.94 -> keep x 0.86, y -0.90..1.15.
+    AZ = HC + 0.635; XMAX, YBACK, YFRONT = 0.86, 1.15, -0.90
+    def strand(path, w0, sw, sides=5):
+        """path: list of points base..tip (>= 3); ring radius tapers from w0 to 0 at the tip; base ring capped"""
+        path = [Vector((max(-XMAX, min(XMAX, p.x)), max(YFRONT, min(YBACK, p.y)), p.z)) for p in path]
+        rings = []
+        for k, c in enumerate(path[:-1]):
+            d = (path[k + 1] - c).normalized() if k == 0 else (path[k + 1] - path[k - 1]).normalized()
+            t = d.cross(Vector((0, 0, 1)) if abs(d.z) < 0.95 else Vector((1, 0, 0))).normalized(); s2 = d.cross(t)
+            w = w0 * (1 - k / (len(path) - 1)) ** 0.8
+            rings.append([b.bm.verts.new(c + (t * math.cos(2 * math.pi * q / sides) * 1.35 + s2 * math.sin(2 * math.pi * q / sides) * 0.75) * w) for q in range(sides)])
+        tip = b.bm.verts.new(path[-1]); uv = [B.SW[sw]] * 4
         b.flat_mode = 1
-        for q in range(4):
-            q2 = (q + 1) % 4; b.face([r0[q], r0[q2], r1[q2], r1[q]], [B.SW[sw]] * 4); b.face([r1[q], r1[q2], tip], [B.SW[sw]] * 3)
+        b.face(rings[0][::-1], [B.SW[sw]] * sides)                               # base cap
+        for r0, r1 in zip(rings[:-1], rings[1:]):
+            for q in range(sides):
+                q2 = (q + 1) % sides; b.face([r0[q], r0[q2], r1[q2], r1[q]], uv)
+        for q in range(sides):
+            b.face([rings[-1][q], rings[-1][(q + 1) % sides], tip], uv[:3])
         b.flat_mode = 0
+    def bez(p0, p1, p2, n=3):
+        return [p0 * (1 - t) ** 2 + p1 * 2 * t * (1 - t) + p2 * t * t for t in (k / n for k in range(n + 1))]
+    cols = ("white", "silver", "ice", "white", "silver")
+    # 1) crown of swept-up spikes on the top (concept: spiky white hair rising above the band, sweeping back)
+    for k in range(28):
+        phi = rnd.uniform(-math.pi, math.pi); th = rnd.uniform(0.05, 0.85)
+        base = dome(phi, th, R * 0.97); out = (base - Vector((0, 0, HC))).normalized()
+        L = rnd.uniform(0.38, 0.62) * (1.1 if math.cos(phi) > 0 else 0.95)
+        mid = base + out * L * 0.45 + Vector((rnd.uniform(-.06, .06), 0.10, 0.22)) * L * 2
+        tip = mid + Vector((out.x * 0.15, 0.30 + 0.1 * rnd.random(), 0.12)) * L * 1.6
+        strand(bez(base - out * 0.04, mid, tip), rnd.uniform(0.07, 0.10), cols[k % 5])
+    # 2) back mane: spiky layered locks that follow the back of the head down to the nape; tips flick outward and up
+    #    (staggered lengths, varied side angle) so the back reads as separate spikes, not a curtain
+    for k in range(20):
+        side = (k % 5 - 2) / 2.0 + rnd.uniform(-.15, .15)                      # -1..1 across the back
+        phi = math.pi - side * 1.1; th = rnd.uniform(0.5, 1.25) if k < 10 else rnd.uniform(1.05, 1.45)
+        base = dome(phi, th, R * 0.96)
+        zt = HC - (rnd.uniform(0.05, 0.25) if k < 10 else rnd.uniform(0.30, 0.55))
+        yb = min(YBACK - 0.02, 0.74 + 0.22 * (1 - abs(side)) + rnd.uniform(0, .12))
+        mid = Vector((base.x * 1.1 - side * 0.05, yb, (base.z + zt) / 2 + 0.05))
+        tip = Vector((base.x * 1.05 - side * 0.22, yb + 0.02, zt))
+        strand(bez(base, mid, tip), rnd.uniform(0.08, 0.115), cols[(k + 2) % 5])
+    # 3) side locks: thin, set behind the temple so the face stays clear, ending at cheek height
+    for sg in (-1, 1):
+        for k in range(2):
+            phi = sg * math.radians(100 + 12 * k); base = dome(phi, rnd.uniform(1.0, 1.25), R * 0.96)
+            tip = Vector((sg * 0.69, base.y + 0.08, HC - 0.12 - 0.08 * k))
+            mid = Vector((sg * 0.78, (base.y + tip.y) / 2, (base.z + tip.z) / 2 + 0.05))
+            strand(bez(base, mid, tip), 0.065, cols[k % 5])
+    # 4) fringe: short spikes poking out under the band over the forehead (eyes at HC+0.04 stay clear)
+    for k, ang in enumerate((-38, -18, 0, 16, 34)):
+        a = math.radians(ang); base = Vector((0.62 * math.sin(a), -0.62 * math.cos(a), HC + 0.47))
+        tip = Vector((0.66 * math.sin(a) + 0.05 * (1 if ang >= 0 else -1), -0.67 * math.cos(a), HC + rnd.uniform(0.22, 0.30)))
+        strand(bez(base, (base + tip) / 2 + Vector((0, -0.05, 0)), tip), 0.075, cols[k % 5])
     # --- gold band (closed ring of 2 rows) around the forehead + rim
     zb0, zb1 = HC + 0.40, HC + 0.56; NUb = 40
     g = []
@@ -105,9 +142,7 @@ def build_crown():
         base = Vector((r * math.sin(a), -r * math.cos(a), zt)); out = Vector((math.sin(a), -math.cos(a), 0))
         axis = (Vector((0, 0, 1)) + out * 0.16).normalized()
         bipyramid(b, base, axis, 0.085 + 0.1 * hh * 0.4 + (0.03 if ang == 0 else 0), hh, 6)
-    # temple wings: two angled crystals
-    for sg in (-1, 1):
-        base = Vector((sg * 0.70, -0.1, HC + 0.46)); bipyramid(b, base, Vector((sg * 0.8, -0.1, 0.5)), 0.07, 0.5, 6)
+    # r10: temple wings removed (they made the item 2.24 wide; Hair limit 1.78)
     ob = b.finish(); tex_material(ob.data, "cv_crown"); return ob
 
 
@@ -178,7 +213,9 @@ def build_pauldron():
 # ------------------------------------------------------------------ CAPE (BodyBackAttachment) + fur collar
 def build_cape():
     b = Builder("cv_cape"); NU, NV = 28, 26; grid = []
-    top_w, bot_w, z0, z1, y0, flare = 1.50, 2.25, -0.30, -2.50, 0.60, 0.50   # r3: smaller (was 1.95/3.35/-4.10/0.80)
+    # r10: long flowing cape like the concept (hem near the ankles), flared back so the run back-kick only grazes it.
+    # Back box (Slender): 3.95 down / 2.886 behind BodyBackAttachment (0, 0.502, -1.061) -> lowest point -3.95 is 2.9 down.
+    top_w, bot_w, z0, z1, y0, flare = 1.50, 2.55, -0.30, -3.70, 0.60, 1.15
     for j in range(NV + 1):
         v = j / NV; row = []
         for i in range(NU + 1):
@@ -188,8 +225,8 @@ def build_cape():
             z = z0 + (z1 - z0) * v + scal + ctr
             wrap = 0.26 * (2 * (u - 0.5)) ** 2 * (1 - v) ** 2
             ph = (u - 0.5) * 2 * math.pi * 3.5 * (1 + 0.25 * v) + 0.5
-            d = 0.07 * math.sin(ph) * (0.15 + 0.85 * v ** 1.3)
-            y = y0 + flare * v ** 1.5 - wrap + d + 0.14 * (2 * (u - 0.5)) ** 2 * v
+            d = 0.09 * math.sin(ph) * (0.15 + 0.85 * v ** 1.3)
+            y = y0 + flare * v ** 1.8 - wrap + d + 0.14 * (2 * (u - 0.5)) ** 2 * v
             row.append(Vector((x, y, z)))
         grid.append(row)
     b.sheet(grid, 0.03, (0, 0.08, 1, 1), "navy", rim="gold", normal_hint=lambda p: Vector((0, 1, 0)))
@@ -291,6 +328,7 @@ def build_sword():
         for k in range(N):
             k2 = (k + 1) % N; sh = [0.92, 0.7, 0.3, 0.15, 0.4, 0.97, 0.9, 0.3, 0.12, 0.45][k] + 0.03 * math.sin(r * 1.7)
             addf([rings[r][k], rings[r][k2], rings[r + 1][k2], rings[r + 1][k]][::-1] if False else [rings[r][k2], rings[r][k], rings[r + 1][k], rings[r + 1][k2]], sh)
+    addf(rings[0][::-1], 0.5)                       # r10: close the blade base (watertight)
     for k in range(N):
         k2 = (k + 1) % N; addf([rings[-1][k2], rings[-1][k], tipv], [0.92, 0.7, 0.3, 0.15, 0.4, 0.97, 0.9, 0.3, 0.12, 0.45][k])
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
@@ -306,9 +344,12 @@ def build_sword():
 
 def place_sword(ob):
     """wearable pose: pommel low on the back (WaistBackAttachment frame is the export origin), blade rising diagonally over the right shoulder"""
-    R = Matrix.Rotation(math.radians(-36), 3, "Y") @ Matrix.Rotation(math.radians(6.5), 3, "X"); sc = 0.85
+    R = Matrix.Rotation(math.radians(-36), 3, "Y") @ Matrix.Rotation(math.radians(6.5), 3, "X"); sc = 0.80
     P0 = Vector((0.80, 1.40, -2.95))   # r7: y 1.95 -> 1.80 (closer to the smaller cape; 0 BVH overlaps, see clip_check.py)
     ob.data.transform(Matrix.Translation(P0) @ (R.to_4x4() @ Matrix.Scale(sc, 4)))
+    # r10: Waist box (Slender) allows only 1.414 up from WaistBackAttachment (z -2.098): drop the sword so its top is 1.36 up
+    ztop = max(v.co.z for v in ob.data.vertices); dz = min(0.0, (-2.098 + 1.36) - ztop)
+    ob.data.transform(Matrix.Translation((0, 0, dz))); print("sword lowered", round(dz, 3))
 
 
 def body_proxy(shirt_png, pants_png):
@@ -321,11 +362,17 @@ def body_proxy(shirt_png, pants_png):
     bv = hd.modifiers.new("b", "BEVEL"); bv.width = 0.14; bv.segments = 3
     m = bpy.data.materials.new("skin"); m.use_nodes = True; m.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.78, 0.55, 0.42, 1)
     hd.data.materials.append(m)
-    # simple face: eyes + brows (dark quads) on the front of the head
-    for sg in (-1, 1):
-        for (dz, w, h) in ((0.04, 0.16, 0.14), (0.20, 0.2, 0.04)):
-            bpy.ops.mesh.primitive_cube_add(size=1); e = bpy.context.object; e.scale = (w, 0.01, h); e.location = (sg * 0.22, -0.595, HC + dz)
-            em = bpy.data.materials.new("eye"); em.use_nodes = True; em.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.02, 0.02, 0.03, 1); e.data.materials.append(em)
+    # r10: face decal (make_face_cv.py) on a plane just in front of the head's front face
+    fp = os.path.join(OUT, "cv_face.png")
+    if os.path.exists(fp):
+        bpy.ops.mesh.primitive_plane_add(size=1); fc = bpy.context.object; fc.name = "face"
+        fc.rotation_euler = (math.radians(90), 0, 0); fc.scale = (1.16, 1.18, 1.0); fc.location = (0, -0.585, HC)
+        fm = bpy.data.materials.new("face"); fm.use_nodes = True; nt = fm.node_tree; bs = nt.nodes["Principled BSDF"]
+        ti = nt.nodes.new("ShaderNodeTexImage"); ti.image = bpy.data.images.load(fp)
+        nt.links.new(ti.outputs["Color"], bs.inputs["Base Color"]); nt.links.new(ti.outputs["Alpha"], bs.inputs["Alpha"])
+        try: fm.surface_render_method = "DITHERED"
+        except Exception: fm.blend_method = "HASHED"
+        fc.data.materials.append(fm); objs.append(fc)
     return objs + [hd]
 
 

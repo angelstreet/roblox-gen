@@ -87,7 +87,7 @@ def cape():
     # vertical gold edge lines
     d.line([(8, 0), (8, H)], fill=GOLD + (255,), width=10); d.line([(N - 8, 0), (N - 8, H)], fill=GOLD + (255,), width=10)
     # glowing crystal emblem (aspect compensated: cape ~2.6 wide x 3.8 long on a 1024 x 942 rect)
-    cx, cy = N // 2, int(H * 0.40); kx, ky = 1.0, 1.75
+    cx, cy = N // 2, int(H * 0.33); kx, ky = 1.0, 1.75   # r10: higher, the longer cape puts the sword over the lower third
     glow = Image.new("RGBA", (N, N), (0, 0, 0, 0)); gd = ImageDraw.Draw(glow)
     gd.ellipse([cx - 230, cy - 300, cx + 230, cy + 300], fill=(150, 225, 255, 255)); glow = glow.filter(ImageFilter.GaussianBlur(80))
     ga = np.array(glow); ga[..., 3] = (ga[..., 3] * 0.9).astype(np.uint8); im = Image.alpha_composite(im.convert("RGBA"), Image.fromarray(ga)); d = ImageDraw.Draw(im)
@@ -105,6 +105,18 @@ def cape():
     d.line([(cx, cy + 150), (cx, cy + 330)], fill=(200, 240, 255, 255), width=5)
     core = Image.new("RGBA", (N, N), (0, 0, 0, 0)); cd = ImageDraw.Draw(core); cd.ellipse([cx - 50, cy - 95, cx + 50, cy + 80], fill=(255, 255, 255, 255)); core = core.filter(ImageFilter.GaussianBlur(26))
     im = Image.alpha_composite(im.convert("RGBA"), core); d = ImageDraw.Draw(im)
+    # r10: emissive mask = the emblem shapes only (crisp crystal, no glow cloud, no white collar)
+    ek = Image.new("L", (N, N), 0); ed = ImageDraw.Draw(ek)
+    ed.polygon([(cx, cy - 178), (cx + 96, cy), (cx, cy + 151), (cx - 96, cy)], fill=110)          # gold frame: faint
+    ed.polygon(P, fill=255)
+    for sg in (-1, 1):
+        for (ox, oy, sz) in ((150, -60, 0.5), (210, 90, 0.4), (130, 180, 0.35)):
+            x = cx + sg * ox; y = cy + oy; r = 40 * sz
+            ed.polygon([(x, y - r * 2.4), (x + r, y), (x, y + r * 1.8), (x - r, y)], fill=230)
+        ed.line([(cx + sg * 90, cy - 40), (cx + sg * 150, cy - 70), (cx + sg * 215, cy - 150)], fill=200, width=4)
+        ed.line([(cx + sg * 90, cy + 60), (cx + sg * 160, cy + 100), (cx + sg * 215, cy + 90)], fill=200, width=4)
+    ed.line([(cx, cy + 150), (cx, cy + 330)], fill=200, width=5)
+    _emit_cells(ed); ek.filter(ImageFilter.GaussianBlur(1.5)).save(os.path.join(OUT, "emit_cv_cape.png")); print("emit cv_cape (shapes)")
     # re-stamp the swatch strip (the emblem glow could have touched it)
     for k, col in enumerate(STRIP): d.rectangle([k * N // 8, int(N * 0.94), (k + 1) * N // 8, N], fill=col + (255,))
     save(im, "cv_cape")
@@ -126,5 +138,22 @@ def sword():
     save(im, "cv_sword")
 
 
+def _emit_cells(ed):
+    """crystal (cell 2) full glow, sapphire (cell 5) half: the swatch strip drives the crystal facets of every mesh.
+    ice (cell 4) stays dark: the hair strands use it."""
+    for k, val in ((2, 255), (5, 140)): ed.rectangle([k * N // 8, int(N * 0.94), (k + 1) * N // 8, N], fill=val)
+
+
+def emissive_masks():
+    """r10: grayscale emissive masks (white = glows) for SurfaceAppearance.EmissiveMaskContent -> out/emit_<item>.png.
+    Swatch meshes: crystal/sapphire cells only (not colour thresholds: painted halos would glow as blobs).
+    Sword: blade/core/crystal bands. Cape: drawn in cape() from the emblem shapes."""
+    for name in ("cv_crown", "cv_pauldron_r", "cv_scarf"):
+        ek = Image.new("L", (N, N), 0); _emit_cells(ImageDraw.Draw(ek)); ek.save(os.path.join(OUT, f"emit_{name}.png")); print("emit", name)
+    ek = Image.new("L", (N, N), 0); ed = ImageDraw.Draw(ek)
+    for k, val in ((0, 200), (1, 255), (5, 255)): ed.rectangle([0, sv((k + 1) / 8), N, sv(k / 8)], fill=val)
+    ek.save(os.path.join(OUT, "emit_cv_sword.png")); print("emit cv_sword")
+
+
 if __name__ == "__main__":
-    crown(); pauldron(); scarf(); cape(); sword()
+    crown(); pauldron(); scarf(); cape(); sword(); emissive_masks()
