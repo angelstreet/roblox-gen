@@ -188,7 +188,9 @@ def iso_rect(grid, u0, u1, v1, S, min_frac=0.5, v_scale=1.0):
     for j in range(NV):
         col = sum((grid[j + 1][i] - grid[j][i]).length for i in range(NU + 1)) / (NU + 1)
         bands.append(col * wpx / ((eff[j] + eff[j + 1]) / 2))
-    tot = sum(bands) * v_scale; cum = [0.0]                       # v_scale > 1: a little more v density (for faces whose columns are stretched, e.g. a pointed hem)
+    tot = sum(bands) * v_scale; cum = [0.0]
+    if tot / S > v1 + 1e-6:                                        # rect would run off the atlas (silently wrapped before)
+        raise ValueError(f"iso_rect: needs {tot:.0f} px of height but only {v1 * S:.0f} px are left above v=0; narrow u0..u1 or use a bigger atlas")                       # v_scale > 1: a little more v density (for faces whose columns are stretched, e.g. a pointed hem)
     for h in bands: cum.append(cum[-1] + h * v_scale / tot)
     return (u0, v1 - tot / S, u1, v1), cum, tot / S
 

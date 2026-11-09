@@ -32,8 +32,17 @@ Axis: the starter sword imports lying along **-Y** (tip y=-4.12, pommel y=+0.14)
 | `body_proxy(shirt_png, pants_png, face_png=None, head_c=0.576)` | textured block R15 body (+ face plane) for renders and clip checks |
 | `tex_material(me, name)`, `tris(ob)` | empty node material for painters; triangle count |
 
+## Swatch names the helpers expect (alias them in your set's SW, as build_cv.py does)
+`extrude(..., uv_side="bronze")`, `gem(col="aqua")`, `sheet(rim="bronze")` default to Tidewatch names; `bipyramid()` defaults to
+`crystal`, `ice`, `sapphire`. A new set either keeps Crystal Vanguard's 8 cells (gold, silver, crystal, navy, ice, sapphire,
+white, gold_dark + aliases bronze/pearl/aqua/dark) and recolours them in its painter, or passes its own names explicitly.
+
+## Long thin parts (staff shafts, antlers, tubes)
+Build them as `sheet()` grids around a path (closed_u=True); for isotropic UVs give the rect a u width proportional to the
+circumference: `iso_rect()` computes the height, and raises if the rect would not fit; widen u0..u1 rather than shrink it.
+
 ## Checks for any set (run them every round; crystal-vanguard/run_all.sh runs both at the end)
 - `python3 scripts/texel_density.py examples/<set>`: u/v texel density per painted region, exit 1 outside 0.8..1.25.
-- `blender -b examples/<set>/out/<build>.blend -P scripts/clip_check.py`: every item pair + item vs body overlap counts.
+- `blender -b examples/<set>/out/<build>.blend -P scripts/clip_check.py` (the .blend your build_*.py saves, e.g. out/cv_build.blend): every item pair + item vs body overlap counts.
 - Export check: copy `render_cv.py`'s export block (tris, open edges, size box per item vs `LIMITS`, PASS/FAIL).
 - Blender exits 0 when a script raises: always call it with `--python-exit-code 1` in run scripts.

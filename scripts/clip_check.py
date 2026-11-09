@@ -1,5 +1,5 @@
 """Interpenetration check for ANY set (run inside Blender on the set's build .blend):
-    blender -b examples/<set>/out/<set>_build.blend -P scripts/clip_check.py [-- items=a,b,c]
+    blender -b examples/<set>/out/<build>.blend -P scripts/clip_check.py [-- items=a,b,c]   (the .blend the set's build script saves)
 Prints BVH triangle-pair overlap counts for every pair of accessory items and for every item against the block body proxy
 (torso, armR, armL, legR, legL, head). Items default to every visible mesh that is not a body part. 0 = no contact.
 Small counts where an item is meant to sit ON the body (collar on the torso, shoulder piece around the arm) are normal;

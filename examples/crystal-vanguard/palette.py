@@ -9,6 +9,8 @@ Rule per family: hue shift in degrees (new hue = authored hue + shift, wraps at 
 Authored hues: metal ~45 (gold), plate ~225 (pale blue-white), cloth ~225-230 (navy), crystal ~200-225 (cyan to royal blue).
 Which family a colour lands in (see family()): neutral if saturation < 0.06 (pure whites/greys/black never change);
 metal if hue 15-75; plate if saturation < 0.36 and value > 0.55; cloth if value < 0.62; everything else crystal.
+Families are hue/saturation bins, so two authored colours in the same bin cannot be separated by THEME (e.g. a new set's
+bark brown, hue ~29, lands in the same "metal" bin as gold). Then keep THEME at identity and author the colours directly.
 Traps: the cape's bright royal-blue gradient and the sword are CRYSTAL (bright), only the dark navy is CLOTH, so shift cloth
 and crystal together or the cape goes a different colour from the scarf. Hair: white/silver strands are neutral (stay white),
 the ice-tinted strands follow PLATE. The render backdrop (render_cv.py), sheet header and title (compose_cv.py) follow the theme too.

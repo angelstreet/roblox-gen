@@ -77,7 +77,7 @@ Details, measurements and every trap found are in the skill file.
 ## Make your own set
 Fast path (recommended, ~1 min per build). Example: a set called "Ember Sentinel" in `examples/ember-sentinel/`.
 1. **Copy** `examples/crystal-vanguard/` to `examples/<your-set>/` (keep it two levels deep: scripts import `../../lib`
-   and the sword reads `../../starter/crystal-vanguard/3d/*.glb`). In the copy **delete** the old release files and notes:
+   and the sword reads `../../starter/crystal-vanguard/3d/*.glb`; a set without that sword replaces `build_sword()` and the GLB load). In the copy **delete** the old release files and notes:
    `*.fbx`, `crystal_vanguard_*.png`, `render_sheet.png`, `2d_preview.png`, `NOTES.md`, `STUDIO_TEST.md`, `out/`.
    `run_all.sh` regenerates the release files under your names. The script/object names (`*_cv.py`, `cv_*` objects, swatch
    names like `sapphire`) stay as they are by design; only `palette.py` names reach the outputs.
