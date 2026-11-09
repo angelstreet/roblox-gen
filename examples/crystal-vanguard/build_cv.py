@@ -43,7 +43,7 @@ def bipyramid(b, base, axis, w, h, sides=6, mid=0.35, swatches=("crystal", "ice"
 def build_crown():
     b = Builder("cv_crown"); rnd = random.Random(11)
     # --- hair cap: superellipsoid dome, hem higher at the front (forehead fringe), lower at the back
-    NU, NV, E = 36, 8, 4.0; R = 0.71
+    NU, NV, E = 36, 8, 3.2; R = 0.71
     def hem_z(phi):   # phi=0 front(-y). hem height above head centre
         c = math.cos(phi); return HC + (0.26 if c > 0 else -0.28) * abs(c) ** 0.7 * (1 if c > 0 else 1) + (0.0 if c > 0 else 0) - (0.0)
     grid = []
@@ -65,17 +65,23 @@ def build_crown():
     # --- hair spikes (tufts) on the dome
     def dome(phi, th, r=R + 0.02):
         return Vector((r * spow(math.sin(th), .5) * spow(math.sin(phi), .5), -r * spow(math.sin(th), .5) * spow(math.cos(phi), .5), HC + r * spow(math.cos(th), .5)))
-    for k in range(46):
-        phi = rnd.uniform(0, 2 * math.pi) if k < 26 else rnd.uniform(0.5 * math.pi, 1.5 * math.pi); th = rnd.uniform(0.2, 1.15) if k < 26 else rnd.uniform(0.7, 1.7)
-        if math.cos(phi) > 0.2 and th > 0.95: th = 0.9
+    # r5: messy swept-back tufts: each is a curved 3-ring blade (base -> bent mid -> tip), flowing back (+y) and up
+    NT = 64
+    for k in range(NT):
+        phi = rnd.uniform(0, 2 * math.pi) if k < 40 else rnd.uniform(0.5 * math.pi, 1.5 * math.pi)
+        th = rnd.uniform(0.15, 1.2) if k < 40 else rnd.uniform(0.7, 1.7)
+        if math.cos(phi) > 0.2 and th > 0.95: th = 0.9           # keep the forehead clear (band sits there)
         base = dome(phi, th, R * 0.98); out = (base - Vector((0, 0, HC))).normalized()
-        d = (out + Vector((0, 0.35, 0.55)) + Vector((rnd.uniform(-.25, .25), rnd.uniform(-.2, .2), rnd.uniform(0, .3)))).normalized()
-        hgt = rnd.uniform(0.28, 0.5) * (1.1 if th < 0.6 else 0.9) * (1.5 if k >= 26 else 1.0); wd = rnd.uniform(0.07, 0.11)
-        t = d.cross(Vector((0, 0, 1))).normalized(); s = d.cross(t); sw = ("silver", "white", "ice")[k % 3]
-        ring = [b.bm.verts.new(base - d * 0.03 + (t * math.cos(a) + s * math.sin(a)) * wd) for a in (0, math.pi / 2, math.pi, 3 * math.pi / 2)]
-        tip = b.bm.verts.new(base + d * hgt + Vector((0, 0.05, 0.0)))
+        sweep = Vector((rnd.uniform(-.3, .3), 0.85, 0.45 + 0.3 * (1 - th / 1.3)))
+        d = (out * 0.28 + sweep + Vector((rnd.uniform(-.2, .2), 0, rnd.uniform(0, .3)))).normalized()
+        hgt = rnd.uniform(0.38, 0.7) * (1.15 if th < 0.7 else 0.95) * (1.25 if k >= 40 else 1.0); wd = rnd.uniform(0.07, 0.12)
+        t = d.cross(Vector((0, 0, 1))).normalized(); s2 = d.cross(t); sw = ("silver", "white", "ice", "white")[k % 4]
+        bend = Vector((rnd.uniform(-.1, .1), 0.22 + rnd.uniform(0, .1), -0.05))          # tip curls further back and slightly down
+        def ring(c, w): return [b.bm.verts.new(c + (t * math.cos(a) + s2 * math.sin(a)) * w) for a in (0, math.pi / 2, math.pi, 3 * math.pi / 2)]
+        r0 = ring(base - d * 0.03, wd); r1 = ring(base + d * hgt * 0.5, wd * 0.7); tip = b.bm.verts.new(base + d * hgt + bend * hgt)
         b.flat_mode = 1
-        for q in range(4): b.face([ring[q], ring[(q + 1) % 4], tip], [B.SW[sw]] * 3)
+        for q in range(4):
+            q2 = (q + 1) % 4; b.face([r0[q], r0[q2], r1[q2], r1[q]], [B.SW[sw]] * 4); b.face([r1[q], r1[q2], tip], [B.SW[sw]] * 3)
         b.flat_mode = 0
     # --- gold band (closed ring of 2 rows) around the forehead + rim
     zb0, zb1 = HC + 0.40, HC + 0.56; NUb = 40
@@ -107,54 +113,78 @@ def build_crown():
 
 # ------------------------------------------------------------------ PAULDRON (Right/LeftShoulderAttachment)
 def build_pauldron():
+    """r2: 3 separate layered plates (gap between tiers shows a navy underlayer), sharp gold rim ring on each tier, big gem in a gold frame."""
     b = Builder("cv_pauldron_r"); E = 4.0
-    tiers = [(0.26, -0.42, 0.66, 0.66, True, 0.70, 1.00), (-0.18, -0.76, 0.76, 0.74, False, 0.45, 0.68), (-0.50, -1.08, 0.84, 0.80, False, 0.20, 0.43)]
-    for k, (zt, zh, hx, hy, top, v0, v1) in enumerate(tiers):
-        NU = 30; grid = []
-        if top:
+    # (z_top, z_bottom, half_x, half_y, texture v0, v1)  -- visible gaps 0.10 between tiers, each lower tier wider
+    tiers = [(0.26, -0.28, 0.66, 0.66, 0.70, 1.00), (-0.40, -0.74, 0.70, 0.70, 0.45, 0.68), (-0.86, -1.18, 0.78, 0.78, 0.20, 0.43)]
+    NU = 26
+    # navy underlayer (visible in the gaps)
+    g = []
+    for z in (-0.10, -0.55, -1.05, -1.18):
+        g.append([Vector((0.58 * spow(math.sin(2 * math.pi * i / NU), 2 / E), 0.58 * spow(math.cos(2 * math.pi * i / NU), 2 / E), z)) for i in range(NU + 1)])
+    b.sheet(g, 0.05, cell("navy"), "navy", rim="navy", closed_u=True, normal_hint=lambda p: Vector((p.x, p.y, 0)))
+    def rim_ring(z, hx, hy, zs=0.0, arc=None, pt=0.0):
+        """sharp gold rim: 3-row ring, protrudes 0.05 beyond the plate, pointed at the outer side"""
+        g = []
+        for dz, dr in ((0.07, 0.0), (0.0, 0.055), (-0.04, 0.045)):
+            row = []
+            for i in range(NU + 1):
+                if arc: phi = math.radians(arc[0]) + math.radians(arc[1]) * i / NU
+                else: phi = 2 * math.pi * i / NU
+                s, c = math.sin(phi), math.cos(phi); inner = sm((s + 0.2) / 1.2) if arc is None else 0
+                zz = z + dz - (0.05 + 0.35 * inner) * 0 - pt * max(0, -s) ** 3
+                if arc is None: zz = z + dz + (0.05 - z) * 0 - 0.0
+                row.append(Vector(((hx + dr) * spow(s, 2 / E), (hy + dr) * spow(c, 2 / E), zz)))
+            g.append(row)
+        b.sheet(g, 0.03, cell("gold"), "gold_dark", rim="gold", closed_u=(arc is None), normal_hint=lambda p: Vector((p.x, p.y, 0)))
+    for k, (zt, zb, hx, hy, v0, v1) in enumerate(tiers):
+        grid = []
+        if k == 0:
             NV = 12
             for j in range(NV + 1):
                 v = j / NV; row = []
                 for i in range(NU + 1):
-                    phi = 2 * math.pi * i / NU; s, c = math.sin(phi), math.cos(phi); inner = sm((s + 0.2) / 1.2)
-                    if v < 0.4:
-                        t = v / 0.4; r = math.sin(t * math.pi / 2); z = zt - 0.08 * (1 - math.cos(t * math.pi / 2))   # r4: flatter dome (was 0.17)
+                    phi = 2 * math.pi * i / NU; s, c = math.sin(phi), math.cos(phi)
+                    if v < 0.45:
+                        t = v / 0.45; r = math.sin(t * math.pi / 2); z = zt - 0.10 * (1 - math.cos(t * math.pi / 2))
                     else:
-                        t = (v - 0.4) / 0.6; r = 1.0 + 0.05 * t; zb = zh + (0.05 - zh) * inner ** 1.5; z = (zt - 0.08) + (zb - (zt - 0.08)) * t
-                    p = Vector((hx * (1 - 0.18 * inner) * r * spow(s, 2 / E), hy * r * spow(c, 2 / E), z))
+                        t = (v - 0.45) / 0.55; r = 1.0 + 0.04 * t; z = (zt - 0.10) + (zb - (zt - 0.10)) * t
+                    p = Vector((hx * r * spow(s, 2 / E), hy * r * spow(c, 2 / E), z))
                     row.append(p if j else Vector((0, 0, zt)))
                 grid.append(row)
-            b.sheet(grid, 0.09, (0.0, v0, 0.6, v1), "silver", rim="gold", closed_u=True, pole_row0=True, normal_hint=lambda p: Vector((p.x, p.y, p.z + 0.3)))   # r4: thicker plate, rim shows
+            b.sheet(grid, 0.07, (0.0, v0, 0.6, v1), "silver", rim="silver", closed_u=True, pole_row0=True, normal_hint=lambda p: Vector((p.x, p.y, p.z + 0.3)))
+            rim_ring(zb, hx * 1.04, hy * 1.04)
         else:
-            NV = 6
+            NV = 5
             for j in range(NV + 1):
                 v = j / NV; row = []
                 for i in range(NU + 1):
                     phi = math.radians(205) + math.radians(310) * i / NU; s, c = math.sin(phi), math.cos(phi)
-                    z = zt + (zh - zt) * v; r = 0.80 + 0.20 * math.sin(v * math.pi / 2)
-                    # pointed hem at the outer side: plates flare into a point
-                    pt = 0.16 * max(0, -s) ** 3 * v
+                    z = zt + (zb - zt) * v; r = 0.90 + 0.14 * math.sin(v * math.pi / 2)
+                    pt = 0.20 * max(0, -s) ** 3 * v
                     row.append(Vector((hx * r * spow(s, 2 / E), hy * r * spow(c, 2 / E), z - pt)))
                 grid.append(row)
-            b.sheet(grid, 0.06, (0.0, v0, 0.6, v1), "silver", rim="gold", normal_hint=lambda p: Vector((p.x, p.y, 0)))
-    # gem set in a gold diamond on the outer face, plus 3 crystal shards on top
-    cen = Vector((-0.80, -0.02, -0.18))
-    b.gem(cen, 0.17, 0.26, Vector((-1, -0.1, 0)), "crystal")   # r4: bigger gem (was 0.10 x 0.17)
-    for dx, hh, tilt in ((-0.28, 0.46, -0.25), (0.0, 0.38, 0.0), (0.25, 0.32, 0.2)):
-        bipyramid(b, Vector((dx * 0.8 - 0.05, 0.05, 0.1)), Vector((tilt * 0.6, 0.15, 1.0)), 0.075, hh, 6)
+            b.sheet(grid, 0.06, (0.0, v0, 0.6, v1), "silver", rim="silver", normal_hint=lambda p: Vector((p.x, p.y, 0)))
+            rim_ring(zb, hx * 1.04, hy * 1.04, arc=(205, 310), pt=0.20)
+    # big gem in a gold diamond frame on the outer face of the middle tier
+    cen = Vector((-0.80, -0.02, -0.57))
+    b.extrude([(0, 0.40), (0.26, 0), (0, -0.40), (-0.26, 0)], Vector((-0.74, -0.02, -0.57)), Vector((0, 1, 0)), Vector((0, 0, 1)), 0.07, 0.02, "gold")
+    b.gem(cen + Vector((-0.04, 0, 0)), 0.17, 0.30, Vector((-1, -0.05, 0)), "crystal")
+    for dx, hh, tilt in ((-0.26, 0.40, -0.25), (0.0, 0.34, 0.0), (0.24, 0.28, 0.2)):
+        bipyramid(b, Vector((dx * 0.8 - 0.05, 0.05, 0.1)), Vector((tilt * 0.6, 0.15, 1.0)), 0.07, hh, 6)
     ob = b.finish(); tex_material(ob.data, "cv_pauldron_r"); return ob
 
 
 # ------------------------------------------------------------------ CAPE (BodyBackAttachment) + fur collar
 def build_cape():
     b = Builder("cv_cape"); NU, NV = 28, 26; grid = []
-    top_w, bot_w, z0, z1, y0, flare = 1.95, 3.35, -0.30, -4.10, 0.60, 0.80
+    top_w, bot_w, z0, z1, y0, flare = 1.50, 2.25, -0.30, -2.50, 0.60, 0.50   # r3: smaller (was 1.95/3.35/-4.10/0.80)
     for j in range(NV + 1):
         v = j / NV; row = []
         for i in range(NU + 1):
             u = i / NU; x = (u - 0.5) * (top_w + (bot_w - top_w) * v ** 1.15)
-            scal = -0.26 * (1 - abs(math.sin(u * math.pi * 6))) * sm((v - 0.85) / 0.15)
-            ctr = -0.40 * max(0, 1 - abs(2 * u - 1) * 4.5) * sm((v - 0.85) / 0.15)    # long centre point
+            scal = -0.20 * (1 - abs(math.sin(u * math.pi * 6))) * sm((v - 0.85) / 0.15)
+            ctr = -0.25 * max(0, 1 - abs(2 * u - 1) * 4.5) * sm((v - 0.85) / 0.15)    # long centre point
             z = z0 + (z1 - z0) * v + scal + ctr
             wrap = 0.26 * (2 * (u - 0.5)) ** 2 * (1 - v) ** 2
             ph = (u - 0.5) * 2 * math.pi * 3.5 * (1 + 0.25 * v) + 0.5
@@ -181,29 +211,30 @@ def build_cape():
 
 # ------------------------------------------------------------------ SCARF (NeckAttachment)
 def build_scarf():
-    b = Builder("cv_scarf"); NU = 40; grid = []
-    rows = [(0.30, 0.66, 0.64), (0.22, 0.70, 0.66), (0.05, 0.80, 0.68), (-0.15, 0.92, 0.70), (-0.34, 1.04, 0.72), (-0.44, 1.08, 0.74)]
+    """r4: small neat neck scarf (ring around the head base, sits on the shoulders), short tail on the chest, gold clasp + small gem."""
+    b = Builder("cv_scarf"); NU = 32; grid = []
+    rows = [(0.34, 0.62, 0.60), (0.24, 0.67, 0.64), (0.10, 0.76, 0.68), (-0.02, 0.84, 0.72), (-0.07, 0.84, 0.72)]
     for j, (z, rx, ry) in enumerate(rows):
         row = []
         for i in range(NU + 1):
             phi = math.pi + 2 * math.pi * i / NU; s, c = math.sin(phi), math.cos(phi)
-            d = 0.025 * math.sin(10 * phi + 0.4) * (0.3 + j / 5) + (0.05 if j == 3 and abs(c) > 0.9 else 0)
+            d = 0.02 * math.sin(8 * phi + 0.4) * (0.3 + j / 5)
             row.append(Vector(((rx + d) * spow(s, 2 / 3.0), -(ry + d) * spow(c, 2 / 3.0), z)))
         grid.append(row)
     b.sheet(grid, 0.04, (0, 0.36, 1, 1), "navy", rim="navy", closed_u=True, normal_hint=lambda p: Vector((p.x, p.y, 0.1)))
-    # V front lappet hanging over the chest, gold edge
-    NU2, NV2 = 6, 8; g2 = []
+    # short tail, off-centre to the left of the clasp, lying on the chest
+    NU2, NV2 = 4, 6; g2 = []
     for j in range(NV2 + 1):
         v = j / NV2; row = []
         for i in range(NU2 + 1):
-            u = i / NU2; half = 0.40 * (1 - v) ** 0.9 + 0.03
-            row.append(Vector(((u - 0.5) * 2 * half, -0.77 - 0.06 * v, -0.30 - 0.85 * v)))
+            u = i / NU2; half = 0.13 * (1 - 0.35 * v)
+            row.append(Vector((0.22 + (u - 0.5) * 2 * half, -0.74 + 0.17 * v - 0.0, 0.02 - 0.62 * v)))
         g2.append(row)
     b.sheet(g2, 0.03, (0, 0.36, 1, 1), "navy", rim="gold", normal_hint=lambda p: Vector((0, -1, 0)))
-    # clasp: gold plate + big crystal
-    b.extrude([(0.17 * math.cos(k * math.pi / 4), 0.17 * math.sin(k * math.pi / 4)) for k in range(8)], Vector((0, -0.78, -0.32)),
+    # clasp: gold disc on the front of the ring + small crystal
+    b.extrude([(0.11 * math.cos(k * math.pi / 4), 0.11 * math.sin(k * math.pi / 4)) for k in range(8)], Vector((0, -0.745, 0.12)),
               Vector((1, 0, 0)), Vector((0, 0, 1)), 0.05, 0.015, "gold")
-    bipyramid(b, Vector((0, -0.84, -0.32 - 0.13)), Vector((0, -0.2, 1)), 0.075, 0.30, 4)
+    bipyramid(b, Vector((0, -0.79, 0.12 - 0.08)), Vector((0, -0.2, 1)), 0.05, 0.17, 4)
     ob = b.finish(); tex_material(ob.data, "cv_scarf"); return ob
 
 
@@ -276,7 +307,7 @@ def build_sword():
 def place_sword(ob):
     """wearable pose: pommel low on the back (WaistBackAttachment frame is the export origin), blade rising diagonally over the right shoulder"""
     R = Matrix.Rotation(math.radians(-36), 3, "Y") @ Matrix.Rotation(math.radians(6.5), 3, "X"); sc = 0.85
-    P0 = Vector((0.80, 1.95, -2.95))   # r2: was y 1.30, inside the flared cape hem (cape reaches y ~1.4 low down)
+    P0 = Vector((0.80, 1.80, -2.95))   # r7: y 1.95 -> 1.80 (closer to the smaller cape; 0 BVH overlaps, see clip_check.py)
     ob.data.transform(Matrix.Translation(P0) @ (R.to_4x4() @ Matrix.Scale(sc, 4)))
 
 
