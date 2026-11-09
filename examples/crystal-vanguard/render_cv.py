@@ -25,7 +25,9 @@ try: sc.eevee.taa_render_samples = 48
 except Exception: pass
 sc.render.resolution_x, sc.render.resolution_y = 760, 1000
 w = bpy.data.worlds.new("w"); sc.world = w; w.use_nodes = True
-w.node_tree.nodes["Background"].inputs[0].default_value = (0.03, 0.045, 0.10, 1); w.node_tree.nodes["Background"].inputs[1].default_value = 1.0
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from palette import C
+bg = [(c / 255) ** 2.2 for c in C((52, 61, 89))]       # themed backdrop (sRGB (52,61,89) = linear (0.03,0.045,0.10))
+w.node_tree.nodes["Background"].inputs[0].default_value = (*bg, 1); w.node_tree.nodes["Background"].inputs[1].default_value = 1.0
 sc.view_settings.view_transform = "Standard"; sc.view_settings.look = "None"
 
 

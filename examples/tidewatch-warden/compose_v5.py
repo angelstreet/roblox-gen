@@ -14,7 +14,7 @@ try: font = next(ImageFont.truetype(p, 30) for p in FONTS if os.path.exists(p))
 except Exception: font = ImageFont.load_default()
 for k, im in enumerate(ims):
     sheet.paste(im, (k * w, 60)); d.text((k * w + 20, 14), views[k], fill=(200, 200, 200), font=font)
-title = "Tidewatch Warden v5 (Eevee, block R15 proxy)"   # right-aligned, never clipped
+title = "Tidewatch Warden v5 (render on a block R15 body)"   # right-aligned, never clipped
 d.text((w * 5 - 20 - d.textlength(title, font=font), 14), title, fill=(200, 170, 110), font=font)
 sheet.save(os.path.join(OUT, f"{tag}_sheet.png"))
 ref = os.environ.get("ROBLOX_GEN_REFERENCE", "")  # optional private quality-bar image; comparison output is never shipped

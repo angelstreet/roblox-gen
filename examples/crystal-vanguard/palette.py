@@ -11,7 +11,7 @@ Which family a colour lands in (see family()): neutral if saturation < 0.06 (pur
 metal if hue 15-75; plate if saturation < 0.36 and value > 0.55; cloth if value < 0.62; everything else crystal.
 Traps: the cape's bright royal-blue gradient and the sword are CRYSTAL (bright), only the dark navy is CLOTH, so shift cloth
 and crystal together or the cape goes a different colour from the scarf. Hair: white/silver strands are neutral (stay white),
-the ice-tinted strands follow PLATE. The render sheet background and title follow the theme too (compose_cv.py).
+the ice-tinted strands follow PLATE. The render backdrop (render_cv.py), sheet header and title (compose_cv.py) follow the theme too.
   metal   : gold trims, rims, filigree, buckles          (authored hue ~45 deg)
   plate   : silver-white armour plates, hair              (authored: pale, low saturation blue-white)
   cloth   : navy cloth, scarf, cape, boots                (authored: dark saturated blue)

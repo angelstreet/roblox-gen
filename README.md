@@ -52,12 +52,13 @@ cp -R skills/roblox-avatar-fashion ~/.claude/skills/
 Then ask: *"Generate the default Tidewatch Warden set and show me the render sheet."*
 
 ## Run the default example
-One command (from the repo root; ~10 min, or ~2.5 min with `NOBAKE=1`, which skips the AO bakes):
+One command (from the repo root; ~10 min, or ~3 min with `NOBAKE=1`, which skips the AO bakes):
 ```bash
 examples/tidewatch-warden/run_all.sh r4          # -> examples/tidewatch-warden/out/v5/r4_sheet.png
 examples/crystal-vanguard/run_all.sh r10         # second set, ~20 s -> examples/crystal-vanguard/out/r10_sheet.png
 ```
-Both scripts use `blender` on PATH, else the macOS app; override with `BLENDER=/path/to/blender`. Step by step:
+Both scripts use `blender` on PATH, else the macOS app; override with `BLENDER=/path/to/blender`. Building the shipped
+Crystal Vanguard rewrites its tracked release files (FBX headers carry a timestamp): `git checkout -- examples/crystal-vanguard` if you only wanted to look. Step by step:
 All commands run from `examples/tidewatch-warden/` (after the repo-root prerequisites check). On Linux/Windows use the `blender` on your PATH instead of the macOS path; flags after `--` are `key=value` pairs.
 ```bash
 # macOS: use /Applications/Blender.app/Contents/MacOS/Blender where it says blender
@@ -78,7 +79,8 @@ Fast path (recommended, ~20 s per build). Example: a set called "Ember Sentinel"
 1. **Copy** `examples/crystal-vanguard/` to `examples/<your-set>/` (keep it two levels deep: scripts import `../../lib`
    and the sword reads `../../starter/crystal-vanguard/3d/*.glb`). In the copy **delete** the old release files and notes:
    `*.fbx`, `crystal_vanguard_*.png`, `render_sheet.png`, `2d_preview.png`, `NOTES.md`, `STUDIO_TEST.md`, `out/`.
-   `run_all.sh` regenerates the release files under your names.
+   `run_all.sh` regenerates the release files under your names. The script/object names (`*_cv.py`, `cv_*` objects, swatch
+   names like `sapphire`) stay as they are by design; only `palette.py` names reach the outputs.
 2. **Colours + names: `palette.py` only.** `SET_NAME`, `NAMES` (FBX files, shirt/pants/face PNGs) and `THEME` (hue shift,
    saturation and value multipliers for four families: metal, plate, cloth, crystal). Read its docstring first: it lists the
    authored hues, which colour lands in which family (the bright cape is "crystal", not "cloth") and two tested themes.
@@ -90,9 +92,17 @@ Fast path (recommended, ~20 s per build). Example: a set called "Ember Sentinel"
    (PNG -> Decal id, FBX -> Model id, printed per file).
 6. **Studio test**: copy `docs/studio/wear_crystal_vanguard.lua` to `docs/studio/wear_<your-set>.lua`, put your ids in its
    `items` table (mesh id, texture Decal id, attachment, emissive mask id), shirt/pants/face ids, `CONFIG.name` and
-   `CONFIG.glowTint`; run it with the Studio MCP `execute_luau`. The ids in the shipped wear scripts are the repo owner's
+   `CONFIG.glowTint` (`run_all.sh` prints your themed value); run it with the Studio MCP `execute_luau`. Row -> files:
+   | items row (attachment) | mesh (Model id) | texture (Decal id) | emissive mask (Decal id) |
+   |---|---|---|---|
+   | crown + hair (HatAttachment) | `NAMES.fbx.cv_crown`.fbx | out/tex_cv_crown.png | out/emit_cv_crown.png |
+   | pauldron R / L (Right/LeftShoulderAttachment) | `cv_pauldron_r` / `cv_pauldron_l` .fbx | out/tex_cv_pauldron_r.png (both) | out/emit_cv_pauldron_r.png (both) |
+   | cape (BodyBackAttachment) | `cv_cape`.fbx | out/tex_cv_cape.png | out/emit_cv_cape.png |
+   | scarf (NeckAttachment) | `cv_scarf`.fbx | out/tex_cv_scarf.png | out/emit_cv_scarf.png |
+   | sword (WaistBackAttachment) | `cv_sword`.fbx | out/tex_cv_sword.png | out/emit_cv_sword.png |
+   Shirt/pants/face are the `NAMES` PNGs (Decal ids, resolved to image ids by the script). The ids in the shipped wear scripts are the repo owner's
    private uploads: they load only on that account, so everyone else re-uploads first.
-7. **Marketplace pre-check**: run your wear script with `CONFIG.rigType = Enum.HumanoidRigType.R6` and `CONFIG.name = "CV_R6"`
+7. **Marketplace pre-check**: run your wear script with `CONFIG.rigType = Enum.HumanoidRigType.R6` and `CONFIG.name = "TEST_R6"`
    (or set `RIG` in `docs/studio/ugc_check.lua` to your rig name), then run `ugc_check.lua`. Limits and fees: `docs/MARKETPLACE_RULES.md`.
 Heavy path (AO bakes, distance-band trims, ~10 min): copy `examples/tidewatch-warden/` and edit `make_clothing_v5.py`,
 `build_v5.py`, `paint_v5.py` (no `palette.py` there yet). On macOS use `sed -i ''` for in-place renames.

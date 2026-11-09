@@ -24,7 +24,7 @@ def upload(path, env):
     name = os.path.splitext(os.path.basename(path))[0]
     ext = os.path.splitext(path)[1].lower()
     atype = "Decal" if ext in (".png", ".jpg", ".jpeg") else "Model"
-    fields = {"assetType": atype, "displayName": name, "description": "Tidewatch POC (private test)",
+    fields = {"assetType": atype, "displayName": name, "description": f"roblox-gen private test: {name}",
               "creationContext": {"creator": {"userId": env["ROBLOX_USER_ID"]}}}
     body, b = multipart(fields, os.path.basename(path), open(path, "rb").read(), ("model/fbx" if ext == ".fbx" else mimetypes.guess_type(path)[0] or "application/octet-stream"))
     req = urllib.request.Request("https://apis.roblox.com/assets/v1/assets", data=body, method="POST",

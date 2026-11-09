@@ -5,7 +5,7 @@ An original hooded outfit: near-black navy robe cloth, thin bronze trims, pearl 
 
 ## Run (from this folder)
 One command: `./run_all.sh r4` (all five steps below, ~10 min on an M-series Mac) or `NOBAKE=1 ./run_all.sh r4` (skips the AO bakes,
-~2.5 min; the sheet looks flatter than the committed `ref/v5_sheet.png`).
+~3 min; the sheet looks flatter than the committed `ref/v5_sheet.png`).
 
 Needs only Blender >= 4.2, Python 3, `pillow`, `numpy`. No Roblox key or Studio for rendering. Use `blender` on PATH
 (macOS: `/Applications/Blender.app/Contents/MacOS/Blender`). On headless Linux read `../../docs/LINUX_HEADLESS.md` first.

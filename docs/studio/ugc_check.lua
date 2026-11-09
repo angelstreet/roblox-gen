@@ -4,9 +4,9 @@
 -- Rules from create.roblox.com/docs/avatar/rigid-accessories/specifications (read 2026-11-09):
 --   box per type measured in the attachment frame (W=X, H=Y, D=Z, front = -Z), <= 4000 triangles, watertight single mesh,
 --   texture <= 2048x2048, Material Plastic, Transparency 0, no extra objects in the Accessory.
--- RIG: name of an unscaled rig wearing the set. To make one: in wear_crystal_vanguard.lua (or wear_tidewatch.lua) set
--- CONFIG.name = "CV_R6" and CONFIG.rigType = Enum.HumanoidRigType.R6, run it, then run this file. Change RIG for other names.
-local RIG = "CV_R6"
+-- RIG: name of an unscaled rig wearing the set. To make one: in your wear script (e.g. wear_crystal_vanguard.lua) set
+-- CONFIG.name = "TEST_R6" and CONFIG.rigType = Enum.HumanoidRigType.R6, run it, then run this file. Change RIG for other names.
+local RIG = "TEST_R6"
 -- {W, H, D, up, down, front, behind}; up/down/front/behind only for the off-centre entries (nil = centred)
 local LIMITS = {
   Classic = {

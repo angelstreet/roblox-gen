@@ -11,3 +11,6 @@ pairs += [("cv_shirt.png", NAMES["shirt"]), ("cv_pants.png", NAMES["pants"]), ("
 if tag: pairs.append((f"{tag}_sheet.png", "render_sheet.png"))
 for src, dst in pairs:
     shutil.copy(os.path.join(OUT, src), os.path.join(HERE, dst)); print("release", dst)
+from palette import C
+r, g, b = C((150, 215, 255))     # authored Studio glow tint, themed
+print(f"wear script: CONFIG.glowTint = Color3.fromRGB({r}, {g}, {b})")
