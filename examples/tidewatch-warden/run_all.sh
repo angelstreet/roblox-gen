@@ -4,8 +4,8 @@
 # Outputs in out/v5/: <tag>_sheet.png (render sheet), one .fbx per accessory, tex_*.png. NOBAKE=1 skips the AO bakes (fast preview).
 set -e
 [ -n "$1" ] || { echo "usage: $0 <tag>"; exit 1; }
-B=${BLENDER:-/Applications/Blender.app/Contents/MacOS/Blender}; command -v blender >/dev/null 2>&1 && [ -z "$BLENDER" ] && B=blender
-[ -x "$B" ] || command -v "$B" >/dev/null 2>&1 || B=/Applications/Blender.app/Contents/MacOS/Blender
+# Blender: $BLENDER if set, else `blender` on PATH, else the macOS app.
+if [ -n "$BLENDER" ]; then B=$BLENDER; elif command -v blender >/dev/null 2>&1; then B=blender; else B=/Applications/Blender.app/Contents/MacOS/Blender; fi
 cd "$(dirname "$0")"
 python3 make_clothing_v5.py
 "$B" -b -P build_v5.py
