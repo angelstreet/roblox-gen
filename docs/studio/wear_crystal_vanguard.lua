@@ -1,4 +1,4 @@
--- Wears the Crystal Vanguard set (r25) on a new rig. Paste into Roblox Studio's command bar and Run, or send it with the
+-- Wears the Crystal Vanguard set (r27) on a new rig. Paste into Roblox Studio's command bar and Run, or send it with the
 -- Studio MCP `execute_luau` tool (datamodel Edit). Edit the CONFIG block to test other bodies.
 -- Asset IDs are private test uploads of the repo owner's account (only that account can load them); re-upload with
 -- scripts/upload_assets.py under your own account and replace the IDs (README "Make your own set" steps 5-6).
@@ -37,12 +37,12 @@ if CONFIG.face then
   local f = Instance.new("Decal"); f.Name = "face"; f.Face = Enum.NormalId.Front; f.Texture = img(135398494225892); f.Parent = plate
   local w = Instance.new("WeldConstraint"); w.Part0 = h; w.Part1 = plate; w.Parent = plate; plate.Parent = rig
 end
-local items = {  -- {mesh FBX id, texture Decal id, attachment, emissive mask Decal id}  (r25, private uploads 2026-11-09)
+local items = {  -- {mesh FBX id, texture Decal id, attachment, emissive mask Decal id}  (r27, private uploads 2026-11-09)
   {118900723489336, 103473604786167, "HatAttachment",           124669010937682},  -- crown + swept hair, back locks (Hair box) [r24]
-  {96526145814784,  139728264928439, "RightShoulderAttachment", 94076186830413},   -- pauldron R, 2048 texture [r25]
-  {123519023414526, 139728264928439, "LeftShoulderAttachment",  94076186830413},   -- pauldron L (shares the R texture) [r25]
-  {135297064673637, 120673283775032, "BodyBackAttachment",      96649979522045},   -- cape, fur collar [mesh r24, texture r25]
-  {112876307276367, 97075679174090,  "NeckAttachment",          131312844800724},  -- thick scarf wrap [r24]
+  {107914732371581, 123458809909251, "RightShoulderAttachment", 118064032692895},  -- pauldron R, 2048, isotropic UVs [r27]
+  {102002362093146, 123458809909251, "LeftShoulderAttachment",  118064032692895},  -- pauldron L (shares the R texture) [r27]
+  {80996663812632,  94510574270528,  "BodyBackAttachment",      93506916301596},   -- cape, fur collar, isotropic UVs [r27]
+  {130645686494626, 91547245721832,  "NeckAttachment",          77447983809636},   -- scarf, isotropic UVs [r27]
   {113108359427829, 109618034074197, "WaistBackAttachment",     115937923296136},  -- sword (unchanged since r21)
 }
 local log = {}

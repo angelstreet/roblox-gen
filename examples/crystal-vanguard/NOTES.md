@@ -1,4 +1,4 @@
-# Crystal Vanguard (current: r25, see Rounds 5-8 at the end; Studio results: STUDIO_TEST.md (r10) and docs/studio/r21/)
+# Crystal Vanguard (current: r27, see Rounds 5-9 at the end; Studio results: STUDIO_TEST.md (r10) and docs/studio/r21/)
 The tables and "Weak points" right below are the round-1 cold-agent build (history, oldest first); numbers there are not current.
 Run `./run_all.sh <tag>` (tag required, e.g. r10; uses `blender` on PATH, else the macOS app; override with `BLENDER=/path/to/blender`).
 Order: make_clothing_cv -> make_face_cv -> build_cv (meshes, meta.json, Cycles AO) -> paint_cv -> render_cv -> compose_cv -> release_cv (~1 min; `NOBAKE=1` skips the AO bakes). Outputs go to `out/`; the files in this folder are
@@ -132,7 +132,7 @@ Final export (attachment frame, Blender axes x / y depth (+y behind) / z up; all
 108 triangle pairs (scarf sides inside the collar wall at the shoulders) and crown vs cape 206 (the back locks pass through the collar wall on
 their way out, tips lie over the collar as intended). Not re-tested in Studio after r21.
 
-## Round 8 (r25, Fable, 2026-11-09; sheet `render_sheet.png` = r25) - pauldron texel density
+## Round 8 (r25, Fable, 2026-11-09) - pauldron texel density (WRONG FIX, see Round 9: the problem was anisotropy, r25 made it worse)
 Correction from the r24 Studio check: the blurry ornament was the cartouche + enamel band on the pauldron's FRONT/outer face (pixelated with
 horizontal stair-steps at 2.6 studs), not the cap top: that face had too few texels in u. Blender close-ups hid it (higher pixel density than Studio).
 Measured with the new `texel_density.py` (px/stud from meta.json positions, u = around, v = top->hem; mean / worst row or column):
@@ -150,3 +150,31 @@ Change: pauldron atlas 1024 -> 2048 (`Tex("cv_pauldron_r", 2048, ss=1)`, AO bake
 0.20..0.50 -> 0.08..0.28. Every shell face is now >= 270 px/stud in u (front face 340 worst) and >= 740 in v. Proof at Studio-like density: a 400 px
 wide front render, pauldron crop blown up 4x NEAREST, r24 vs r25: `out/r25_lowres_pauldron_before_after.png` (`out/_lowres.py`). Export numbers,
 clip_check and boxes unchanged from r24 (all PASS, 0 open edges). Texture sizes now: pauldron 2048, cape 2048, crown/scarf/sword 1024. Not re-tested in Studio.
+
+## Round 9 (r26-r27, Fable, 2026-11-09; sheet `render_sheet.png` = r27) - isotropic texels (the real fix for the Studio smear)
+Studio check of r25: the pauldron front cartouche + enamel band still smeared horizontally (Precise fidelity, quality 21, 2048 texture loaded);
+the re-imported FBX renders crisp in Blender. Cause (coordinator): the shell's UV layout was strongly ANISOTROPIC (r24 front face u 198 vs v 529
+px/stud, r25 396 vs 1646). Without anisotropic filtering the GPU picks the mip from the larger derivative (v), so u is sampled from a mip far
+below its already lower density: horizontal smear. Eevee/Cycles (anisotropic filtering on) hide it. Doubling the atlas kept the 1:4 ratio.
+Fix: `iso_rect(grid, u0, u1, v1, S, min_frac, v_scale)` in build_cv.py sizes each sheet's UV rect height from the grid's physical row and
+column lengths so u and v texel densities match, and returns per-row v positions; `lib/rgen_mesh.py sheet()` takes `v_rows=` (default
+unchanged, stored in META as "vrows"); `paint_cv.py up()` upsamples with the same spacing. Rows shorter than half the longest row (fan rows at
+the shell's pole) are treated as half-long: a fan cannot be isotropic at its pole (the cap top is plain white there). Applied to the pauldron
+shell (v_scale 1.15 so the pointed outer face stays <= 1.25) and lame, cape outer/lining and collar, scarf ring and tail. The crown dome was
+already isotropic. `texel_density.py` now prints u/v mean and the per-band min..max and exits 1 when any region is outside 0.8..1.25.
+| Region | r25 u / v (ratio) | r27 u / v (ratio, band min..max) |
+|---|---|---|
+| pauldron shell whole | 408 / 993 (0.41) | 408 / 456 (0.89) |
+| shell front face (y<-0.5) | 396 / 1646 (0.24) | 396 / 409 (0.97, 0.84..1.04) |
+| shell outer face (x<-0.6) | 381 / 1024 (0.37) | 381 / 309 (1.23, 0.75..1.58: the pointed hem stretches those columns) |
+| lame1 | 561 / 1354 (0.41) | 561 / 559 (1.00) |
+| cape outer | 406 / 384 (1.06) | 406 / 394 (1.03) |
+| cape collar | 332 / 566 (0.59) | 332 / 330 (1.01) |
+| crown dome | 279 / 281 (0.99) | unchanged 0.98 |
+| scarf ring | 232 / 570 (0.41) | 232 / 229 (1.01) |
+| scarf tail | 2646 / 400 (6.6) | 662 / 609 (1.09) |
+UV rects now: shell (0, 0.611, 1, 1), lame (0, 0.507, 1, 0.591), cape outer (0, 0.294, 0.5, 1) + lining (0.5, 0.294, 1, 1), collar (0.02, 0.158, 0.48, 0.274)
++ inner (0.52..0.98), scarf ring (0, 0.878, 1, 1), tail (0, 0.395, 0.25, 0.858). Export, boxes, watertightness and clip_check unchanged from r24/r25.
+Proof that mimics Studio: Eevee with `preferences.system.anisotropic_filter = 'FILTER_0'` (isotropic trilinear mip selection), 400 px wide front
+view + a 400 px "2.6-stud close-up" of the right pauldron (`out/_mimic.py`): `out/r27_mimic_pauldron_before_after.png` (r25 left, r27 right): the
+r25 gold strokes and enamel edge are smeared horizontally, r27 is crisp. Not re-tested in Studio.

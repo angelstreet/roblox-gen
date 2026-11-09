@@ -31,9 +31,11 @@ class Builder:
         return f
 
     def sheet(self, grid, thick, r_out, r_in=None, rim="bronze", closed_u=False, closed_rows=None, normal_hint=None,
-              fold=None, key=None, rim_skip_cols=False, pole_row0=False):
+              fold=None, key=None, rim_skip_cols=False, pole_row0=False, v_rows=None):
         """grid[j][i] Vectors (j rows top->bottom, i cols). Outer UV rect r_out=(u0,v0,u1,v1); inner rect or swatch name.
-        closed_rows[j]=True: col 0 and col N coincide (welded later). normal_hint(p)->Vector pointing outward."""
+        closed_rows[j]=True: col 0 and col N coincide (welded later). normal_hint(p)->Vector pointing outward.
+        v_rows: optional per-row UV v positions 0..1 (row 0 = top of the rect) for a non-uniform (e.g. isotropic-texel) layout;
+        default j/NV. Stored in META as "vrows" so painters can upsample the grid with the same spacing."""
         NV, NU = len(grid) - 1, len(grid[0]) - 1
         cr = closed_rows or [False] * (NV + 1)
         nrm = [[None] * (NU + 1) for _ in range(NV + 1)]
@@ -54,7 +56,8 @@ class Builder:
                 nrm[j][i] = n
         outer = [[self.bm.verts.new(grid[j][i]) for i in range(NU + 1)] for j in range(NV + 1)]
         inner = [[self.bm.verts.new(grid[j][i] - nrm[j][i] * thick) for i in range(NU + 1)] for j in range(NV + 1)]
-        def uvr(r, i, j): return (r[0] + (r[2] - r[0]) * i / NU, r[3] - (r[3] - r[1]) * j / NV)
+        vr = list(v_rows) if v_rows is not None else [j / NV for j in range(NV + 1)]
+        def uvr(r, i, j): return (r[0] + (r[2] - r[0]) * i / NU, r[3] - (r[3] - r[1]) * vr[j])
         def uvi(i, j): return SW[r_in] if isinstance(r_in, str) else uvr(r_in, i, j)
         rim_uv = SW[rim]
         for j in range(NV):
@@ -94,7 +97,7 @@ class Builder:
             dist = {k: [[round(min((grid[j][i] - q).length for q in pts), 4) if pts else 9.0 for i in range(NU + 1)] for j in range(NV + 1)]
                     for k, pts in bnd.items()}
             META.setdefault(self.name, {})[key] = {"rect": r_out, "rect_in": r_in if not isinstance(r_in, str) else None,
-                                                   "NU": NU, "NV": NV, "fold": fold, "dist": dist,
+                                                   "NU": NU, "NV": NV, "fold": fold, "dist": dist, "vrows": vr,
                                                    "pos": [[[round(c, 4) for c in grid[j][i]] for i in range(NU + 1)] for j in range(NV + 1)]}
         return outer, inner
 

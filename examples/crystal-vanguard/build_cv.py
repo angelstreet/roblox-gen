@@ -20,6 +20,23 @@ def cell(n, a=0.2, b=0.8):       # small rect inside a swatch cell (for sheet() 
     u = B.SW[n][0]; return (u - 0.05, 0.012, u + 0.05, 0.048)
 
 
+def iso_rect(grid, u0, u1, v1, S, min_frac=0.5, v_scale=1.0):
+    """r26: UV rect + per-row v positions giving the SAME texel density along u and v (GPU mip selection without anisotropic
+    filtering follows the denser direction, so an anisotropic layout smears the other one in Studio). The rect spans u0..u1 at the
+    top edge v1; its height follows from the grid's physical row/column lengths and the atlas size S. Rows shorter than min_frac of
+    the longest row (fan rows near a pole) are treated as min_frac long: a fan cannot be isotropic at its pole.
+    Returns (rect, v_rows, height_frac)."""
+    NV, NU = len(grid) - 1, len(grid[0]) - 1
+    rowlen = [sum((grid[j][i + 1] - grid[j][i]).length for i in range(NU)) for j in range(NV + 1)]
+    mx = max(rowlen); eff = [max(l, min_frac * mx) for l in rowlen]; wpx = (u1 - u0) * S; bands = []
+    for j in range(NV):
+        col = sum((grid[j + 1][i] - grid[j][i]).length for i in range(NU + 1)) / (NU + 1)
+        bands.append(col * wpx / ((eff[j] + eff[j + 1]) / 2))
+    tot = sum(bands) * v_scale; cum = [0.0]                       # v_scale > 1: a little more v density (for faces whose columns are stretched, e.g. a pointed hem)
+    for h in bands: cum.append(cum[-1] + h * v_scale / tot)
+    return (u0, v1 - tot / S, u1, v1), cum, tot / S
+
+
 def tex_material(me, name):
     mat = bpy.data.materials.new("mat_" + name); mat.use_nodes = True; me.materials.append(mat)
 
@@ -204,7 +221,8 @@ def build_pauldron():
                     hx_ = hx * (1 - 0.37 * inn)                 # r22: inner edge further from the head (fall pose grazed the hair)
                     row.append(Vector((hx_ * r * spow(s, 2 / E), hy * r * spow(c, 2 / E), z)) if j else Vector((-0.10, 0, zt)))
                 grid.append(row)
-            b.sheet(grid, 0.06, (0.0, v0, 1.0, v1), "navy", rim="silver", closed_u=True, pole_row0=True, normal_hint=lambda p: Vector((p.x, p.y, p.z + 0.4)), key="lame0")   # r22: navy interior
+            rect, vr, hfrac = iso_rect(grid, 0.0, 1.0, 1.0, 2048, v_scale=1.15); lame_top = rect[1] - 0.02   # r26/r27: isotropic texels (2048 atlas); 1.15 keeps the pointed outer face <= 1.25
+            b.sheet(grid, 0.06, rect, "navy", rim="silver", closed_u=True, pole_row0=True, normal_hint=lambda p: Vector((p.x, p.y, p.z + 0.4)), key="lame0", v_rows=vr)   # r22: navy interior
             rim_ring(zh, hx * 1.04, hy * 1.04, pt=pt, zin=0.02)
         else:
             NV = 4; A0, A1 = 130, 410                               # open on the torso side (phi 90 deg)
@@ -215,7 +233,8 @@ def build_pauldron():
                     z = zt + (zh - zt) * v - pt * max(0, -s) ** 3 * v; r = 0.92 + 0.10 * math.sin(v * math.pi / 2)
                     row.append(Vector((hx * r * spow(s, 2 / E), hy * r * spow(c, 2 / E), z)))
                 grid.append(row)
-            b.sheet(grid, 0.055, (0.0, v0, 1.0, v1), "navy", rim="silver", normal_hint=lambda p: Vector((p.x, p.y, 0)), key=f"lame{k}")
+            rect, vr, hfrac = iso_rect(grid, 0.0, 1.0, lame_top, 2048)
+            b.sheet(grid, 0.055, rect, "navy", rim="silver", normal_hint=lambda p: Vector((p.x, p.y, 0)), key=f"lame{k}", v_rows=vr)
             rim_ring(zh, hx * 1.04, hy * 1.04, arc=(A0, A1), pt=pt)
     # big gem in a gold diamond frame on the outer face of the top plate
     xo = -0.94 * 1.04
@@ -249,7 +268,9 @@ def build_cape():
             y = y0 + flare * v ** 1.8 - wrap + d + 0.14 * (2 * (u - 0.5)) ** 2 * v
             row.append(Vector((x, y, z))); frow.append(fd)
         grid.append(row); folds.append(frow)
-    b.sheet(grid, 0.03, (0, 0.30, 0.5, 1), (0.5, 0.30, 1, 1), rim="gold", normal_hint=lambda p: Vector((0, 1, 0)), fold=folds, key="outer")
+    rect, vr, hfrac = iso_rect(grid, 0.0, 0.5, 1.0, 2048)                                               # r26: isotropic texels
+    b.sheet(grid, 0.03, rect, (0.5, rect[1], 1, 1), rim="gold", normal_hint=lambda p: Vector((0, 1, 0)), fold=folds, key="outer", v_rows=vr)
+    collar_top = rect[1] - 0.02
     # tall collar: half ring behind the neck, bottom row resting on the shoulders, leaning back; own UV rects below the cape rects
     gc, fc = [], []; NU2 = 24
     # r19: folded hood lying on the shoulders under the hair tips: lower (top 0.20), dips at the back centre, bigger folds
@@ -262,7 +283,8 @@ def build_cape():
             tuft = (0.05 if i % 2 else -0.01) * (1 if j == 0 else 0.3 if j == 1 else 0)     # r22: fur-like tufted rim
             row.append(Vector(((rx + lump) * math.sin(phi), (ry + lump) * math.cos(phi) + 0.02, z + dip + tuft))); frow.append(math.sin(i * 1.7 + j * 0.8))
         gc.append(row); fc.append(frow)
-    b.sheet(gc, 0.07, (0.02, 0.08, 0.48, 0.28), (0.52, 0.08, 0.98, 0.28), rim="silver", normal_hint=lambda p: Vector((p.x, p.y, 0.15)), fold=fc, key="collar")
+    rect, vr, hfrac = iso_rect(gc, 0.02, 0.48, collar_top, 2048)
+    b.sheet(gc, 0.07, rect, (0.52, rect[1], 0.98, rect[3]), rim="silver", normal_hint=lambda p: Vector((p.x, p.y, 0.15)), fold=fc, key="collar", v_rows=vr)
     # gem clasps at the collar ends
     for sg in (-1, 1):
         b.gem(Vector((sg * 0.90, 0.08, -0.30)), 0.055, 0.075, Vector((sg, -0.6, 0.0)), "crystal")
@@ -284,7 +306,9 @@ def build_scarf():
             tuck = 1 - 0.18 * max(0.0, -c) ** 0.7                       # r22: back half smaller so it stays inside the cape collar (navy showed through it)
             row.append(Vector(((rx + d) * tuck * spow(s, 2 / 2.6), -(ry + d) * tuck * spow(c, 2 / 2.6), z - 0.22 * back * (1 if j < 3 else 0.5)))); frow.append(fd)
         grid.append(row); folds.append(frow)
-    b.sheet(grid, 0.09, (0, 0.36, 1, 0.66), "navy", rim="navy", closed_u=True, normal_hint=lambda p: Vector((p.x, p.y, 0.1)), fold=folds, key="ring")
+    rect, vr, hfrac = iso_rect(grid, 0.0, 1.0, 1.0, 1024)                                               # r26: isotropic texels
+    b.sheet(grid, 0.09, rect, "navy", rim="navy", closed_u=True, normal_hint=lambda p: Vector((p.x, p.y, 0.1)), fold=folds, key="ring", v_rows=vr)
+    tail_top = rect[1] - 0.02
     # bib tail: wide at the top, pointed, lying on the chest, folds
     NU2, NV2 = 8, 10; g2, f2 = [], []
     for j in range(NV2 + 1):
@@ -294,7 +318,8 @@ def build_scarf():
             x = 0.42 + 0.14 * v + (u - 0.5) * 2 * half; fd = math.sin(u * math.pi * 3 + v * 2); d = 0.025 * fd * sm(v / 0.5)
             row.append(Vector((x, -0.70 - 0.03 * (1 - (2 * u - 1) ** 2) + 0.10 * v + d, -0.16 - 0.72 * v))); frow.append(fd)
         g2.append(row); f2.append(frow)
-    b.sheet(g2, 0.04, (0, 0.70, 1, 1), "navy", rim="navy", normal_hint=lambda p: Vector((0, -1, 0)), fold=f2, key="tail")
+    rect, vr, hfrac = iso_rect(g2, 0.0, 0.25, tail_top, 1024)
+    b.sheet(g2, 0.04, rect, "navy", rim="navy", normal_hint=lambda p: Vector((0, -1, 0)), fold=f2, key="tail", v_rows=vr)
     # clasp: gold disc on the front + small crystal
     b.extrude([(0.12 * math.cos(k * math.pi / 4), 0.12 * math.sin(k * math.pi / 4)) for k in range(8)], Vector((0.30, -0.76, -0.10)),
               Vector((1, 0, 0)), Vector((0, 0, 1)), 0.05, 0.015, "gold")
@@ -431,6 +456,9 @@ if __name__ == "__main__":
     r.location = (-1.5, 0, 0); l.location = (1.5, 0, 0)
     body_proxy(os.path.join(OUT, "cv_shirt.png"), os.path.join(OUT, "cv_pants.png"))
     for o in (crown, r, l, cape, scarf, sword): print("ITEM", o.name, "tris", tris(o))
+    for it, regs in B.META.items():
+        for k, s in regs.items():
+            if isinstance(s, dict) and "rect" in s and "pos" in s: print("UVRECT", it, k, tuple(round(x, 3) for x in s["rect"]))
     import json, time
     with open(os.path.join(OUT, "meta.json"), "w") as fh: json.dump(B.META, fh)     # UV regions + positions + edge distances for paint_cv.py
     if os.environ.get("NOBAKE") != "1":                                              # r11: per-item AO (NOBAKE=1 skips, textures then have no AO)

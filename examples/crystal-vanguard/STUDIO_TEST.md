@@ -115,3 +115,15 @@ Studio re-test (2026-11-09, Studio MCP, shots `docs/studio/r21/`):
 - Walk 0.17: clean. Run 0.34 (back-kick): boot passes through the lower cape and past the sword hilt (rigid-cape limit, as r10).
   Fall 0.30 (arms up): raised pauldron shells pass beside the head and touch the outer hair locks a little; their open underside
   shows. Jump not re-shot.
+
+## r24-r27 polish (2026-11-09, Fable builds, Studio checks by Opus; shots `docs/studio/r27/`)
+- r24: collar gaps closed (scarf ring poked through the collar), fur collar, navy pauldron interior, pauldron gold rim no longer
+  inside the torso. Studio: confirmed.
+- Pauldron ornament blur: Studio smeared the front cartouche + enamel band horizontally (`r25_front_blur.jpg`) while every
+  Blender render, even of the re-imported FBX, was crisp. Not LOD (RenderFidelity Precise), not SurfaceAppearance, not Studio
+  quality level, not texture size (r25 went 1024 -> 2048: no change). Cause: ANISOTROPIC texel density (front face u 396 vs
+  v 1646 px/stud): Roblox picks the mip from the larger derivative without anisotropic filtering, so u gets sampled far below
+  its density. r27 makes every painted region isotropic (u/v 0.8-1.25, `texel_density.py` fails otherwise): crisp in Studio.
+- Upload trap: a fresh upload can stay unloadable in Studio for several minutes although Open Cloud reports Decal and Image
+  Approved; `ContentProvider:PreloadAsync` status is not reliable (it reported Failure for textures that render). Judge by eye.
+- r27 ids are in `docs/studio/wear_crystal_vanguard.lua`; the r27 rig is on the showroom plinth in the test place.

@@ -38,7 +38,7 @@ The key file path `~/.config/tidewatch/.env` is outside the repo on purpose (the
 
 ## Starter sets
 - `examples/tidewatch-warden/`: finished default example.
-- `examples/crystal-vanguard/`: the set below, r25 (physical-space painted textures with AO like Tidewatch; passes the Marketplace size/triangle/watertight pre-check at all body scales; history and weak points in its NOTES.md, Studio results in STUDIO_TEST.md, r10).
+- `examples/crystal-vanguard/`: the set below, r27 (physical-space painted textures with AO like Tidewatch; passes the Marketplace size/triangle/watertight pre-check at all body scales; history and weak points in its NOTES.md, Studio results in STUDIO_TEST.md, r10).
 - `lib/`: shared code both examples import (`rgen_mesh.py` Builder/swatches/body proxy, `rgen_clothing.py` Face painter).
 - `experiences/`: places and scripts (stage 4).
 - `starter/crystal-vanguard/`: concept art, prompts, sword blockout GLB and an exact spec for a second set. Agents: build it with `skills/roblox-2d-concept` (2D first) then `skills/roblox-avatar-fashion` (3D). See `docs/PIPELINE.md`.
@@ -55,7 +55,7 @@ Then ask: *"Generate the default Tidewatch Warden set and show me the render she
 One command (from the repo root; ~10 min, or ~3 min with `NOBAKE=1`, which skips the AO bakes):
 ```bash
 examples/tidewatch-warden/run_all.sh r4          # -> examples/tidewatch-warden/out/v5/r4_sheet.png
-examples/crystal-vanguard/run_all.sh r25         # second set, ~1 min (AO bakes ~4 s; NOBAKE=1 skips them) -> examples/crystal-vanguard/out/r25_sheet.png
+examples/crystal-vanguard/run_all.sh r27         # second set, ~1 min (AO bakes ~4 s; NOBAKE=1 skips them) -> examples/crystal-vanguard/out/r27_sheet.png
 ```
 Both scripts use `blender` on PATH, else the macOS app; override with `BLENDER=/path/to/blender`. Building the shipped
 Crystal Vanguard rewrites its tracked release files (FBX headers carry a timestamp): `git checkout -- examples/crystal-vanguard` if you only wanted to look. Step by step:

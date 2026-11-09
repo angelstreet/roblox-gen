@@ -7,7 +7,7 @@ then the two skills in `skills/`. This file is the owner's working note for the 
 - Pipeline: 2D (`skills/roblox-2d-concept`) -> 3D (`skills/roblox-avatar-fashion`) -> Studio test -> experiences (`experiences/`).
 - Studio MCP works (`execute_luau`, `screen_capture`, `start_stop_play`, ...): call `list_roblox_studios` first, a place must be open.
   All Studio work in session 3 was done through it, no screen driving.
-- **Crystal Vanguard r25** (`examples/crystal-vanguard/`, 2026-11-09, Rounds 5-8 in its NOTES.md; r21 and r24 Studio-tested, r25 = pauldron atlas 2048 for texel density, not re-tested): rebuilt to the Tidewatch quality level against the
+- **Crystal Vanguard r27** (`examples/crystal-vanguard/`, 2026-11-09, Rounds 5-9 in its NOTES.md; r21/r24/r25 Studio-tested, r27 = isotropic UV layout (u/v texel ratio 0.8-1.25 on every painted region) against Studio's mip smear, not re-tested): rebuilt to the Tidewatch quality level against the
   owner's concept: real UV atlases painted in physical space with Cycles AO (pauldrons, cape, crown, scarf), one broad curved pauldron shell + one tucked lame
   with enamel/filigree/framed gem, cape with silver lining + tall white collar + zigzag gold hem + projected crystal emblem, smooth-shaded
   white hair (dome + few large spikes + layered back locks over the collar, no skin at the nape), chin-height scarf wrap, navy legs / V tabard / pointed skirt flaps on the clothing, sword welded

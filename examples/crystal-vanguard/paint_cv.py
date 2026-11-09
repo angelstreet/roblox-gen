@@ -50,10 +50,11 @@ def save(im, name): im.convert("RGB").save(os.path.join(OUT, f"tex_{name}.png"))
 
 
 # --------------------------------------------------------------------------- physical-space painter (meta.json + AO)
-def up(grid, w, h):
-    """bilinear upsample of a per-vertex grid (NV+1 x NU+1 [x C]) to h x w pixels"""
+def up(grid, w, h, vrows=None):
+    """bilinear upsample of a per-vertex grid (NV+1 x NU+1 [x C]) to h x w pixels; vrows = per-row UV v positions 0..1 (non-uniform layouts)"""
     g = np.asarray(grid, np.float32); NV, NU = g.shape[0] - 1, g.shape[1] - 1
-    gy = np.linspace(0, NV, h); gx = np.linspace(0, NU, w)
+    gy = np.interp(np.linspace(0, 1, h), np.asarray(vrows, np.float32), np.arange(NV + 1, dtype=np.float32)) if vrows else np.linspace(0, NV, h)
+    gx = np.linspace(0, NU, w)
     y0 = np.clip(np.floor(gy).astype(int), 0, max(NV - 1, 0)); x0 = np.clip(np.floor(gx).astype(int), 0, max(NU - 1, 0))
     fy = (gy - y0)[:, None]; fx = (gx - x0)[None, :]
     if g.ndim == 3: fy, fx = fy[..., None], fx[..., None]
@@ -158,8 +159,8 @@ class Tex:
         """start a region: base colour from the fold map + a light function of the surface position; returns the region dict.
         inner=True paints the sheet's inner shell (rect_in) from the same grid positions (lining)."""
         s = self.m[key]; x0, x1, y0, y1 = self.box(s["rect_in"] if inner else s["rect"]); w, h = x1 - x0, y1 - y0
-        pos = up(s["pos"], w, h); dist = {k: up(v, w, h) for k, v in s["dist"].items()}
-        f = up(s["fold"], w, h) if s.get("fold") else np.zeros((h, w), np.float32)
+        vr = s.get("vrows"); pos = up(s["pos"], w, h, vr); dist = {k: up(v, w, h, vr) for k, v in s["dist"].items()}
+        f = up(s["fold"], w, h, vr) if s.get("fold") else np.zeros((h, w), np.float32)
         lam = np.clip(0.6 + 0.4 * f * fold_k + (light(pos) if light else 0), 0, 1)[..., None]
         col = base[1] + (base[0] - base[1]) * lam
         rng = np.random.default_rng(zlib.crc32(key.encode()) % 999); col *= (1 + rng.normal(0, noise, (h, w)).astype(np.float32))[..., None]
