@@ -95,6 +95,18 @@ def plate(f, x0, y0, x1, y1, cut=5, bevel=True):
     gold(f, poly + [poly[0]], 1.7)
 
 
+def pplate(f, x0, y0, x1, y1, tip=8, cut=4):
+    """armour plate with a pointed bottom (concept: skirt flaps, knee plates end in a point)"""
+    cx = (x0 + x1) / 2
+    poly = [(x0 + cut, y0), (x1 - cut, y0), (x1, y0 + cut), (x1, y1 - tip), (cx, y1), (x0, y1 - tip), (x0, y0 + cut)]
+    shade(f, poly, 170, 1.4)
+    f.metal(poly, top=C((255, 255, 255)), mid=C((236, 241, 255)), bot=C((168, 186, 232)), outline_dark=False)
+    f.line([(x0 + cut + 1, y0 + 4), (x1 - cut - 1, y0 + 4)], C((255, 255, 255)), 0.9)
+    f.line([(x0 + 3.5, y1 - tip - 2), (cx, y1 - 4)], C((132, 152, 208)), 1.0); f.line([(cx, y1 - 4), (x1 - 3.5, y1 - tip - 2)], C((132, 152, 208)), 1.0)
+    gold(f, poly + [poly[0]], 1.7)
+    return poly
+
+
 def navy_panel(f, poly, rim=True):
     shade(f, poly, 150)
     f.metal(poly, top=C((30, 52, 132)), mid=NAVY_T, bot=NAVY_B, outline_dark=False)
@@ -144,47 +156,46 @@ def shirt():
         f = Face(w, h, seed, top=WHITE_T, bot=WHITE_B, folds=0.2)
         cx = w / 2
         if name == "t_front":
-            plate(f, 2, 2, 36, 90, 7); plate(f, w - 36, 2, w - 2, 90, 7)       # white chest plates
-            # scroll filigree on the plates
-            mv(f, cx, (9, 11), (28, 11), amp=2.6, waves=1.0, r=2.4, curl=(1, -1))
-            gem(f, 19, 33, 4, 1.4); gem(f, w - 19, 33, 4, 1.4)
-            mv(f, cx, (8, 48), (28, 64), amp=3.6, waves=1.0, r=3.0, curl=(-1, 1), sprig=True)
-            mv(f, cx, (10, 72), (28, 80), amp=2.6, waves=1.0, r=2.4, curl=(1, -1))
-            # navy tabard with the big gem
-            nav = [(cx - 29, 0), (cx + 29, 0), (cx + 25, 76), (cx, 101), (cx - 25, 76)]
+            plate(f, 2, 2, 44, 62, 7); plate(f, w - 44, 2, w - 2, 62, 7)         # white chest plates
+            mv(f, cx, (10, 10), (36, 10), amp=2.6, waves=1.0, r=2.4, curl=(1, -1))
+            gem(f, 23, 30, 4.5, 1.4); gem(f, w - 23, 30, 4.5, 1.4)
+            mv(f, cx, (9, 44), (34, 56), amp=3.0, waves=1.0, r=2.6, curl=(-1, 1), sprig=True)
+            plate(f, 2, 64, 44, 92, 6); plate(f, w - 44, 64, w - 2, 92, 6)       # lower chest plates
+            mv(f, cx, (9, 72), (36, 84), amp=3.0, waves=1.0, r=2.6, curl=(1, -1))
+            # wide navy V tabard with the big gem (concept: navy centre narrowing to a point at the belt)
+            nav = [(cx - 38, 0), (cx + 38, 0), (cx + 30, 56), (cx, 96), (cx - 30, 56)]
             navy_panel(f, nav)
-            inner = [(cx - 24, 3), (cx + 24, 3), (cx + 20.5, 74), (cx, 94), (cx - 20.5, 74)]
+            inner = [(cx - 32, 3), (cx + 32, 3), (cx + 25, 54), (cx, 89), (cx - 25, 54)]
             gold(f, inner + [inner[0]], 1.2)
-            frame(f, [(cx, 12), (cx + 17, 36), (cx, 62), (cx - 17, 36)], 1.4)   # diamond frame around the gem
-            gem(f, cx, 36, 10.5, 1.5)
-            mv(f, cx, (cx - 20, 8), (cx - 19, 66), amp=2.4, waves=2.0, r=2.4, curl=(0, 1), sprig=True)
-            mv(f, cx, (cx - 17, 72), (cx - 3, 86), amp=2.0, waves=1.0, r=2.4, curl=(-1, 0))
+            frame(f, [(cx, 12), (cx + 19, 36), (cx, 64), (cx - 19, 36)], 1.4)
+            gem(f, cx, 36, 11.5, 1.5)
+            mv(f, cx, (cx - 27, 8), (cx - 22, 50), amp=2.4, waves=1.5, r=2.4, curl=(0, 1), sprig=True)
+            mv(f, cx, (cx - 20, 60), (cx - 4, 82), amp=2.0, waves=1.0, r=2.4, curl=(-1, 0))
             belt(f, w)
-            # hips / skirt flaps under the belt
-            f.grad_rect(0, 111, w, 128, C((232, 238, 255)), C((176, 192, 232)))
-            plate(f, 4, 113, cx - 17, 126, 4); plate(f, cx + 17, 113, w - 4, 126, 4)
-            navy_panel(f, [(cx - 14, 112), (cx + 14, 112), (cx + 12, 126), (cx - 12, 126)])
-            gold(f, [(0, 127), (w, 127)], 1.6)
+            # skirt flaps under the belt: white pointed plates over navy (their tips continue on the pants' legs)
+            f.grad_rect(0, 111, w, 128, C((26, 46, 120)), NAVY_B)
+            pplate(f, 2, 112, cx - 10, 136, 9, 4); pplate(f, cx + 10, 112, w - 2, 136, 9, 4)
+            navy_panel(f, [(cx - 9, 112), (cx + 9, 112), (cx + 7, 128), (cx - 7, 128)])
+            gem(f, cx, 120, 3.2, 1.3)
         elif name == "t_back":
-            plate(f, 3, 3, w - 3, 90, 9)
-            frame(f, [(cx, 12), (cx + 24, 44), (cx, 80), (cx - 24, 44)], 1.5)
-            gem(f, cx, 44, 10, 1.6)                                           # crystal emblem
-            mv(f, cx, (cx - 6, 24), (cx - 26, 14), amp=3.0, waves=1.0, r=2.8, curl=(0, 1), sprig=True)
-            mv(f, cx, (cx - 6, 66), (cx - 26, 78), amp=3.0, waves=1.0, r=2.6, curl=(0, -1))
-            mv(f, cx, (13, 22), (13, 70), amp=4.0, waves=1.5, r=3.0, curl=(1, -1), sprig=True)
+            plate(f, 3, 3, w - 3, 92, 9)
+            frame(f, [(cx, 14), (cx + 24, 46), (cx, 82), (cx - 24, 46)], 1.5)
+            gem(f, cx, 46, 10, 1.6)                                           # crystal emblem
+            mv(f, cx, (cx - 6, 26), (cx - 26, 16), amp=3.0, waves=1.0, r=2.8, curl=(0, 1), sprig=True)
+            mv(f, cx, (cx - 6, 68), (cx - 26, 80), amp=3.0, waves=1.0, r=2.6, curl=(0, -1))
+            mv(f, cx, (13, 24), (13, 72), amp=4.0, waves=1.5, r=3.0, curl=(1, -1), sprig=True)
             belt(f, w, buckle=False)
-            f.grad_rect(0, 111, w, 128, C((232, 238, 255)), C((176, 192, 232)))
-            plate(f, 4, 113, cx - 4, 126, 4); plate(f, cx + 4, 113, w - 4, 126, 4)
-            gold(f, [(0, 127), (w, 127)], 1.6)
+            f.grad_rect(0, 111, w, 128, C((26, 46, 120)), NAVY_B)
+            pplate(f, 2, 112, cx - 2, 136, 9, 4); pplate(f, cx + 2, 112, w - 2, 136, 9, 4)
         elif name in ("t_right", "t_left"):
-            plate(f, 4, 3, w - 4, 90, 7)
-            gem(f, cx, 46, 4.2, 1.4)
+            plate(f, 4, 3, w - 4, 92, 7)
+            gem(f, cx, 48, 4.2, 1.4)
             vine(f, (10, 16), (w - 10, 16), amp=3.0, waves=1.0, r=2.6, sprig=True)
-            vine(f, (10, 76), (w - 10, 76), amp=3.0, waves=1.0, r=2.4, curl=(-1, 1))
+            vine(f, (10, 78), (w - 10, 78), amp=3.0, waves=1.0, r=2.4, curl=(-1, 1))
             gold(f, [(1, 0), (1, 128)], 1.8); gold(f, [(w - 1, 0), (w - 1, 128)], 1.8)
             belt(f, w, buckle=False)
-            f.grad_rect(0, 111, w, 128, C((232, 238, 255)), C((176, 192, 232)))
-            plate(f, 4, 113, w - 4, 126, 4); gold(f, [(0, 127), (w, 127)], 1.6)
+            f.grad_rect(0, 111, w, 128, C((26, 46, 120)), NAVY_B)
+            pplate(f, 3, 112, w - 3, 136, 9, 4)
         elif name[:2] in ("ra", "la") and name[3:] in ("front", "back", "right", "left"):
             sleeve(f, w, h)
         elif name == "t_up":
@@ -201,25 +212,26 @@ def leg(f, w, front):
     cx = w / 2
     f.rect(0, 0, w, 128, NAVY_B)
     f.grad_rect(0, 0, w, 100, NAVY_T, NAVY_B)
-    # thigh plate
-    plate(f, 4, 2, w - 4, 42, 6)
-    gem(f, cx, 21, 4.4, 1.4)
-    mv(f, cx, (9, 12), (cx - 9, 30), amp=2.6, waves=1.0, r=2.4)
-    # scrollwork between the plates (on navy)
-    vine(f, (6, 47), (w - 6, 47), amp=2.6, waves=2.0, r=2.4, curl=(1, -1), sprig=True)
-    # knee plate
-    plate(f, 6, 52, w - 6, 82, 6)
-    gem(f, cx, 67, 5.2, 1.4)
-    mv(f, cx, (11, 60), (cx - 13, 74), amp=2.6, waves=1.0, r=2.2, curl=(1, -1))
-    # darker navy greave
-    f.grad_rect(0, 84, w, 98, C((18, 32, 90)), DARK_T)
-    gold(f, [(0, 84), (w, 84)], 1.6)
-    for i in range(7, w - 3, 10): fil(f, [(i, 87), (i + 3, 94)], 1.2)
+    # skirt flap tip hanging from the torso (white, pointed, gold edge) over the navy thigh
+    flap = [(0, 0), (w, 0), (w, 9), (cx, 26), (0, 9)]
+    shade(f, flap, 180, 1.6)
+    f.metal(flap, top=C((255, 255, 255)), mid=C((236, 241, 255)), bot=C((168, 186, 232)), outline_dark=False)
+    gold(f, [(0, 9), (cx, 26), (w, 9)], 1.8); f.line([(4, 9), (cx, 22)], C((132, 152, 208)), 0.9); f.line([(cx, 22), (w - 4, 9)], C((132, 152, 208)), 0.9)
+    gem(f, cx, 9, 3.4, 1.3)
+    # thigh: navy cloth with a gold scroll
+    mv(f, cx, (8, 32), (cx - 4, 50), amp=3.0, waves=1.0, r=2.6, curl=(1, -1))
+    # pointed knee plate with a gem
+    pplate(f, 8, 52, w - 8, 88, 10, 5)
+    gem(f, cx, 66, 5.4, 1.4)
+    mv(f, cx, (13, 58), (cx - 12, 74), amp=2.2, waves=1.0, r=2.0, curl=(1, -1))
+    # shin: darker navy greave, gold lines
+    f.grad_rect(0, 89, w, 98, C((18, 32, 90)), DARK_T)
+    gold(f, [(0, 90), (w, 90)], 1.4)
     # boot, dark navy / black with gold trim; top edge at y=98 (<= 100)
-    f.grad_rect(0, 98, w, 128, C((24, 32, 70)), C((4, 6, 16)))
+    f.grad_rect(0, 98, w, 128, C((26, 34, 74)), C((4, 6, 16)))
     gold(f, [(0, 98), (w, 98)], 2.0); gold(f, [(0, 126), (w, 126)], 2.0)
     gold(f, [(0, 104), (w, 104)], 1.0)
-    gem(f, cx, 113, 3.4, 1.4)
+    gem(f, cx, 113, 3.6, 1.4)
     mv(f, cx, (7, 110), (cx - 8, 119), amp=2.2, waves=1.0, r=2.0, curl=(1, -1))
 
 
@@ -230,20 +242,7 @@ def pants():
         f = Face(w, h, seed, top=NAVY_T, bot=NAVY_B, folds=0.35)
         cx = w / 2
         if name in ("t_front", "t_back", "t_right", "t_left"):
-            f.rect(0, 0, w, h, NAVY_B)
-            gold(f, [(0, 1), (w, 1)], 1.8)
-            if name == "t_front":
-                for sg in (-1, 1): plate(f, cx + (2 if sg > 0 else -62), 4, cx + (62 if sg > 0 else -2), 72, 6)
-                gem(f, cx, 34, 5, 1.4)
-                mv(f, cx, (cx - 20, 14), (cx - 20, 58), amp=3.0, waves=1.0, r=2.6)
-            elif name == "t_back":
-                plate(f, 4, 4, w - 4, 72, 8); gem(f, cx, 36, 5, 1.4)
-                mv(f, cx, (cx - 24, 14), (cx - 24, 58), amp=3.0, waves=1.0, r=2.6)
-            else:
-                plate(f, 4, 4, w - 4, 72, 6); gem(f, cx, 36, 4.4, 1.4)
-            belt(f, w, 80, 100, buckle=False)
-            f.grad_rect(0, 101, w, 128, DARK_T, DARK_B)
-            vine(f, (8, 114), (w - 8, 114), amp=3.2, waves=2.0, r=2.4, curl=(1, -1))
+            f.rect(0, 0, w, h, NAVY_B); f.grad_rect(0, 101, w, 128, DARK_T, DARK_B)      # under the shirt; dark hem band shows below it
             gold(f, [(0, 126), (w, 126)], 2.0)
         elif name.endswith("_up"): f.rect(0, 0, w, h, NAVY_B)
         elif name.endswith("_down"): f.rect(0, 0, w, h, C((6, 9, 24)))

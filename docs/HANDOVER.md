@@ -7,6 +7,12 @@ then the two skills in `skills/`. This file is the owner's working note for the 
 - Pipeline: 2D (`skills/roblox-2d-concept`) -> 3D (`skills/roblox-avatar-fashion`) -> Studio test -> experiences (`experiences/`).
 - Studio MCP works (`execute_luau`, `screen_capture`, `start_stop_play`, ...): call `list_roblox_studios` first, a place must be open.
   All Studio work in session 3 was done through it, no screen driving.
+- **Crystal Vanguard r21** (`examples/crystal-vanguard/`, 2026-11-09, Rounds 5-6 in its NOTES.md): rebuilt to the Tidewatch quality level against the
+  owner's concept: real UV atlases painted in physical space with Cycles AO (pauldrons, cape, crown, scarf), one broad curved pauldron shell + one tucked lame
+  with enamel/filigree/framed gem, cape with silver lining + tall white collar + zigzag gold hem + projected crystal emblem, smooth-shaded
+  white hair (dome + few large spikes + layered back locks over the collar, no skin at the nape), chin-height scarf wrap, navy legs / V tabard / pointed skirt flaps on the clothing, sword welded
+  (was an unwelded soup) and re-posed along the cape flare (clip_check 0). All six items PASS the export check (tris, 0 open edges,
+  Slender boxes). Not re-tested in Studio since r10. Build is now ~1 min (build before paint; `NOBAKE=1` skips AO).
 - **Crystal Vanguard r10** (`examples/crystal-vanguard/`): swept mane (watertight, Hair box), long flared cape, sword lowered into the
   Waist box, emissive glow (SurfaceAppearance masks), face decal, richer clothing filigree. Passes `docs/studio/ugc_check.lua`
   (size boxes at Classic/Rthro Normal/Slender, <= 4000 tris, watertight, 1024 textures). Tested in Studio on R15, R6, Rthro

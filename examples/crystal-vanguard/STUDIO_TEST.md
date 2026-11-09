@@ -97,3 +97,11 @@ pauldron 111757635753589, scarf 90049570495779, cape 111720663243190, sword 9207
 - Run 0.34 (peak back-kick): the boot still passes through the lower cape (`run_kick_clip.jpg`). Walk/jump/fall not re-shot (cape and sword changed only below/behind the r9 positions).
 - Face trap: the default R15 head is a dynamic MeshPart head; a Decal on it maps into the mesh UVs (a speck on the cheek) and its TextureID carries the default face.
   Fix used: TextureID = "" and the face Decal on a 0.05-thick plate welded in front, Transparency 0.98 (at 1 the decal is not drawn).
+
+## r21 (2026-11-09, built by Fable, rounds r11-r21; see NOTES.md Rounds 5-6)
+Private uploads: crown 102504012631494, pauldron R 70719211597742 / L 117628352216085, cape 98486225896865, scarf 126511502069863,
+sword 113108359427829; textures (Decal) crown 103734755245021, pauldron 93359691730948, cape 134894248556722, scarf 134997260146198,
+sword 109618034074197; emissive masks crown 71350189875260, pauldron 135901164997081, cape 71173472629586, scarf 71452399300364,
+sword 115937923296136; shirt 131364842624653, pants 79782937213545 (face unchanged). All in `docs/studio/wear_crystal_vanguard.lua`.
+Blender-side checks at export: all items PASS the Slender boxes, 0 open edges, clip_check 0. Studio re-test (fit, ugc_check, animation
+poses with the new collar/locks): NOT DONE yet, Studio had no place open.

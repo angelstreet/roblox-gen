@@ -38,7 +38,7 @@ The key file path `~/.config/tidewatch/.env` is outside the repo on purpose (the
 
 ## Starter sets
 - `examples/tidewatch-warden/`: finished default example.
-- `examples/crystal-vanguard/`: the set below, r10 (passes the Marketplace size/triangle/watertight pre-check at all body scales; history and weak points in its NOTES.md, Studio results in STUDIO_TEST.md).
+- `examples/crystal-vanguard/`: the set below, r21 (physical-space painted textures with AO like Tidewatch; passes the Marketplace size/triangle/watertight pre-check at all body scales; history and weak points in its NOTES.md, Studio results in STUDIO_TEST.md, r10).
 - `lib/`: shared code both examples import (`rgen_mesh.py` Builder/swatches/body proxy, `rgen_clothing.py` Face painter).
 - `experiences/`: places and scripts (stage 4).
 - `starter/crystal-vanguard/`: concept art, prompts, sword blockout GLB and an exact spec for a second set. Agents: build it with `skills/roblox-2d-concept` (2D first) then `skills/roblox-avatar-fashion` (3D). See `docs/PIPELINE.md`.
@@ -55,7 +55,7 @@ Then ask: *"Generate the default Tidewatch Warden set and show me the render she
 One command (from the repo root; ~10 min, or ~3 min with `NOBAKE=1`, which skips the AO bakes):
 ```bash
 examples/tidewatch-warden/run_all.sh r4          # -> examples/tidewatch-warden/out/v5/r4_sheet.png
-examples/crystal-vanguard/run_all.sh r10         # second set, ~20 s -> examples/crystal-vanguard/out/r10_sheet.png
+examples/crystal-vanguard/run_all.sh r21         # second set, ~1 min (AO bakes ~4 s; NOBAKE=1 skips them) -> examples/crystal-vanguard/out/r21_sheet.png
 ```
 Both scripts use `blender` on PATH, else the macOS app; override with `BLENDER=/path/to/blender`. Building the shipped
 Crystal Vanguard rewrites its tracked release files (FBX headers carry a timestamp): `git checkout -- examples/crystal-vanguard` if you only wanted to look. Step by step:
@@ -75,7 +75,7 @@ Upload privately and test in Studio (needs the key): `SSL_CERT_FILE=/etc/ssl/cer
 Details, measurements and every trap found are in the skill file.
 
 ## Make your own set
-Fast path (recommended, ~20 s per build). Example: a set called "Ember Sentinel" in `examples/ember-sentinel/`.
+Fast path (recommended, ~1 min per build). Example: a set called "Ember Sentinel" in `examples/ember-sentinel/`.
 1. **Copy** `examples/crystal-vanguard/` to `examples/<your-set>/` (keep it two levels deep: scripts import `../../lib`
    and the sword reads `../../starter/crystal-vanguard/3d/*.glb`). In the copy **delete** the old release files and notes:
    `*.fbx`, `crystal_vanguard_*.png`, `render_sheet.png`, `2d_preview.png`, `NOTES.md`, `STUDIO_TEST.md`, `out/`.

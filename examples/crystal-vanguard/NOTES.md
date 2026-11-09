@@ -1,7 +1,7 @@
-# Crystal Vanguard (current: r10, see Round 4 at the end and STUDIO_TEST.md)
+# Crystal Vanguard (current: r21, see Rounds 5-6 at the end; Studio results in STUDIO_TEST.md are from r10)
 The tables and "Weak points" right below are the round-1 cold-agent build (history, oldest first); numbers there are not current.
 Run `./run_all.sh <tag>` (tag required, e.g. r10; uses `blender` on PATH, else the macOS app; override with `BLENDER=/path/to/blender`).
-Order: make_clothing_cv -> make_face_cv -> paint_cv -> build_cv -> render_cv -> compose_cv (~20 s). Outputs go to `out/`; the files in this folder are
+Order: make_clothing_cv -> make_face_cv -> build_cv (meshes, meta.json, Cycles AO) -> paint_cv -> render_cv -> compose_cv -> release_cv (~1 min; `NOBAKE=1` skips the AO bakes). Outputs go to `out/`; the files in this folder are
 copies of the final ones under release names: out/cv_shirt.png -> crystal_vanguard_shirt.png, out/cv_pants.png -> crystal_vanguard_pants.png,
 out/cv_face.png -> crystal_vanguard_face.png, out/<name>.fbx -> <name>.fbx, out/<tag>_sheet.png -> render_sheet.png. Render sheet: `render_sheet.png`. 2D preview: `2d_preview.png` (block R15 front/3/4/back + both PNGs).
 
@@ -54,3 +54,58 @@ Sizes below are Studio order W x H x D (x, y up, z depth); the build's EXPORT li
 | Face | `make_face_cv.py`: original determined face (silver brows, ice-blue eyes, small smirk) -> proxy head plane in Blender, FacePlate decal on the Studio rig | display only: classic faces are not UGC items |
 | Shirt / pants | (Sonnet subagent) gold scroll filigree (S-curves with curls), bevelled plates, navy sleeves with white vambraces, gem belt buckle, dark boots with gold trim | richer; weak: pants torso faces hidden under the shirt, upper sleeves plain (covered by the pauldrons) |
 Still open: the run back-kick clip (needs layered clothing or a shorter cape), hair side view is a dense block over the ear, pauldrons cover the whole torso side, emissive items cost 500 Robux to upload instead of 80.
+
+## Round 5 (r11-r18, Fable, 2026-11-09; superseded by Round 6 below) - close the quality gap to the concept and to Tidewatch v5
+Method: every round rendered and put next to the owner's concept turnaround (`compare_cv.py <tag>` -> `out/<tag>_vs_concept.png`, private, not
+committed) and judged by eye. Ranked gaps at r10: pauldrons (puffy white cylinders), hair (sea-urchin spikes), cape (no lining, no collar, round
+scallops, weak emblem), flat swatch materials everywhere (no AO), scarf too thin, legs too white, and the sword FBX was an unwelded triangle soup
+(3996 open edges: the blockout parts were copied with fresh verts per face; r10's "watertight" came from a check that did not count edges).
+Pipeline change: `build_cv.py` now writes `out/meta.json` (per sheet: UV rect, grid positions, distance-to-edge fields, fold map) and bakes
+Cycles AO per item (512 px, ~1 s each, `bake_ao()` as in tidewatch) and `paint_cv.py` paints in physical space (`Tex` class: trims as distance
+bands in studs, emblems/filigree projected through positions, AO multiplied with the bake's alpha as the island mask). Build runs BEFORE paint.
+`render_cv.py export=1` prints per item tris / bbox / open edges / PASS-FAIL against the Slender boxes. Emissive masks still come from the
+swatch cells (crystal, sapphire) plus the projected emblem shapes (cape) and the sword bands.
+| Round | Change | Decision |
+|---|---|---|
+| r11 | Pauldron rebuilt: wide boxy top plate (superellipse E=5) overhanging the shoulder with its outer edge dipping to a point, inner hem raised above the torso, two thinner narrower lames below (open on the torso side), navy underlayer, protruding gold rim per hem, big framed gem on the OUTER face of the top plate, 2 shards at the back. Texture: white + AO, gold hem bands + blue enamel band as distance bands, corner filigree around the gem, enamel diamonds on the lames. Sword parts welded. | kept (3976 -> 3180 tris); fixes: AO outside the UV islands darkened the atlas (use the bake alpha), tier rects widened to the full atlas width (120 -> 200 px/stud), filigree stroke 0.05, enamel only on the outer 3/4 |
+| r12 | Cape: top 1.5 -> 1.9 wide (shoulders), 7 triangular hem points + long centre point instead of round scallops, deeper folds exported as a fold map, lining = real UV rect (silver-white, painted from the same positions), tall white collar standing behind the neck (own rects), gold border bands (sides + hem) + inner line, crystal emblem (tall faceted crystal in a gold frame, wing shards, ice lines) projected on the outer face with its own emissive shape mask; 2048 texture | kept; collar was a white cube (too big/boxy) -> r13 |
+| r13 | Collar smaller, rounder, rolled. Hair rebuilt: one smooth dome (R 0.74, hem above the collar at the back, over the ears, forehead fringe) + 27 big flat tufts (14 swept up/back, 10 silhouette, 3 bangs) with real UVs (dome rect with painted strand streaks + AO, strand rect root->tip gradient), crown = low gold band, 5 gems, 7 crystals (tall centre, 2 medium, 2 small, 2 temple). Scarf: thick wrap with folds, fold maps + AO + knit weave | kept the direction; rejected details: tufts read as crumpled lumps (frame twisted per ring), scarf covered the mouth and its bib hid the chest gem, crown x 0.91 and scarf y 0.99 out of the box |
+| r14 | Tufts: ONE frame per strand (wide along the dome surface, thin radially), longer/thinner (w 0.12-0.15, L 0.55-0.78), 6 sides, every vertex clamped to the Hair box; scarf ring lowered to chin height, tail narrowed and draped to the character's left, clasp moved in | kept: all six items PASS |
+| r15 | Clothing: wide navy V tabard with the big gem, white chest plates with scrolls, pointed white skirt flaps over navy below the belt (their tips continue on the pants' legs), legs navy with one pointed knee plate + gem, dark boots with gold trim + gem (was 2 white tile plates per leg); pants torso plain navy under the shirt. Sword blade UVs run along the blade so the band carries ice streaks + a brighter tip, deeper blue -> white ridge ramp | kept |
+| r16 | Polish: crown AO 0.5 (dome was grey under the tufts), cape blue deeper (38,72,200)/(10,22,92), lower lames' enamel band narrower (white-dominant like the concept) | kept |
+| r17 | Sword pose vs the long cape: `clip_check.py` showed the r10 pose (RotX 6.5, y 1.40) cutting through the cape folds (809 overlapping triangle pairs; the long flared cape of r10 was never re-checked). RotX -36 / y 1.65 was clean but the blade tip stuck out 3 studs behind the shoulders | rejected |
+| r18 | RotX +18 (blade forward over the right shoulder, hilt back near the flared hem) + y 1.85: lies along the cape flare, 0 overlaps with cape, pauldrons, scarf, crown and body | kept = final |
+Final export (`render_cv.py export=1`, attachment frame, Blender axes x / y depth (+y behind) / z up; all watertight = 0 open edges):
+| FBX | Tris | bbox x / y / z | Box (Slender) |
+|---|---|---|---|
+| crystal_crown (Hair) | 3210 | -0.88..0.88 / -0.89..1.17 / -0.90..0.69 | PASS |
+| navy_scarf | 1228 | -0.89..0.91 / -0.86..0.75 / -0.89..0.26 | PASS |
+| sapphire_cape | 3740 | -1.35..1.35 / -0.55..1.51 / -2.86..1.42 | PASS |
+| vanguard_pauldron_r / _l | 3180 | -1.05..0.93 / -0.82..0.82 / -1.26..0.51 (L mirrored) | PASS |
+| crystal_vanguard_blade | 1866 | -1.04..0.89 / 0.33..1.45 / -1.28..1.36 | PASS |
+Textures: 1024 (crown, pauldron, scarf, sword), 2048 (cape); shirt/pants 585x559. Hair is still part of the crown mesh.
+Still different from the concept (and why): pauldrons still read as three stacked bands rather than one sculpted shell (tri budget and the
+two-shell sheet method); hair tufts are low-poly facets, not smooth anime locks (4000 tris for dome + band + crystals + 27 strands); the cape
+emblem is smaller than the concept's because the sword crosses the cape's lower half; the sword is 0.80 scale and posed on the back (Waist
+box), the concept shows it held; the blade glow is only an emissive mask (no bloom in Studio); shirt/pants are 2D paint only (no 3D
+breastplate or boots allowed for classic clothing); the collar is a smooth roll, not fur. Not done this round: Studio re-test (wear script,
+animation clipping of the new collar/scarf/tufts), cages/layered clothing, hand-sculpted strands.
+
+## Round 6 (r19-r21, Fable, 2026-11-09; sheet `render_sheet.png` = r21) - coordinator review of r18: back of head, spikes, pauldron silhouette
+Judged on `out/<tag>_vs_concept.png` and a head close-up from the back / 3/4 back (`out/r21_head_back_closeup.png`).
+| Round | Change | Decision |
+|---|---|---|
+| r19 | Hair: 9 big spikes (was 13) + 6 silhouette spikes, 7-sided rings, 5 segments, SMOOTH shading (flat shading was the faceted look), silver highlight on the outer face of every strand in the texture; 9 back locks hanging down/out over the nape; 2 side locks per ear; centre crown crystal bigger (0.74) in a gold diamond frame on the band. Collar lowered to a folded hood (top 0.20, dip at the back centre, thicker folds). Pauldron: ONE dominant shell (hx 0.94, cap depth 0.24, flare 0.08, outer point 0.28, NV 11) + one small tucked lame (hx 0.70, z -0.60..-0.86); underlayer shortened; painter for 2 tiers | kept; crown FAILED the Hair front box by 3 cm (centre crystal + frame at y -0.96) |
+| r20 | Centre crystal r 0.76, frame at y -0.745 (PASS); back locks 7, alternating long/short, tips flick outward and back | kept, but a skin band still showed at the nape centre between the lock tips and the collar dip |
+| r21 | Dome hem reaches the collar at the nape (hem HC-0.32 at the back, hem clamp -0.2 -> -0.5 so the superellipse can go below the equator), collar dip 0.08 -> 0.03 and top row 0.22, lock tips 0.06 lower | kept = final: no skin between hair and collar from any view |
+Final export (attachment frame, Blender axes x / y depth (+y behind) / z up; all 0 open edges; `clip_check.py` sword vs cape/pauldrons/scarf/crown/body all 0):
+| FBX | Tris | bbox x / y / z | Box (Slender) |
+|---|---|---|---|
+| crystal_crown (Hair) | 3412 | -0.88..0.88 / -0.92..1.17 / -1.21..0.79 | PASS |
+| navy_scarf | 1228 | -0.89..0.91 / -0.86..0.75 / -0.89..0.26 | PASS |
+| sapphire_cape | 3740 | -1.35..1.35 / -0.55..1.51 / -2.86..1.28 | PASS |
+| vanguard_pauldron_r / _l | 2580 | -1.17..1.03 / -0.89..0.89 / -1.04..0.55 (L mirrored) | PASS |
+| crystal_vanguard_blade | 1866 | -1.04..0.89 / 0.33..1.45 / -1.28..1.36 | PASS |
+Still different from the concept: spikes are smooth petals rather than razor-sharp anime locks (7-sided tapered tubes, ~70 tris each); the back
+locks are 7 tubes, the concept has finer layered strands; the pauldron shell is a superellipse cap, the concept's has a sculpted ridge; the
+folded collar is smooth cloth, not fur. Not re-tested in Studio (collar/lock clipping in animation unknown).

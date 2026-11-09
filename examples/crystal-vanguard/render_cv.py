@@ -69,6 +69,19 @@ if args.get("closeup") == "1":      # sword alone, upright, front and 3/4
         a = math.radians(aa); cam.location = t2 + Vector((-12 * math.sin(a), -12 * math.cos(a), 0.5))
         cam.rotation_euler = (t2 - cam.location).to_track_quat("-Z", "Y").to_euler(); rig.rotation_euler = (0, 0, -a)
         sc.render.filepath = os.path.join(OUT, f"{TAG}_{n}.png"); bpy.ops.render.render(write_still=True)
+# Marketplace boxes (docs/MARKETPLACE_RULES.md, Rthro Slender = tightest), attachment frame, Blender axes: x, y depth (+y behind), z up.
+# (xmin, xmax, ymin, ymax, zmin, zmax). Crown is submitted as Hair.
+LIMITS = {"cv_crown": (-0.89, 0.89, -0.93, 1.18, -1.87, 1.25), "cv_scarf": (-1.295, 1.295, -0.96, 0.96, -1.695, 1.695),
+          "cv_cape": (-4.32, 4.32, -1.443, 2.886, -3.5, 3.5), "cv_pauldron_r": (-1.185, 1.185, -1.375, 1.375, -1.98, 1.98),
+          "cv_pauldron_l": (-1.185, 1.185, -1.375, 1.375, -1.98, 1.98), "cv_sword": (-1.88, 1.88, -3.36, 3.36, -1.885, 1.414)}
+
+
+def open_edges(me):
+    """edges not shared by exactly 2 faces (0 = watertight single shell)"""
+    import bmesh
+    bm = bmesh.new(); bm.from_mesh(me); n = sum(1 for e in bm.edges if len(e.link_faces) != 2); bm.free(); return n
+
+
 if args.get("export") == "1":
     for nm in ITEMS:
         ob = bpy.data.objects[nm]; tmp = ob.copy(); tmp.data = ob.data.copy(); sc.collection.objects.link(tmp)
@@ -78,8 +91,12 @@ if args.get("export") == "1":
         bpy.ops.export_scene.fbx(filepath=os.path.join(OUT, FBX[nm] + ".fbx"), use_selection=True, axis_forward="-Z", axis_up="Y",
                                  apply_unit_scale=True, global_scale=0.01, bake_space_transform=False, mesh_smooth_type="FACE")
         bb = [Vector(c) for c in tmp.bound_box]
-        print("EXPORT", FBX[nm], "tris", sum(len(p.vertices) - 2 for p in tmp.data.polygons), "bbox rel attachment x %.2f..%.2f y %.2f..%.2f z %.2f..%.2f (size %.2f x %.2f x %.2f)" % (
-            min(v.x for v in bb), max(v.x for v in bb), min(v.y for v in bb), max(v.y for v in bb), min(v.z for v in bb), max(v.z for v in bb),
-            max(v.x for v in bb) - min(v.x for v in bb), max(v.y for v in bb) - min(v.y for v in bb), max(v.z for v in bb) - min(v.z for v in bb)))
+        lo = [min(v[k] for v in bb) for k in range(3)]; hi = [max(v[k] for v in bb) for k in range(3)]
+        ntri = sum(len(p.vertices) - 2 for p in tmp.data.polygons); nopen = open_edges(tmp.data); L = LIMITS[nm]
+        fits = all(lo[k] >= L[2 * k] - 1e-3 and hi[k] <= L[2 * k + 1] + 1e-3 for k in range(3))
+        ok = ntri <= 4000 and nopen == 0 and fits
+        print("EXPORT", FBX[nm], "tris", ntri, "bbox rel attachment x %.2f..%.2f y %.2f..%.2f z %.2f..%.2f (size %.2f x %.2f x %.2f)" % (
+            lo[0], hi[0], lo[1], hi[1], lo[2], hi[2], hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]),
+            "open_edges", nopen, "box", "ok" if fits else "OUT", "=>", "PASS" if ok else "FAIL")
         bpy.data.objects.remove(tmp)
 print("RENDERED")
