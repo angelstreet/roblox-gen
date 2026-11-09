@@ -53,3 +53,23 @@ explicit camera/look-at positions (rig at (0,5,0), faces -Z). Screenshots: `docs
   scarf 1.65 x 1.00 x 1.59, sword 2.13 x 2.92 x 0.51 (same as the hand run; the pauldron's y/z order is the importer's).
 - Front/back/3-4 match the Blender sheet. Side: sword lies against the cape (r9 pose holds). Seen for the quality pass:
   hair spikes stick straight back like a comb, pauldrons cover the whole torso side, a scarf strap hangs right of the collar.
+
+## Animations, R6, Rthro (2026-11-09, Studio MCP, edit mode)
+Method: `docs/studio/pose_anim.lua` plays a default R15 animation on the anchored rig and steps it to one frame with
+`Animator:StepAnimations` (no Play mode needed), then `screen_capture` from fixed cameras. Screenshots in `docs/studio/anim/`.
+
+| Pose (default R15 anim, frame) | Result |
+|---|---|
+| Walk 0.17 / 0.50 | OK. Pauldrons follow the arms, cape and sword stay clear of the legs (legs reach <= 0.47 behind torso centre). `walk_q34back.jpg` |
+| Run 0.12 | OK |
+| Run 0.37 (back kick) | **Clips.** Right shin/foot reach 1.43/1.74 studs behind the torso centre, the cape's back face is ~1.3: the boot passes through the lower cape (`run_back_clip.jpg`, `run_side_clip.jpg`). Same problem every rigid Roblox cape has; fixes: flare the lower cape further back (>= 1.8) or end it above the knee-kick zone, or make it layered clothing. |
+| Jump 0.15 | OK, legs tuck under the cape, sword clear (`jump_q34back.jpg`); pauldron inner rims touch the chest edge a little (`jump_front.jpg`) |
+| Fall 0.30 (arms up) | Minor: the raised pauldron reaches head height and touches the crown band from the side (`fall_side.jpg`) |
+
+Bodies (`docs/studio/wear_crystal_vanguard.lua` with its CONFIG block):
+| Body | Result |
+|---|---|
+| R6 | OK, every item attaches (R6 has the same attachment names); sizes stay at the raw Blender values (`r6_q34.jpg`) |
+| R15 Rthro Normal (BodyTypeScale 1, ProportionScale 0) | OK, accessories auto-scale (cape 4.14 tall, pauldrons 2.10 x 2.56) (`rthro_normal_q34.jpg`) |
+| R15 Rthro Slender (BodyTypeScale 1, ProportionScale 1, Height 1.05) | OK (`rthro_slender_q34back.jpg`) |
+Not covered: real Rthro mesh bundles (only Rthro body scales on the blocky parts), in-game Play mode, emotes.

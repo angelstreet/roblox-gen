@@ -32,6 +32,8 @@ MCP tools only load at session start: start a NEW session after adding it. Tools
 With these, run the wear script (`docs/studio/wear_crystal_vanguard.lua`) via `execute_luau` and take views with `screen_capture`: no clicking, no command-bar typing. Verified 2026-11-09:
 - Call `list_roblox_studios` first; every tool needs its `studio_id`. A place must be open (Home screen = no tools).
 - `execute_luau` with `datamodel_type: "Edit"`; `return` a string to get results back (prints go to `get_console_output`). Remove an old rig with `.Parent = nil` before re-running.
+- Animation clipping without Play mode: `docs/studio/pose_anim.lua` (`Animator:StepAnimations` in edit mode, default R15 anim ids, leg-behind-torso probe). Rigid capes clip the run back-kick (shin reaches 1.74 behind the torso centre).
+- Bodies: `wear_crystal_vanguard.lua` CONFIG takes R6/R15 and HumanoidDescription scales (Rthro Normal/Slender); accessories auto-scale on Rthro.
 - `screen_capture` with `camera_position` + `look_at_position` gives exact views: rig at (0,5,0) facing -Z -> front (0,5.5,-9), back (0,5.5,9), side (9,5.5,0), 3/4 (6.5,6,-6.5). The returned JPG is saved under the session's tool-results folder; copy it into `docs/studio/`. Fall back to the computer-use method above only if the tools are missing.
 
 ## Studio (computer-use fallback, grant RobloxStudio)
