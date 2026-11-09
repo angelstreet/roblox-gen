@@ -103,5 +103,15 @@ Private uploads: crown 102504012631494, pauldron R 70719211597742 / L 1176283522
 sword 113108359427829; textures (Decal) crown 103734755245021, pauldron 93359691730948, cape 134894248556722, scarf 134997260146198,
 sword 109618034074197; emissive masks crown 71350189875260, pauldron 135901164997081, cape 71173472629586, scarf 71452399300364,
 sword 115937923296136; shirt 131364842624653, pants 79782937213545 (face unchanged). All in `docs/studio/wear_crystal_vanguard.lua`.
-Blender-side checks at export: all items PASS the Slender boxes, 0 open edges, clip_check 0. Studio re-test (fit, ugc_check, animation
-poses with the new collar/locks): NOT DONE yet, Studio had no place open.
+Blender-side checks at export: all items PASS the Slender boxes, 0 open edges, clip_check 0.
+
+Studio re-test (2026-11-09, Studio MCP, shots `docs/studio/r21/`):
+- Fit (front/3-4/back/side): matches the r21 sheet; back locks cover the nape, collar sits under them, cape + emblem + sword read
+  well, face and glow OK. Small flaws: the gold filigree on the pauldron tops is blurry (texture stretched on the top face) and two
+  small blue gaps show in the collar from behind.
+- `ugc_check` on an unscaled R6 rig: every item passes Classic/Normal/Slender (crown as Hair), 0 open edges, tris 1228-3740.
+  Studio sizes (W x H x D): crown 1.76 x 2.00 x 2.09, pauldron 2.20 x 1.59 x 1.77, cape 2.70 x 4.14 x 2.06, scarf 1.79 x 1.15 x 1.61,
+  sword 1.94 x 2.64 x 1.12.
+- Walk 0.17: clean. Run 0.34 (back-kick): boot passes through the lower cape and past the sword hilt (rigid-cape limit, as r10).
+  Fall 0.30 (arms up): raised pauldron shells pass beside the head and touch the outer hair locks a little; their open underside
+  shows. Jump not re-shot.

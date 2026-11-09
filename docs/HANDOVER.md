@@ -52,3 +52,10 @@ then the two skills in `skills/`. This file is the owner's working note for the 
 - Default R15 head is a dynamic MeshPart head: face decals go on a welded plate with Transparency 0.98 (1 = not drawn).
 - `Lighting.Technology` is not readable/writable from the MCP thread; `_G` is not shared between Scripts and MCP code.
 - macOS: `sed -i ''`; no pipes after `git push` in this machine's shell hook.
+
+## Update 2026-11-09 (later): Crystal Vanguard r21 (Fable)
+Fable rebuilt Crystal Vanguard in two passes (r11-r21, NOTES.md Rounds 5-6): physical-space painted textures with AO,
+one-shell pauldrons, lined cape with collar and pointed hem, layered hair with back locks, thick scarf, welded sword.
+Uploaded privately (ids in `docs/studio/wear_crystal_vanguard.lua`), Studio-tested (STUDIO_TEST.md "r21"): passes ugc_check,
+walk clean, run back-kick still clips the cape. Next for this set: sharpen the blurry pauldron-top filigree, close the collar
+gaps, a fur look for the collar, sharper hair spikes, and layered clothing for the cape.
