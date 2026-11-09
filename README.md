@@ -41,6 +41,7 @@ The key file path `~/.config/tidewatch/.env` is outside the repo on purpose (the
 - `examples/crystal-vanguard/`: the set below, r27 (physical-space painted textures with AO like Tidewatch; passes the Marketplace size/triangle/watertight pre-check at all body scales; history and weak points in its NOTES.md, Studio results in STUDIO_TEST.md, r10).
 - `lib/`: shared code both examples import (`rgen_mesh.py` Builder/swatches/body proxy, `rgen_clothing.py` Face painter).
 - `experiences/`: places and scripts (stage 4).
+- `starter/ember-warden/` (cold Sonnet build, Studio-tested) and `starter/thornwood-druid/` (cold Haiku build, below the bar): full sets with textures, see `starter/README.md`.
 - `starter/crystal-vanguard/`: concept art, prompts, sword blockout GLB and an exact spec for a second set. Agents: build it with `skills/roblox-2d-concept` (2D first) then `skills/roblox-avatar-fashion` (3D). See `docs/PIPELINE.md`.
 
 ## For AI agents

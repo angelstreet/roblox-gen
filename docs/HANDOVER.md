@@ -67,6 +67,6 @@ Cold from-scratch test, same brief per model, judged against Crystal Vanguard r2
 - **Haiku ("Thornwood Druid", bark/moss): technically clean but below the bar.** No hair, thin antlers, flat mantle, plain staff,
   Crystal Vanguard clothing layout recoloured; stopped after 2 of the expected rounds. Its doc gaps were fixed in 2f2125f.
   The shortfall is effort and design judgement, not missing instructions.
-Use Sonnet (or better) to build new sets; Haiku for recolours/renames and checks. Neither test set is in the repo (scratch only).
+Use Sonnet (or better) to build new sets; Haiku for recolours/renames and checks. Both test sets are saved in `starter/ember-warden/` and `starter/thornwood-druid/` (wear script `docs/studio/wear_ember_warden.lua`).
 **Owner decision (2026-11-09): Sonnet is enough.** No Haiku-proofing work (parts library, stricter checklist); next-step 1 above
 is done. Continue with next steps 2-6.
