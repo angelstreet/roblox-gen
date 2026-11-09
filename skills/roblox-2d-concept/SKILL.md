@@ -17,7 +17,10 @@ Never start 3D before the 2D gate below is passed. A concept image is NOT a UV t
 2. **Canonical spec** `starter/<set>/SPEC.md`: palette hex list, motifs, one row per product (shirt, pants, each 3D accessory, weapon) with its Roblox attachment, silhouette notes, triangle budget. Extract colours from the images with Pillow (`Image.quantize`), do not guess.
 3. **Clothing PNGs**: paint on the official template UV regions with the 4x-per-face method (shadows baked first, 3-stop metal ramp, glow layer, LANCZOS down). Outputs `shirt.png` and `pants.png`, 585x559 RGBA. Overlay the template to check alignment.
 4. **Weapon/accessory sheets**: if the human supplied orthographic sheets, keep them as references; otherwise derive simple front/side silhouettes from the spec.
-5. **2D gate (all must be true)**: palette in SPEC.md; shirt/pants PNG exactly 585x559; template overlay image saved; every 3D accessory listed with attachment; a `2d_preview.png` that shows shirt+pants mapped on a block R15 (use `render_preview.py` or the Blender proxy in `build_v5.py`). Then go to stage 2.
+5. **2D gate (all must be true)**: palette in SPEC.md; shirt/pants PNG exactly 585x559; template overlay image saved; every 3D accessory listed with attachment; a `2d_preview.png` that shows shirt+pants mapped on a block R15 (use the Blender proxy: `examples/crystal-vanguard/render_cv.py ... preview2d=1`; `render_preview.py` belongs to the old v1 pipeline and does not work for new sets). Then go to stage 2.
+
+## Using the Face painter with a new palette
+`from make_clothing import Face` paints one template face on a 4x canvas; its defaults are Tidewatch bronze/aqua. Pass your own colours: `metal()` takes a 3-stop ramp `top/mid/bot` (see `examples/crystal-vanguard/make_clothing_cv.py` for gold, silver and sapphire ramps). Check palette use with `python3 scripts/check_palette.py <png> <hex>...`.
 
 ## Rules
 - Originality: no franchise characters, logos, text. References are a quality bar only.

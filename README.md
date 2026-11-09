@@ -32,6 +32,7 @@ The key file path `~/.config/tidewatch/.env` is outside the repo on purpose (the
 
 ## Starter sets
 - `examples/tidewatch-warden/`: finished default example.
+- `examples/crystal-vanguard/`: first cold-agent build of the set below (Sonnet, about 60% of the concept's polish; weak points in its NOTES.md).
 - `starter/crystal-vanguard/`: concept art, prompts, sword blockout GLB and an exact spec for a second set. Agents: build it with `skills/roblox-2d-concept` (2D first) then `skills/roblox-avatar-fashion` (3D). See `docs/PIPELINE.md`.
 
 ## For AI agents

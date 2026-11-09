@@ -27,10 +27,15 @@ Optional stretch: the sword as a handheld Tool (`Handle` + grip), documented sep
 
 ## Sword (Crystal Vanguard Blade)
 Faceted translucent cyan blade with central ridge, gold-and-sapphire crossguard with large central diamond crystal and two wings with gems, deep-blue wrapped grip (rings), gold collars, diamond pommel.
-Start from the 28-part GLB: import with Blender (`bpy.ops.import_scene.gltf`), refine facets (add bevels/ridge), join by material, UV unwrap, 1 texture or palette atlas, <= 4000 tris, origin at the attachment point. Same length proportions as the blockout (blade about 2.5 units, guard 1.7 wide).
+Start from the 28-part GLB: import with Blender (`bpy.ops.import_scene.gltf`), refine facets (add bevels/ridge), join by material, UV unwrap, 1 texture or palette atlas, <= 4000 tris, origin at the attachment point. Real blockout numbers: total length 4.26 units (blade 2.65, guard 1.7 wide, grip about 0.82). It imports lying along -Y (tip y=-4.12): rotate it upright, scale it (about 0.85) so it stays within accessory limits, and pose it diagonally behind the cape (a cold Sonnet run used tilt about 35 deg, offset +0.9 behind the attachment). Snapshot scene objects before importing the GLB, see docs/BUILDER_CHEATSHEET.md.
+WaistBackAttachment in neck-frame coordinates: (0, 0.502, -2.098) (mirror of WaistFront).
+
+## Size limits (verify on create.roblox.com before publishing)
+Hat-class accessories: about 1.87 x 2.5 x 1.87 studs, <= 4000 tris each. Back/waist/shoulder items have their own limits: keep them close to the body and tell the human the measured bbox. Keep the white collar a separate item or small: a merged collar made the cold-agent cape 5 studs tall, probably too big.
+Write one line in NOTES.md saying whether the hair is part of the crown mesh.
 
 ## Quality bar for the render sheet
 Front, 3/4, side, 3/4 back, back on the block R15 proxy; palette recognisably the same as the concept (white/blue/gold); every product visible; no black or empty frames. Compare against `2d/crystal_vanguard_full_concept.png` privately.
 
 ## How to build it
-Copy `examples/tidewatch-warden/` to `examples/crystal-vanguard/` and replace palette, emblem and meshes (see `build_v5.py` item builders, `paint_v5.py` textures, `make_clothing_v5.py` for the shirt/pants). Follow `skills/roblox-2d-concept` first, then `skills/roblox-avatar-fashion`. Do not upload or spend anything without the human's yes.
+A first cold-agent build exists in `examples/crystal-vanguard/` (`./run_all.sh r3`, about 30 s; set `BLENDER=` on Linux). Improve it, do not start over. Weak points are listed in its NOTES.md. API: `docs/BUILDER_CHEATSHEET.md`. Follow `skills/roblox-2d-concept` first, then `skills/roblox-avatar-fashion`. Do not upload or spend anything without the human's yes.
