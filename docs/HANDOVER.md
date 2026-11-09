@@ -68,3 +68,5 @@ Cold from-scratch test, same brief per model, judged against Crystal Vanguard r2
   Crystal Vanguard clothing layout recoloured; stopped after 2 of the expected rounds. Its doc gaps were fixed in 2f2125f.
   The shortfall is effort and design judgement, not missing instructions.
 Use Sonnet (or better) to build new sets; Haiku for recolours/renames and checks. Neither test set is in the repo (scratch only).
+**Owner decision (2026-11-09): Sonnet is enough.** No Haiku-proofing work (parts library, stricter checklist); next-step 1 above
+is done. Continue with next steps 2-6.
