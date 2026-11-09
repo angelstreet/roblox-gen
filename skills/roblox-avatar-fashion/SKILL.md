@@ -1,6 +1,6 @@
 ---
 name: roblox-avatar-fashion
-description: Build and test Roblox avatar fashion (classic shirt/pants textures, 3D accessories) on this Mac - official 585x559 template UVs, Blender headless, Open Cloud uploads, and Roblox Studio testing via the command bar. Use when making, fixing, uploading or previewing Roblox clothing or accessories, or when the Studio MCP / file dialogs / Decal-vs-image ids cause trouble.
+description: Build and test Roblox avatar fashion (classic shirt/pants textures, 3D accessories) on Mac or Linux - official 585x559 template UVs, Blender headless, Open Cloud uploads, and Roblox Studio testing via the command bar. Use when making, fixing, uploading or previewing Roblox clothing or accessories, or when the Studio MCP / file dialogs / Decal-vs-image ids cause trouble.
 ---
 
 # Roblox avatar fashion pipeline (verified 2026-11-08)
@@ -62,12 +62,12 @@ Rule: references are a QUALITY BAR only. Ship original designs, names, emblems. 
 - Box-like pauldrons must have closed fronts (cap shells), an arc sheet extruded in depth reads as a thin line from the front.
 - Contrast check: cloth texture ~(21,25,38) lit / (6,7,12) shade renders near-black; (30,36,54) already reads mid grey under a product light.
 
-## v5 pipeline (run order, from tidewatch/README.md)
+## v5 pipeline (run all commands from `examples/tidewatch-warden/`; the Open Cloud key is needed only for step 6; on Linux use `blender` on PATH; run order, from examples/tidewatch-warden/README.md)
 1. `python3 make_clothing_v5.py` (classic shirt/pants)
 2. `/Applications/Blender.app/Contents/MacOS/Blender -b -P build_v5.py` (meshes, meta.json, Cycles AO bakes -> out/v5/)
 3. `python3 paint_v5.py` (UV textures)
 4. `Blender -b out/v5/v5_build.blend -P render_v5.py -- tag=r3 export=1` (Eevee views + FBX)
-5. `python3 compose_v5.py r3` -> `out/v5/v5_sheet.png` (front, 3/4, side, 3/4 back, back)
+5. `python3 compose_v5.py r3` -> `out/v5/r3_sheet.png` (without a tag argument the name is `v5_sheet.png`) (front, 3/4, side, 3/4 back, back)
 6. `SSL_CERT_FILE=/etc/ssl/cert.pem python3 upload_assets.py <files>`; resolve Decal -> image ids in Studio; wear on rig.
 Tidewatch v5 asset IDs are in README.md (hood 125983264677959, mantle 134418525303305, cape 127866209640438, pauldrons 124776217777333/71062800685242, belt 85906048945961, skirt 76247706672366, textures as Decals).
 

@@ -4,7 +4,7 @@ baked AO maps (out/v5/ao_<item>.png). Trims are painted as distance bands measur
 bronze edge is the same physical width everywhere; emblems are drawn once and projected through the surface positions.
 Usage: python3 paint_v5.py   -> out/v5/tex_<item>.png
 """
-import json, os, math
+import json, os, math, zlib
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 
@@ -102,7 +102,7 @@ class Tex:
         f = up(s["fold"], w, h) if s.get("fold") else np.zeros((h, w), np.float32)
         lam = np.clip(0.55 + 0.42 * f * fold_k + (light(pos) if light else 0), 0, 1)[..., None]
         col = base[1] + (base[0] - base[1]) * lam
-        rng = np.random.default_rng(hash(key) % 999); col *= (1 + rng.normal(0, 0.03, (h, w)).astype(np.float32))[..., None]
+        rng = np.random.default_rng(zlib.crc32(key.encode()) % 999); col *= (1 + rng.normal(0, 0.03, (h, w)).astype(np.float32))[..., None]
         if s.get("rect_in"):
             a0, a1, b0, b1 = self.box(s["rect_in"]); fi = up(s["fold"], a1 - a0, b1 - b0) if s.get("fold") else 0
             self.c[b0:b1, a0:a1] = INNER * (1 + 0.15 * fi)[..., None] if s.get("fold") else INNER

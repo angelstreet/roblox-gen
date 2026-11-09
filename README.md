@@ -25,7 +25,14 @@ plates, belt, skirt). Rendered on a block R15 proxy in Blender.*
 4. **Python 3** with `pillow` and `numpy`.
 5. Optional: an AI coding agent (Claude Code, Codex, ...).
 
-Check everything: `python3 scripts/check_prereqs.py`
+Headless Linux: see `docs/LINUX_HEADLESS.md`. Needs Blender 4.2 or newer. Check everything (run from the repo root): `python3 scripts/check_prereqs.py`
+
+The API key is only needed to **upload**. Generating and rendering the outfit locally needs only Blender and Python.
+The key file path `~/.config/tidewatch/.env` is outside the repo on purpose (the folder name is historical, create it with `mkdir -p ~/.config/tidewatch`).
+
+## Starter sets
+- `examples/tidewatch-warden/`: finished default example.
+- `starter/crystal-vanguard/`: concept art, prompts, sword blockout GLB and an exact spec for a second set. Agents: build it with `skills/roblox-2d-concept` (2D first) then `skills/roblox-avatar-fashion` (3D). See `docs/PIPELINE.md`.
 
 ## For AI agents
 Read [`AGENTS.md`](AGENTS.md), then [`skills/roblox-avatar-fashion/SKILL.md`](skills/roblox-avatar-fashion/SKILL.md).
@@ -36,14 +43,18 @@ cp -R skills/roblox-avatar-fashion ~/.claude/skills/
 Then ask: *"Generate the default Tidewatch Warden set and show me the render sheet."*
 
 ## Run the default example
+All commands run from `examples/tidewatch-warden/` (after the repo-root prerequisites check). On Linux/Windows use the `blender` on your PATH instead of the macOS path; flags after `--` are `key=value` pairs.
 ```bash
+# macOS: use /Applications/Blender.app/Contents/MacOS/Blender where it says blender
 cd examples/tidewatch-warden
 python3 make_clothing_v5.py
-/Applications/Blender.app/Contents/MacOS/Blender -b -P build_v5.py
+blender -b -P build_v5.py
 python3 paint_v5.py
-/Applications/Blender.app/Contents/MacOS/Blender -b out/v5/v5_build.blend -P render_v5.py -- tag=r3 export=1
-python3 compose_v5.py r3          # writes out/v5/r3_sheet.png
+blender -b out/v5/v5_build.blend -P render_v5.py -- tag=r3 export=1
+python3 compose_v5.py r3          # writes out/v5/r3_sheet.png (the render sheet)
 ```
+Outputs land in `out/v5/`: `r3_sheet.png`, `tidewatch_shirt_v5.png`, `tidewatch_pants_v5.png`, one `.fbx` per accessory. If `ROBLOX_GEN_REFERENCE` is set, a private `r3_vs_reference.png` is also written: never commit or ship it.
+
 Upload privately and test in Studio (needs the key): `SSL_CERT_FILE=/etc/ssl/cert.pem python3 upload_assets.py out/v5/*.fbx out/v5/*.png`.
 Details, measurements and every trap found are in the skill file.
 

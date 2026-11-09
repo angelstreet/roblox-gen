@@ -8,7 +8,9 @@ views = ["front", "q34", "side", "q34back", "back"]
 ims = [Image.open(os.path.join(OUT, f"{tag}_{v}.png")).convert("RGB") for v in views]
 w, h = ims[0].size
 sheet = Image.new("RGB", (w * 5, h + 60), (27, 27, 28)); d = ImageDraw.Draw(sheet)
-try: font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 30)
+FONTS = ("/System/Library/Fonts/Helvetica.ttc", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+         "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf", "C:/Windows/Fonts/arial.ttf")
+try: font = next(ImageFont.truetype(p, 30) for p in FONTS if os.path.exists(p))
 except Exception: font = ImageFont.load_default()
 for k, im in enumerate(ims):
     sheet.paste(im, (k * w, 60)); d.text((k * w + 20, 14), views[k], fill=(200, 200, 200), font=font)

@@ -6,7 +6,7 @@ import sys, os, math
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageChops
 
-OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(os.path.abspath(__file__)), "out")
+OUT = sys.argv[1] if (len(sys.argv) > 1 and __name__ == "__main__") else os.path.join(os.path.dirname(os.path.abspath(__file__)), "out")
 os.makedirs(OUT, exist_ok=True)
 W, H, S = 585, 559, 4
 CL_TOP, CL_BOT = (30, 44, 78), (9, 14, 28)            # cloth
