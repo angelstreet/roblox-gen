@@ -73,3 +73,17 @@ Bodies (`docs/studio/wear_crystal_vanguard.lua` with its CONFIG block):
 | R15 Rthro Normal (BodyTypeScale 1, ProportionScale 0) | OK, accessories auto-scale (cape 4.14 tall, pauldrons 2.10 x 2.56) (`rthro_normal_q34.jpg`) |
 | R15 Rthro Slender (BodyTypeScale 1, ProportionScale 1, Height 1.05) | OK (`rthro_slender_q34back.jpg`) |
 Not covered: real Rthro mesh bundles (only Rthro body scales on the blocky parts), in-game Play mode, emotes.
+
+## Marketplace pre-check (2026-11-09, `docs/studio/ugc_check.lua` on the unscaled R6 rig, rules in `docs/MARKETPLACE_RULES.md`)
+| Item (type) | Box W x H x D, extents from attachment | Classic | Rthro Normal | Rthro Slender | Tris | Watertight | Texture |
+|---|---|---|---|---|---|---|---|
+| Crown + hair (Hat) | 2.24 x 1.56 x 2.45; 1.58 behind | FAIL (behind 1.58 > 1.50) | FAIL (W, D) | FAIL | 2768 | **NO** (256 open edges) | 1024 |
+| Crown + hair (as Hair) | same | ok | FAIL (W 2.24 > 1.87, behind 1.58 > 1.25) | FAIL | | | |
+| Pauldron R / L (Shoulder) | 1.86 x 1.91 x 1.69 | ok | ok | ok | 3976 | yes | 1024 |
+| Cape (Back) | 2.25 x 3.16 x 1.43; 1.89 down | ok | ok | ok | 3540 | yes | 1024 |
+| Scarf (Neck) | 1.70 x 0.94 x 1.58 | ok | ok | ok | 844 | yes | 1024 |
+| Sword (Waist) | 2.14 x 2.92 x 0.51; 1.96 up | FAIL (up > 1.5) | FAIL (up > 1.84) | FAIL (up > 1.41) | 1858 | **NO** (10 open edges) | 1024 |
+All Plastic, Transparency 0; the only extra child is the engine-added `OriginalSize` (added by Humanoid scaling, not in the asset).
+To fix in the next build: crown+hair <= 1.78 wide and <= 1.19 behind its attachment (submit as Hair), closed shells;
+sword moved down >= 0.55 so it stays <= 1.41 above WaistBack, closed shells. The cape may grow ~1.6 studs longer (Back: 3.5 down Classic).
+The real validator (Save to Roblox > Avatar Asset) was not run: it is the paid upload flow.

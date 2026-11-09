@@ -48,7 +48,7 @@ With these, run the wear script (`docs/studio/wear_crystal_vanguard.lua`) via `e
 ## Known quality limits
 - Procedural sphere+cone hoods look crude; hood must be sized ~1.2-1.4x head (head 1.16 studs), sculpted in Blender, with cloth folds and a real cowl. Layered clothing needs cages (not done yet).
 - Not yet tested: UGC validation tool, Marketplace publish, R6, in-game.
-- Fees: earlier "10 Robux" claim was outdated; see tidewatch/QUALITY_PLAN.md (80 Robux upload + advance, ID verification, Premium to sell). Re-verify before paying.
+- Limits and fees (read 2026-11-09): `docs/MARKETPLACE_RULES.md` (per-type boxes in the attachment frame, 4k tris, watertight, 2048 textures; 80 Robux upload + 1000-1500 advance per rigid item, ID verification; Premium to publish unverified). Pre-check every set with `docs/studio/ugc_check.lua` before any upload talk. Re-verify before paying.
 
 ## FBX via Open Cloud -> Studio (verified 2026-11-08, hood_v2.py)
 - Open Cloud accepts FBX as assetType Model only with content type `model/fbx` (upload_assets.py does this). No file picker needed.
@@ -90,7 +90,7 @@ Tidewatch v5 asset IDs are in README.md (hood 125983264677959, mantle 1344185253
 ## Known gaps after v5 (next work)
 - Folds are procedural (no hand sculpt), hood reads smooth CG; no hair/face/hero prop (staff); plain lower arms; cape tab above mantle; rigid skirt clips legs in walk animations (needs layered clothing/cages or split skirt).
 - Not tested: side view in Studio, animations, R6/Rthro, UGC validation tool, Marketplace publish.
-- Fees/rules (80 Robux upload + advance, ID verification, Premium to sell) are agent-reported: re-verify on create.roblox.com before paying.
+- Fees/rules: see `docs/MARKETPLACE_RULES.md`; re-verify on create.roblox.com before paying.
 - Reference image (roblox1.jpeg) = quality bar only; never ship a copy. Keep comparison images private.
 
 ## Driving Studio with computer-use (trap, 2026-11-09)
