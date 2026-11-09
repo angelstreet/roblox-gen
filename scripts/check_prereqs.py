@@ -28,6 +28,6 @@ studio = any(os.path.exists(p) for p in ("/Applications/RobloxStudio.app", os.pa
 row("Roblox Studio", studio, "install from create.roblox.com", build=False)
 env = os.path.expanduser("~/.config/tidewatch/.env")
 has = os.path.exists(env) and "ROBLOX_API_KEY" in open(env).read() and "ROBLOX_USER_ID" in open(env).read()
-row("Open Cloud key in ~/.config/tidewatch/.env", has, "see .env.example (mkdir -p ~/.config/tidewatch)", build=False)
+row("Open Cloud key in ~/.config/tidewatch/.env (reads the file for the two key NAMES, never prints values)", has, "see .env.example (mkdir -p ~/.config/tidewatch)", build=False)
 print("\nBuild prerequisites OK." if build_ok else "\nBuild prerequisites MISSING (see [MISS]).")
 sys.exit(0 if build_ok else 1)

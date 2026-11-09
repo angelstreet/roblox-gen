@@ -50,7 +50,7 @@ With these, run the wear script (`docs/studio/wear_crystal_vanguard.lua`) via `e
 ## Known quality limits
 - Procedural sphere+cone hoods look crude; hood must be sized ~1.2-1.4x head (head 1.16 studs), sculpted in Blender, with cloth folds and a real cowl. Layered clothing needs cages (not done yet).
 - Tested on Crystal Vanguard (2026-11-09): R6, Rthro Normal/Slender scales, walk/run/jump/fall poses, in-game try-on (experiences/showroom). Not tested: Roblox's own UGC validator (paid upload flow), Marketplace publish, real Rthro mesh bundles.
-- Limits and fees (read 2026-11-09): `docs/MARKETPLACE_RULES.md` (per-type boxes in the attachment frame, 4k tris, watertight, 2048 textures; 80 Robux upload + 1000-1500 advance per rigid item, ID verification; Premium to publish unverified). Pre-check every set with `docs/studio/ugc_check.lua` before any upload talk. Re-verify before paying.
+- Limits and fees (read 2026-11-09): `docs/MARKETPLACE_RULES.md` (per-type boxes in the attachment frame, 4k tris, watertight, 2048 textures; 80 Robux upload + 1000-1500 advance per rigid item, ID verification; whether Premium is needed to publish is unverified). Pre-check every set with `docs/studio/ugc_check.lua` before any upload talk. Re-verify before paying.
 
 ## FBX via Open Cloud -> Studio (verified 2026-11-08, hood_v2.py)
 - Open Cloud accepts FBX as assetType Model only with content type `model/fbx` (scripts/upload_assets.py does this). No file picker needed.

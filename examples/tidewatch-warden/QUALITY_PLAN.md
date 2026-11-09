@@ -17,7 +17,7 @@ explicit Marketplace violation, not only an IP risk.
 | Waist (WaistFront/Center/BackAttachment, normal) | 3.94 x 4.29 x 7.57 | specifications |
 | Front (BodyFrontAttachment, normal) | 2.95 x 3.68 x 3.24 | specifications |
 | Attachment names | HatAttachment, HairAttachment, BodyBackAttachment, BodyFrontAttachment, Waist{Front,Center,Back}Attachment, Right/LeftShoulderAttachment, Right/LeftCollarAttachment, NeckAttachment, FaceFront/CenterAttachment | specifications |
-| Fees / access | 80 Robux upload fee, 10–2,500 Robux publishing advance, gov ID + 2-step to upload/publish, **Premium 1000/2200 (or Plus) to publish and keep on sale** | marketplace/marketplace-policy |
+| Fees / access (agent-reported 2026-11-08; current, sourced version: docs/MARKETPLACE_RULES.md) | 80 Robux upload fee, 10–2,500 Robux publishing advance, gov ID + 2-step to upload/publish, **Premium 1000/2200 (or Plus) to publish and keep on sale** | marketplace/marketplace-policy |
 | Validation | Runs automatically at upload from Studio: schema, tri budget, bbox, surface area, centring, min thickness, watertight, no N-gons/vertex colours, texture max res, UVs, attachment names/position, cage checks | art/validation-errors |
 
 **Corrections to our README:** the README says 10 Robux per clothing upload; the official policy page now says

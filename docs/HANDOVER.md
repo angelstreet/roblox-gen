@@ -19,7 +19,8 @@ then the two skills in `skills/`. This file is the owner's working note for the 
 - Cold-agent tests (fresh clone, no uploads/Studio): round 1 on b431738 Haiku 6, Sonnet 7; round 2 on 0d8bd56 Haiku 6, Sonnet 7
   (Sonnet themed a new "Ember Sentinel" set through palette.py). Fixed after each round: Linux BLENDER override, tag drift,
   stale paths, ugc_check rig name, emissive cost, palette in one file (THEME, NAMES, SET_NAME), release_cv.py, uploader moved to
-  scripts/, full new-set recipe in README (delete, theme, build, upload, wear script, pre-check), themed sheet. Round 3 result: see git log.
+  scripts/, full new-set recipe in README (delete, theme, build, upload, wear script, pre-check), themed sheet. Round 3 on e0c850a: Haiku 6, Sonnet 8 (themed
+  "Amethyst Regent" end to end); its findings were fixed in d3219be and the next commit.
 
 ## Rules from the owner
 - Autonomous: do the next step, do not ask "should I continue". Ask only for money, credentials, publishing, deleting shared data.

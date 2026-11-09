@@ -109,10 +109,13 @@ Heavy path (AO bakes, distance-band trims, ~10 min): copy `examples/tidewatch-wa
 
 ## Rules and honesty
 - Originality: use references as a quality bar only. Never copy another creator's outfit, emblem or name.
-- Upload is private by default. Selling on the Marketplace has fees and requirements (reported: ID verification,
-  Premium, an upload fee). **Verify on create.roblox.com before paying.** Nothing here publishes for you.
-- Known gaps: procedural folds (no hand sculpt), no hair/face/prop, rigid skirt clips in walk animations, not yet
-  tested on R6/Rthro or with Roblox's UGC validation tool. Contributions welcome.
+- Upload is private by default: `scripts/upload_assets.py` creates Decal/Model assets through Open Cloud (the 80 Robux
+  upload fee in `docs/MARKETPLACE_RULES.md` is for submitting avatar items to the Marketplace, not for these test uploads).
+  Selling has fees and requirements (ID verification, upload fee, publishing advance; Premium: unverified), all in
+  `docs/MARKETPLACE_RULES.md` (read 2026-11-09). **Verify on create.roblox.com before paying.** Nothing here publishes for you.
+- Known gaps (2026-11-09): procedural folds (no hand sculpt); long rigid capes/skirts still meet the run back-kick (needs
+  layered clothing); Crystal Vanguard is tested on R15/R6/Rthro scales, Tidewatch on R15 only; Roblox's own UGC validator
+  was not run (it is the paid upload flow). Contributions welcome.
 - Not affiliated with Roblox Corporation.
 
 ## License

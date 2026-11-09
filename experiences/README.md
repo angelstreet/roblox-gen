@@ -10,7 +10,8 @@ Places and scripts that show or use the avatar sets. Built in Studio by an agent
 ## Showroom: build and test (about 2 minutes)
 1. Open any place in Studio (Baseplate). Studio's Home screen has no MCP tools.
 2. Wear the sets on display rigs (the shipped wear scripts use the repo owner's private asset ids: on another account,
-   re-upload with `scripts/upload_assets.py` and put your ids in the scripts first): run `docs/studio/wear_crystal_vanguard.lua` (rig `CVRig`) and
+   re-upload with `scripts/upload_assets.py` and put your ids in each wear script's `items` table and its
+   `Shirt`/`Pants`/face ids first, see README "Make your own set" step 6): run `docs/studio/wear_crystal_vanguard.lua` (rig `CVRig`) and
    `docs/studio/wear_tidewatch.lua` (rig `TWRig`). Use freshly worn rigs, not ones posed with `pose_anim.lua`.
 3. Run `experiences/showroom/build_showroom.lua`. It replaces any earlier `Showroom` folder and `ShowroomServer` script.
 4. Play. Walk to a plinth and press E ("Try on"). Server prints `[Showroom] <player> tried on <rig>`.
