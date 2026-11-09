@@ -15,7 +15,7 @@ local items = {  -- {mesh FBX id, texture Decal id, attachment}
   {91788567476911,  99098738461939,  "LeftShoulderAttachment"},   -- pauldron L (shares the R texture)
   {129063076131913, 94334699278170,  "BodyBackAttachment"},       -- cape
   {89732359696876,  139046121543345, "NeckAttachment"},           -- scarf
-  {127694122813832, 83328938307996,  "WaistBackAttachment"},      -- sword
+  {114719164350379, 83328938307996,  "WaistBackAttachment"},      -- sword (r9 pose, y 1.40)
 }
 for _, it in ipairs(items) do
   local mp = mesh(it[1]); mp.Name = "Handle"; mp.TextureID = img(it[2])

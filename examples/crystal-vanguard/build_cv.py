@@ -307,7 +307,7 @@ def build_sword():
 def place_sword(ob):
     """wearable pose: pommel low on the back (WaistBackAttachment frame is the export origin), blade rising diagonally over the right shoulder"""
     R = Matrix.Rotation(math.radians(-36), 3, "Y") @ Matrix.Rotation(math.radians(6.5), 3, "X"); sc = 0.85
-    P0 = Vector((0.80, 1.80, -2.95))   # r7: y 1.95 -> 1.80 (closer to the smaller cape; 0 BVH overlaps, see clip_check.py)
+    P0 = Vector((0.80, 1.40, -2.95))   # r7: y 1.95 -> 1.80 (closer to the smaller cape; 0 BVH overlaps, see clip_check.py)
     ob.data.transform(Matrix.Translation(P0) @ (R.to_4x4() @ Matrix.Scale(sc, 4)))
 
 

@@ -29,3 +29,18 @@ Pauldron L has no texture of its own: `paint_cv.py` writes only `tex_cv_pauldron
 - Crown depth 2.45 is close to the 2.5 hat limit.
 - Sword pose offsets were derived from the Tidewatch WaistFront attachment, not measured on WaistBackAttachment.
 - Cape 3.16 tall: back-accessory limits are unchecked.
+
+## Result (2026-11-09, Roblox Studio 0.746, R15 rig, private uploads, run by hand)
+Worn with `docs/studio/wear_crystal_vanguard.lua`: shirt, pants, crown, both pauldrons, cape, scarf, sword. Screenshots in `docs/studio/` (cv_front, cv_back, cv_side_before/after_sword_fix).
+
+| Check | Result |
+|---|---|
+| Textures on all meshes, shirt and pants on the template | OK (first load printed "Asset content representation is being generated": the meshes need a few seconds after upload, re-run if parts are bare) |
+| Front view | Matches the Blender sheet: layered pauldrons with gold rims and gems, navy sleeves with gold lines, white chest armor, crown and hair sit correctly on the head |
+| Back view | Cape with emblem and scalloped hem, sword diagonal over the cape: matches Blender |
+| Side view | **Problem found**: with the r7 pose the sword floated about 1 stud behind the cape (sword centre 1.66 studs behind the UpperTorso centre). Cause: pose offset y=1.80 was too far back. Fixed in `build_cv.py` (P0 y 1.80 -> 1.40, clip_check: 0 overlaps), re-uploaded, sword centre now 1.25 behind the torso centre and touching the cape. |
+| Measured sizes in Studio (x, y, z studs) | cape 2.19 x 3.36 x 1.43; neck/scarf 1.65 x 1.00 x 1.59; sword 2.13 x 2.92 x 0.51; crown 2.17 x 1.53 x 2.37 (Blender 2.24 x 2.45 x 1.56: Studio y/z are swapped vs Blender z/y) |
+
+Sword v2 FBX asset id: 114719164350379 (the earlier 127694122813832 had the floating pose).
+
+Not tested: animations (walk, jump), R6, Rthro, UGC validation tool, in-game camera. The cape is 3.36 studs tall; the marketplace limits for back accessories were not checked, verify before any listing.
