@@ -16,7 +16,7 @@ Repo: https://github.com/angelstreet/roblox-gen (public, MIT). Local clone: `~/r
 - Use cheaper models for builds when possible (Haiku/Sonnet/MiniMax) and judge results by looking at the renders.
 
 ## Next steps (in order)
-1. Confirm the Studio MCP tools work; re-run `docs/studio/wear_crystal_vanguard.lua` through `execute_luau`, take front/back/side/3-4 screenshots with `screen_capture`.
+1. DONE 2026-11-09 (MCP works, see STUDIO_TEST.md). Confirm the Studio MCP tools work; re-run `docs/studio/wear_crystal_vanguard.lua` through `execute_luau`, take front/back/side/3-4 screenshots with `screen_capture`.
 2. Test walk/jump animation clipping (cape, sword, pauldrons), then R6 and Rthro.
 3. Check Roblox accessory size limits for back/shoulder/hat items (cape is 3.36 studs tall, crown 2.37 deep) from official docs; run Roblox's UGC validation tool; verify current Marketplace fees and requirements on create.roblox.com.
 4. Quality: replace the placeholder face, hair as real swept mane, real glow (emissive via SurfaceAppearance/neon parts or particles in-experience), richer shirt/pants filigree, longer flowing cape.

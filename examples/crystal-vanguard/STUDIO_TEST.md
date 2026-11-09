@@ -44,3 +44,12 @@ Worn with `docs/studio/wear_crystal_vanguard.lua`: shirt, pants, crown, both pau
 Sword v2 FBX asset id: 114719164350379 (the earlier 127694122813832 had the floating pose).
 
 Not tested: animations (walk, jump), R6, Rthro, UGC validation tool, in-game camera. The cape is 3.36 studs tall; the marketplace limits for back accessories were not checked, verify before any listing.
+
+## Re-run through the Studio MCP (2026-11-09, no clicking)
+`docs/studio/wear_crystal_vanguard.lua` run with `execute_luau` (Edit datamodel), views taken with `screen_capture` and
+explicit camera/look-at positions (rig at (0,5,0), faces -Z). Screenshots: `docs/studio/mcp_cv_{front,back,side,q34}.jpg`.
+- All six meshes, shirt and pants loaded and textured on the first run.
+- Sizes (Studio x, y, z): crown 2.17 x 1.53 x 2.37, pauldrons 1.86 x 2.03 x 1.69, cape 2.19 x 3.36 x 1.43,
+  scarf 1.65 x 1.00 x 1.59, sword 2.13 x 2.92 x 0.51 (same as the hand run; the pauldron's y/z order is the importer's).
+- Front/back/3-4 match the Blender sheet. Side: sword lies against the cape (r9 pose holds). Seen for the quality pass:
+  hair spikes stick straight back like a comb, pauldrons cover the whole torso side, a scarf strap hangs right of the collar.
