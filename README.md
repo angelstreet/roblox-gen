@@ -13,6 +13,19 @@ plates, belt, skirt). Rendered on a block R15 proxy in Blender.*
 
 *Second set: Crystal Vanguard (r10): swept mane, long flared cape, emissive crystals, face decal; built by Sonnet/Haiku, refined by Opus from the same repo.*
 
+## Quick start (paste into an AI coding agent)
+Use Claude Code with Sonnet or better (Haiku builds clean but plain sets). Needs Blender 4.2+ and Python 3; Roblox Studio
+and an Open Cloud key only for uploading and testing.
+
+```text
+Clone https://github.com/angelstreet/roblox-gen and read AGENTS.md, then follow it.
+Make me an original Roblox avatar set themed "<your theme, e.g. frost samurai>": shirt, pants, face and 4-6 accessories.
+Follow README "Make your own set" (copy examples/crystal-vanguard), run python3 scripts/check_prereqs.py first,
+build with run_all.sh, look at every render sheet and do at least 3 improvement rounds until every check passes.
+Upload privately and test in Roblox Studio only if I have Studio and an API key set up.
+Never publish to the Marketplace or pay any fee without asking me.
+```
+
 ## What you can generate
 | Output | How | Status |
 |---|---|---|
