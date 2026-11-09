@@ -1,31 +1,45 @@
-# Handover (2026-11-09) - continue roblox-gen
+# Handover (2026-11-09, end of session 3) - continue roblox-gen
 
-Repo: https://github.com/angelstreet/roblox-gen (public, MIT). Local clone: `~/roblox-gen`. Read `AGENTS.md`, `docs/PIPELINE.md`, then the two skills in `skills/`.
+Repo: https://github.com/angelstreet/roblox-gen (public, MIT). Local clone: `~/roblox-gen`. Read `AGENTS.md`, `docs/PIPELINE.md`,
+then the two skills in `skills/`. This file is the owner's working note for the next agent session.
 
 ## State
-- Pipeline: 2D first (`skills/roblox-2d-concept`), then 3D (`skills/roblox-avatar-fashion`), then Studio test.
-- Set 1 `examples/tidewatch-warden/`: original hooded outfit, v5 pipeline, tested in Studio (front/back).
-- Set 2 `examples/crystal-vanguard/` (spec in `starter/crystal-vanguard/SPEC.md`): built by Sonnet, refined by Haiku and Sonnet (r1-r9), worn and checked in Studio on an R15 rig (front, back, side, results in `examples/crystal-vanguard/STUDIO_TEST.md`, screenshots `docs/studio/`). About 75% of the concept art's polish.
-- Cold-agent tests: Haiku 7/10, MiniMax M3.1-Flash 6/10 (Linux), Sonnet 6/10; their findings are already fixed in the repo.
-- Studio MCP: `claude mcp add --scope user roblox-studio -- /Applications/RobloxStudio.app/Contents/MacOS/StudioMCP` was run (Connected). Tools load only in a NEW session. First job: check you have `execute_luau` / `screen_capture`; if yes, use them instead of screen driving.
+- Pipeline: 2D (`skills/roblox-2d-concept`) -> 3D (`skills/roblox-avatar-fashion`) -> Studio test -> experiences (`experiences/`).
+- Studio MCP works (`execute_luau`, `screen_capture`, `start_stop_play`, ...): call `list_roblox_studios` first, a place must be open.
+  All Studio work in session 3 was done through it, no screen driving.
+- **Crystal Vanguard r10** (`examples/crystal-vanguard/`): swept mane (watertight, Hair box), long flared cape, sword lowered into the
+  Waist box, emissive glow (SurfaceAppearance masks), face decal, richer clothing filigree. Passes `docs/studio/ugc_check.lua`
+  (size boxes at Classic/Rthro Normal/Slender, <= 4000 tris, watertight, 1024 textures). Tested in Studio on R15, R6, Rthro
+  scales and walk/run/jump/fall poses (`STUDIO_TEST.md`). Colours are one file: `palette.py` (`THEME`, `SET_NAME`).
+- **Tidewatch r4** (`examples/tidewatch-warden/`): cape tucked under the mantle (tab fixed), open-front tail skirt (walk clip fixed),
+  side view checked; `run_all.sh <tag>` (~10 min, `NOBAKE=1` ~2.5 min).
+- Shared code in `lib/` (`rgen_mesh.py` Builder/swatches/body proxy, `rgen_clothing.py` Face painter); both examples import it.
+- **Experiences**: `experiences/showroom/build_showroom.lua` (plinths, turntable, bloom, "Try on" prompt), tested in Play.
+- Marketplace limits and fees: `docs/MARKETPLACE_RULES.md` (read 2026-11-09). Nothing was published or paid.
+- Cold-agent tests on commit b431738: Haiku 6/10, Sonnet 7/10. Their findings (Linux BLENDER override, tag drift, stale paths,
+  ugc_check rig name, emissive cost, palette spread over 3 files, wrong "make your own set" path, title overlap) were fixed after.
 
 ## Rules from the owner
 - Autonomous: do the next step, do not ask "should I continue". Ask only for money, credentials, publishing, deleting shared data.
-- Never publish to the Marketplace or pay fees. Private uploads to the owner's account are fine (Open Cloud key in `~/.config/tidewatch/.env`, never print it).
+- Never publish to the Marketplace or pay fees. Private uploads to the owner's account are fine (Open Cloud key in
+  `~/.config/tidewatch/.env`, never print it). Private asset ids live in the wear scripts and STUDIO_TEST.md / README files.
 - References are a quality bar only; no copying other creators' outfits. Keep reference comparison images private.
-- Use cheaper models for builds when possible (Haiku/Sonnet/MiniMax) and judge results by looking at the renders.
+- Use cheaper models for builds when possible (Haiku/Sonnet) and judge results by looking at renders / Studio screenshots.
 
 ## Next steps (in order)
-1. DONE 2026-11-09 (MCP works, see STUDIO_TEST.md). Confirm the Studio MCP tools work; re-run `docs/studio/wear_crystal_vanguard.lua` through `execute_luau`, take front/back/side/3-4 screenshots with `screen_capture`.
-2. DONE 2026-11-09 (run back-kick clips the cape; rest OK; see STUDIO_TEST.md). Test walk/jump animation clipping (cape, sword, pauldrons), then R6 and Rthro.
-3. DONE 2026-11-09 (docs/MARKETPLACE_RULES.md, ugc_check.lua: crown and sword fail bounds + watertight). Check Roblox accessory size limits for back/shoulder/hat items (cape is 3.36 studs tall, crown 2.37 deep) from official docs; run Roblox's UGC validation tool; verify current Marketplace fees and requirements on create.roblox.com.
-4. DONE 2026-11-09 as r10 (NOTES.md Round 4; open: run-kick cape clip, hair side block). Quality: replace the placeholder face, hair as real swept mane, real glow (emissive via SurfaceAppearance/neon parts or particles in-experience), richer shirt/pants filigree, longer flowing cape.
-5. DONE 2026-11-09 (r4: cape tucked under mantle, open-front tail skirt; Studio re-checked). Tidewatch: fix cape tab above the mantle, rigid skirt clipping, side view.
-6. DONE 2026-11-09 (tidewatch run_all.sh, lib/ shared modules, experiences/showroom). Repo: add a `run_all.sh` for tidewatch, merge the duplicated scripts in the two examples into shared modules, add an experiences (places/scripts) track.
-7. Re-run a cold Haiku and a cold Sonnet on the repo after each doc change to keep the score up; target 9/10.
+1. Re-run a cold Haiku and a cold Sonnet on a fresh clone (scratch dir, no uploads, no Studio) to confirm the fixes; target 9/10.
+2. Rigid cape/skirt vs the run back-kick: try layered clothing (cages via the Studio Accessory Fitting Tool / WrapLayer) for the
+   Crystal Vanguard cape and Tidewatch skirt; compare clipping with `docs/studio/pose_anim.lua`.
+3. Crystal Vanguard polish: hair side view is a dense block over the ear; pauldrons cover the whole torso side; decide which items
+   really need emissive (each emissive upload is 500 Robux and the advances are 5x, see MARKETPLACE_RULES.md).
+4. Tidewatch: R6/Rthro test, emissive masks for its aqua gems, a face decal; port it to `palette.py`-style theming.
+5. Experiences: a photo booth (emote poses + camera path) and a human press-E check of the showroom prompt (MCP key presses do
+   not reach ProximityPrompts; the automated test uses the `TryOn` BindableFunction).
+6. Ask the owner before any Marketplace step: which items to list, glow or not, crown as Hair (1000) or Hat (1500 advance).
 
-## Known traps
-- Decal id is not an image id (resolve with `InsertService:LoadAsset`); meshes need a few seconds after upload ("content representation is being generated").
-- Headless Linux needs Xvfb + `blender-softwaregl` (`docs/LINUX_HEADLESS.md`).
-- On macOS use `sed -i ''`, no pipes after `git push` in this machine's shell hook, Edit needs a prior Read.
-- The Crystal Vanguard sword pose: P0 y=1.40 in `build_cv.py` (1.80 floated; 1.05 clipped the cape).
+## Known traps (details in the skill and experiences/README.md)
+- Decal id != image id (resolve with `InsertService:LoadAsset`); fresh uploads need a few seconds ("content representation is being generated").
+- Edit-mode animation: `Animator:StepAnimations(dt)` poses a rig; stopping tracks does not restore part CFrames: re-wear the rig.
+- Default R15 head is a dynamic MeshPart head: face decals go on a welded plate with Transparency 0.98 (1 = not drawn).
+- `Lighting.Technology` is not readable/writable from the MCP thread; `_G` is not shared between Scripts and MCP code.
+- macOS: `sed -i ''`; no pipes after `git push` in this machine's shell hook.

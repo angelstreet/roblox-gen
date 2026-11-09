@@ -7,14 +7,15 @@ from PIL import Image
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "lib"))
 from rgen_clothing import Face, S, SHIRT, PANTS, W, H
+from palette import C   # colour theme: edit palette.py for a new set
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "out"); os.makedirs(OUT, exist_ok=True)
-WHITE_T, WHITE_B = (250, 251, 255), (176, 192, 232)     # silver-white armor  #F8F9FF .. shaded toward #CAD8FF/blue
-NAVY_T, NAVY_B = (24, 42, 112), (13, 27, 77)             # deep navy #0D1B4D
-DARK_T, DARK_B = (20, 26, 58), (6, 9, 24)
-GH, GM, GL = (255, 238, 160), (212, 175, 55), (126, 94, 22)  # gold #D4AF37 ramp
-GEM_HI, GEM, GEM_LO = (170, 235, 255), (46, 107, 255), (20, 52, 170)
-ICE = (202, 216, 255)
+WHITE_T, WHITE_B = C((250, 251, 255)), C((176, 192, 232))     # silver-white armor  #F8F9FF .. shaded toward #CAD8FF/blue
+NAVY_T, NAVY_B = C((24, 42, 112)), C((13, 27, 77))             # deep navy #0D1B4D
+DARK_T, DARK_B = C((20, 26, 58)), C((6, 9, 24))
+GH, GM, GL = C((255, 238, 160)), C((212, 175, 55)), C((126, 94, 22))  # gold #D4AF37 ramp
+GEM_HI, GEM, GEM_LO = C((170, 235, 255)), C((46, 107, 255)), C((20, 52, 170))
+ICE = C((202, 216, 255))
 
 
 def gold(f, pts, w=2.0):
@@ -24,14 +25,14 @@ def gold(f, pts, w=2.0):
 def gem(f, cx, cy, r, tall=1.45):
     """faceted diamond gem with gold setting and glow"""
     rt, rb = r * tall, r * tall * 0.9
-    f.glowdot(cx, cy, r * 1.1, (60, 150, 255))
+    f.glowdot(cx, cy, r * 1.1, C((60, 150, 255)))
     out = [(cx, cy - rt - 1.4), (cx + r + 1.4, cy), (cx, cy + rb + 1.4), (cx - r - 1.4, cy)]
     f.metal(out, top=GH, mid=GM, bot=GL)
     P = [(cx, cy - rt), (cx + r, cy), (cx, cy + rb), (cx - r, cy)]
     f.poly(P, GEM)
-    f.poly([P[0], P[1], (cx, cy)], GEM_HI); f.poly([P[0], (cx, cy), P[3]], (96, 180, 255))
+    f.poly([P[0], P[1], (cx, cy)], GEM_HI); f.poly([P[0], (cx, cy), P[3]], C((96, 180, 255)))
     f.poly([P[3], (cx, cy), P[2]], GEM); f.poly([(cx, cy), P[1], P[2]], GEM_LO)
-    f.line([(cx - r * .3, cy - rt * .4), (cx - r * .05, cy - rt * .8)], (255, 255, 255), 0.7)
+    f.line([(cx - r * .3, cy - rt * .4), (cx - r * .05, cy - rt * .8)], C((255, 255, 255)), 0.7)
 
 
 def fil(f, pts, w=1.4):  # gold filigree line, >= ~2 px outer width at 585 scale
@@ -84,26 +85,26 @@ def shade(f, pts, amt=150, dy=1.2): f.drop(pts, dy=dy, amt=amt); f.apply_shadow_
 def plate(f, x0, y0, x1, y1, cut=5, bevel=True):
     poly = [(x0 + cut, y0), (x1 - cut, y0), (x1, y0 + cut), (x1, y1 - cut), (x1 - cut, y1), (x0 + cut, y1), (x0, y1 - cut), (x0, y0 + cut)]
     shade(f, poly, 170, 1.4)
-    f.metal(poly, top=(255, 255, 255), mid=(236, 241, 255), bot=(168, 186, 232), outline_dark=False)
+    f.metal(poly, top=C((255, 255, 255)), mid=C((236, 241, 255)), bot=C((168, 186, 232)), outline_dark=False)
     if bevel:                                                           # inner bevel: light top/left, shaded bottom/right
         i = 4.2
-        f.line([(x0 + cut + 1, y0 + i), (x1 - cut - 1, y0 + i)], (255, 255, 255), 0.9)
-        f.line([(x0 + i, y0 + cut + 1), (x0 + i, y1 - cut - 1)], (246, 249, 255), 0.7)
-        f.line([(x0 + cut + 1, y1 - i), (x1 - cut - 1, y1 - i)], (132, 152, 208), 1.0)
-        f.line([(x1 - i, y0 + cut + 1), (x1 - i, y1 - cut - 1)], (150, 168, 220), 0.9)
+        f.line([(x0 + cut + 1, y0 + i), (x1 - cut - 1, y0 + i)], C((255, 255, 255)), 0.9)
+        f.line([(x0 + i, y0 + cut + 1), (x0 + i, y1 - cut - 1)], C((246, 249, 255)), 0.7)
+        f.line([(x0 + cut + 1, y1 - i), (x1 - cut - 1, y1 - i)], C((132, 152, 208)), 1.0)
+        f.line([(x1 - i, y0 + cut + 1), (x1 - i, y1 - cut - 1)], C((150, 168, 220)), 0.9)
     gold(f, poly + [poly[0]], 1.7)
 
 
 def navy_panel(f, poly, rim=True):
     shade(f, poly, 150)
-    f.metal(poly, top=(30, 52, 132), mid=NAVY_T, bot=NAVY_B, outline_dark=False)
+    f.metal(poly, top=C((30, 52, 132)), mid=NAVY_T, bot=NAVY_B, outline_dark=False)
     if rim: gold(f, poly + [poly[0]], 1.7)
 
 
 def sleeve(f, w, h):
     cx = w / 2
     # upper arm: navy cloth (mostly hidden by the 3D pauldron), gold rim and a first scroll
-    f.grad_rect(0, 0, w, 46, (30, 52, 130), NAVY_T)
+    f.grad_rect(0, 0, w, 46, C((30, 52, 130)), NAVY_T)
     gold(f, [(0, 1), (w, 1)], 1.8)
     vine(f, (6, 22), (w - 6, 22), amp=3.5, waves=1.0, r=2.6)
     gold(f, [(0, 44), (w, 44)], 1.6)
@@ -114,11 +115,11 @@ def sleeve(f, w, h):
     mv(f, cx, (10, 56), (cx - 11, 78), amp=3.0, waves=1.0, r=2.4)
     fil(f, [(9, 53), (cx - 7, 53)]); fil(f, [(w - 9, 53), (cx + 7, 53)])
     # cuff: gold bands
-    f.grad_rect(0, 87, w, 96, (40, 64, 150), NAVY_B)
+    f.grad_rect(0, 87, w, 96, C((40, 64, 150)), NAVY_B)
     gold(f, [(0, 88), (w, 88)], 1.9); gold(f, [(0, 96), (w, 96)], 2.0)
     for i in range(6, w - 4, 9): f.line([(i, 91), (i + 3, 93)], GM, 1.4)
     # glove (top edge at y=96, under the local-y-100 rule): dark navy + gold scrolls
-    f.grad_rect(0, 97, w, 128, (20, 36, 96), DARK_B)
+    f.grad_rect(0, 97, w, 128, C((20, 36, 96)), DARK_B)
     vine(f, (8, 108), (w - 8, 108), amp=3.2, waves=1.0, r=2.6)
     gem(f, cx, 118, 3.0, 1.3)
     gold(f, [(0, 126), (w, 126)], 1.8)
@@ -126,7 +127,7 @@ def sleeve(f, w, h):
 
 def belt(f, w, y0=94, y1=110, buckle=True):
     cx = w / 2
-    f.grad_rect(0, y0, w, y1, (34, 56, 136), NAVY_B)
+    f.grad_rect(0, y0, w, y1, C((34, 56, 136)), NAVY_B)
     gold(f, [(0, y0 + 0.5), (w, y0 + 0.5)], 1.9); gold(f, [(0, y1 - 0.5), (w, y1 - 0.5)], 1.9)
     for i in range(6, w, 10): f.line([(i, y0 + 7), (i + 4, y0 + 7)], GM, 1.5)
     if buckle:
@@ -137,7 +138,7 @@ def belt(f, w, y0=94, y1=110, buckle=True):
 
 
 def shirt():
-    c = Image.new("RGBA", (W, H), (0, 0, 0, 0)); seed = 300
+    c = Image.new("RGBA", (W, H), (C((0, 0, 0)) + (0,))); seed = 300
     for name, r in SHIRT.items():
         seed += 1; w, h = r[2], r[3]
         f = Face(w, h, seed, top=WHITE_T, bot=WHITE_B, folds=0.2)
@@ -160,7 +161,7 @@ def shirt():
             mv(f, cx, (cx - 17, 72), (cx - 3, 86), amp=2.0, waves=1.0, r=2.4, curl=(-1, 0))
             belt(f, w)
             # hips / skirt flaps under the belt
-            f.grad_rect(0, 111, w, 128, (232, 238, 255), (176, 192, 232))
+            f.grad_rect(0, 111, w, 128, C((232, 238, 255)), C((176, 192, 232)))
             plate(f, 4, 113, cx - 17, 126, 4); plate(f, cx + 17, 113, w - 4, 126, 4)
             navy_panel(f, [(cx - 14, 112), (cx + 14, 112), (cx + 12, 126), (cx - 12, 126)])
             gold(f, [(0, 127), (w, 127)], 1.6)
@@ -172,7 +173,7 @@ def shirt():
             mv(f, cx, (cx - 6, 66), (cx - 26, 78), amp=3.0, waves=1.0, r=2.6, curl=(0, -1))
             mv(f, cx, (13, 22), (13, 70), amp=4.0, waves=1.5, r=3.0, curl=(1, -1), sprig=True)
             belt(f, w, buckle=False)
-            f.grad_rect(0, 111, w, 128, (232, 238, 255), (176, 192, 232))
+            f.grad_rect(0, 111, w, 128, C((232, 238, 255)), C((176, 192, 232)))
             plate(f, 4, 113, cx - 4, 126, 4); plate(f, cx + 4, 113, w - 4, 126, 4)
             gold(f, [(0, 127), (w, 127)], 1.6)
         elif name in ("t_right", "t_left"):
@@ -182,16 +183,16 @@ def shirt():
             vine(f, (10, 76), (w - 10, 76), amp=3.0, waves=1.0, r=2.4, curl=(-1, 1))
             gold(f, [(1, 0), (1, 128)], 1.8); gold(f, [(w - 1, 0), (w - 1, 128)], 1.8)
             belt(f, w, buckle=False)
-            f.grad_rect(0, 111, w, 128, (232, 238, 255), (176, 192, 232))
+            f.grad_rect(0, 111, w, 128, C((232, 238, 255)), C((176, 192, 232)))
             plate(f, 4, 113, w - 4, 126, 4); gold(f, [(0, 127), (w, 127)], 1.6)
         elif name[:2] in ("ra", "la") and name[3:] in ("front", "back", "right", "left"):
             sleeve(f, w, h)
         elif name == "t_up":
             f.rect(0, 0, w, h, NAVY_T[:3]); gold(f, [(0, h - 1), (w, h - 1)], 2.0)
         elif name.endswith("_up"):
-            f.grad_rect(0, 0, w, h, (30, 52, 130), NAVY_T); f.line([(0, 0), (w, 0)], GM, 2)
+            f.grad_rect(0, 0, w, h, C((30, 52, 130)), NAVY_T); f.line([(0, 0), (w, 0)], GM, 2)
         elif name.endswith("_down"):
-            f.rect(0, 0, w, h, (30, 40, 100))
+            f.rect(0, 0, w, h, C((30, 40, 100)))
         c.alpha_composite(f.finish(), (r[0], r[1]))
     return c
 
@@ -211,11 +212,11 @@ def leg(f, w, front):
     gem(f, cx, 67, 5.2, 1.4)
     mv(f, cx, (11, 60), (cx - 13, 74), amp=2.6, waves=1.0, r=2.2, curl=(1, -1))
     # darker navy greave
-    f.grad_rect(0, 84, w, 98, (18, 32, 90), DARK_T)
+    f.grad_rect(0, 84, w, 98, C((18, 32, 90)), DARK_T)
     gold(f, [(0, 84), (w, 84)], 1.6)
     for i in range(7, w - 3, 10): fil(f, [(i, 87), (i + 3, 94)], 1.2)
     # boot, dark navy / black with gold trim; top edge at y=98 (<= 100)
-    f.grad_rect(0, 98, w, 128, (24, 32, 70), (4, 6, 16))
+    f.grad_rect(0, 98, w, 128, C((24, 32, 70)), C((4, 6, 16)))
     gold(f, [(0, 98), (w, 98)], 2.0); gold(f, [(0, 126), (w, 126)], 2.0)
     gold(f, [(0, 104), (w, 104)], 1.0)
     gem(f, cx, 113, 3.4, 1.4)
@@ -223,7 +224,7 @@ def leg(f, w, front):
 
 
 def pants():
-    c = Image.new("RGBA", (W, H), (0, 0, 0, 0)); seed = 400
+    c = Image.new("RGBA", (W, H), (C((0, 0, 0)) + (0,))); seed = 400
     for name, r in PANTS.items():
         seed += 1; w, h = r[2], r[3]
         f = Face(w, h, seed, top=NAVY_T, bot=NAVY_B, folds=0.35)
@@ -245,7 +246,7 @@ def pants():
             vine(f, (8, 114), (w - 8, 114), amp=3.2, waves=2.0, r=2.4, curl=(1, -1))
             gold(f, [(0, 126), (w, 126)], 2.0)
         elif name.endswith("_up"): f.rect(0, 0, w, h, NAVY_B)
-        elif name.endswith("_down"): f.rect(0, 0, w, h, (6, 9, 24))
+        elif name.endswith("_down"): f.rect(0, 0, w, h, C((6, 9, 24)))
         else:
             leg(f, w, name.endswith("front"))
         c.alpha_composite(f.finish(), (r[0], r[1]))

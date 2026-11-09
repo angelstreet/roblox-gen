@@ -11,7 +11,7 @@ Blender aborts with `Couldn't open libEGL.so.1` (exit 134).
 2. Virtual display + Blender's bundled software GL wrapper for the render step:
    ```bash
    Xvfb :99 -screen 0 1920x1080x24 -nolisten tcp &
-   DISPLAY=:99 ~/blender/blender-softwaregl -b out/v5/v5_build.blend -P render_v5.py -- tag=r3 export=1
+   DISPLAY=:99 ~/blender/blender-softwaregl -b out/v5/v5_build.blend -P render_v5.py -- tag=<tag> export=1
    ```
    (`xvfb-run` needs `xauth`; if missing, start `Xvfb` by hand as above.) About 1 min per view on 6 CPU cores.
 3. Fonts: `compose_v5.py` tries DejaVu / Liberation if Helvetica is missing (`apt install fonts-dejavu-core`).

@@ -35,6 +35,10 @@ selection"); hover an error for details. That is the upload flow, so agents do n
 - Classic shirt / pants / t-shirt: 80 upload fee, 10 publishing advance.
 - Creator share 30% of a Marketplace sale (rises to 70% at 6x the price floor); in-experience sales 30% creator + 40% experience owner; 30-day escrow.
 - Price must sit inside the per-type range shown at https://create.roblox.com/dashboard/creations/pricing.
-Cost to list the whole Crystal Vanguard set as non-limited (6 rigid items + shirt + pants): uploads 8 x 80 = 640, advances
-5 x 1000 (2 pauldrons, cape, scarf, sword) + 1000 (crown as Hair; 1500 as Hat) + 2 x 10 = 6,020, total about 6,660 Robux
-(7,160 with the crown as Hat) before any sale. Never pay without the owner's yes.
+Cost to list the whole Crystal Vanguard set as non-limited (6 rigid items + shirt + pants), before any sale:
+- without glow (no emissive masks): uploads 8 x 80 = 640, advances 5 x 1000 (2 pauldrons, cape, scarf, sword) + 1000 (crown as
+  Hair; 1500 as Hat) + 2 x 10 = 6,020; total about 6,660 Robux (7,160 with the crown as Hat).
+- with glow as built in r10 (all 6 rigid items carry an emissive mask): uploads 6 x 500 + 2 x 80 = 3,160, advances from the
+  emissive table (Hair 5000, Back/Neck/Shoulder 5000 each, Waist: check the page) + 20: roughly 33,000 Robux. Glow is a big cost
+  multiplier: ship emissive only on the items that need it (sword, cape) or not at all.
+Never pay without the owner's yes.

@@ -9,4 +9,4 @@
 
 Shared code: `lib/rgen_mesh.py` (Blender Builder, swatches, body proxy) and `lib/rgen_clothing.py` (Face painter). One-command builds: `examples/<set>/run_all.sh <tag>`.
 
-Starter sets live in `starter/`. Worked examples live in `examples/`. Publishing and fees are never automatic.
+Starter sets live in `starter/` (`starter/crystal-vanguard/` is the input kit; its finished build is `examples/crystal-vanguard/`). Worked examples live in `examples/`. Publishing and fees are never automatic.

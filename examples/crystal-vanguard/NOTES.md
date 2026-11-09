@@ -1,6 +1,9 @@
-# Crystal Vanguard (built by a cold agent from SPEC.md)
-Run `./run_all.sh <tag>` (the tag, e.g. r1, is required; on Linux set BLENDER=; order is make_clothing_cv -> paint_cv -> build_cv -> render_cv -> compose_cv) (make_clothing_cv.py -> paint_cv.py -> build_cv.py -> render_cv.py -> compose_cv.py, ~30 s total). Outputs go to `out/`; the
-files in this folder are copies of the final ones. Render sheet: `render_sheet.png`. 2D preview: `2d_preview.png` (block R15 front/3/4/back + both PNGs).
+# Crystal Vanguard (current: r10, see Round 4 at the end and STUDIO_TEST.md)
+The tables and "Weak points" right below are the round-1 cold-agent build (history, oldest first); numbers there are not current.
+Run `./run_all.sh <tag>` (tag required, e.g. r10; uses `blender` on PATH, else the macOS app; override with `BLENDER=/path/to/blender`).
+Order: make_clothing_cv -> make_face_cv -> paint_cv -> build_cv -> render_cv -> compose_cv (~20 s). Outputs go to `out/`; the files in this folder are
+copies of the final ones under release names: out/cv_shirt.png -> crystal_vanguard_shirt.png, out/cv_pants.png -> crystal_vanguard_pants.png,
+out/cv_face.png -> crystal_vanguard_face.png, out/<name>.fbx -> <name>.fbx, out/<tag>_sheet.png -> render_sheet.png. Render sheet: `render_sheet.png`. 2D preview: `2d_preview.png` (block R15 front/3/4/back + both PNGs).
 
 | Product | File | Attachment | Tris | Notes |
 |---|---|---|---|---|

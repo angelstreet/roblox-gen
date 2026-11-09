@@ -4,10 +4,11 @@
 import os, math, random
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
+from palette import C   # colour theme: edit palette.py for a new set
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "out"); os.makedirs(OUT, exist_ok=True)
 N = 1024
-STRIP = [(212, 175, 55), (232, 238, 252), (120, 212, 255), (24, 44, 120), (228, 242, 255), (62, 126, 255), (248, 249, 255), (130, 98, 26)]
-GOLD, GOLD_HI, GOLD_LO = (212, 175, 55), (255, 238, 160), (128, 94, 22)
+STRIP = [C((212, 175, 55)), C((232, 238, 252)), C((120, 212, 255)), C((24, 44, 120)), C((228, 242, 255)), C((62, 126, 255)), C((248, 249, 255)), C((130, 98, 26))]
+GOLD, GOLD_HI, GOLD_LO = C((212, 175, 55)), C((255, 238, 160)), C((128, 94, 22))
 
 
 def lerp(a, b, t): return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3))
@@ -27,7 +28,7 @@ def hgrad(d, box, stops):
     for x in range(int(x0), int(x1)): d.line([(x, y0), (x, y1)], fill=ramp(stops, (x - x0) / max(1, x1 - x0)) + (255,))
 
 
-def base(color=(24, 44, 120)):
+def base(color=C((24, 44, 120))):
     im = Image.new("RGBA", (N, N), color + (255,)); d = ImageDraw.Draw(im)
     for k, c in enumerate(STRIP): d.rectangle([k * N // 8, int(N * 0.94), (k + 1) * N // 8, N], fill=c + (255,))
     return im, d
@@ -44,37 +45,37 @@ def crown():
 
 
 def pauldron():
-    im, d = base((200, 215, 245)); rnd = random.Random(3)
+    im, d = base(C((200, 215, 245))); rnd = random.Random(3)
     for v0, v1 in ((0.70, 1.0), (0.45, 0.68), (0.20, 0.43)):
         y0, y1 = sv(v1), sv(v0); x1 = int(0.6 * N)
-        vgrad(d, (0, y0, x1, y1), [(0, (252, 253, 255)), (0.55, (228, 237, 255)), (1.0, (160, 182, 236))])
+        vgrad(d, (0, y0, x1, y1), [(0, C((252, 253, 255))), (0.55, C((228, 237, 255))), (1.0, C((160, 182, 236)))])
         d.rectangle([0, y1 - 34, x1, y1], fill=GOLD + (255,)); d.rectangle([0, y1 - 34, x1, y1 - 26], fill=GOLD_HI + (255,)); d.rectangle([0, y1 - 8, x1, y1], fill=GOLD_LO + (255,)); d.rectangle([0, y0, x1, y0 + 8], fill=GOLD + (255,))
         for k in range(9):                                  # engraved gold filigree in each tier
             x = (k + 0.5) * x1 / 9; d.line([(x, y0 + 12), (x + 14, (y0 + y1) / 2), (x - 6, y1 - 26)], fill=GOLD + (255,), width=3)
-        for k in range(18): d.line([(k * x1 / 18, y0), (k * x1 / 18 + 8, y1)], fill=(190, 205, 240, 90), width=2)
+        for k in range(18): d.line([(k * x1 / 18, y0), (k * x1 / 18 + 8, y1)], fill=(C((190, 205, 240)) + (90,)), width=2)
     # r6: soft blue halo + light core behind the big gem (outer face of the middle tier: u~0.126, v~0.565)
-    gl = Image.new("RGBA", (N, N), (0, 0, 0, 0)); gdd = ImageDraw.Draw(gl); gx, gy = 129, sv(0.565)
-    gdd.ellipse([gx - 80, gy - 120, gx + 80, gy + 120], fill=(110, 190, 255, 255)); gl = gl.filter(ImageFilter.GaussianBlur(38))
+    gl = Image.new("RGBA", (N, N), (C((0, 0, 0)) + (0,))); gdd = ImageDraw.Draw(gl); gx, gy = 129, sv(0.565)
+    gdd.ellipse([gx - 80, gy - 120, gx + 80, gy + 120], fill=(C((110, 190, 255)) + (255,))); gl = gl.filter(ImageFilter.GaussianBlur(38))
     ga = np.array(gl); ga[..., 3] = (ga[..., 3] * 0.8).astype(np.uint8); im = Image.alpha_composite(im.convert("RGBA"), Image.fromarray(ga)); d = ImageDraw.Draw(im)
     # fill the unused right part so mip-filtering does not bleed black
-    d.rectangle([int(0.62 * N), 0, N, int(0.94 * N)], fill=(224, 234, 255, 255))
+    d.rectangle([int(0.62 * N), 0, N, int(0.94 * N)], fill=(C((224, 234, 255)) + (255,)))
     save(im, "cv_pauldron_r")
 
 
 def scarf():
-    im, d = base((24, 44, 120)); rnd = random.Random(5)
-    vgrad(d, (0, 0, N, int(0.64 * N)), [(0, (36, 62, 150)), (1, (14, 28, 84))])
+    im, d = base(C((24, 44, 120))); rnd = random.Random(5)
+    vgrad(d, (0, 0, N, int(0.64 * N)), [(0, C((36, 62, 150))), (1, C((14, 28, 84)))])
     for k in range(40):
-        x = rnd.randint(0, N); d.line([(x, 0), (x + rnd.randint(-20, 20), int(0.64 * N))], fill=(70, 100, 190, 90), width=rnd.randint(2, 6))
+        x = rnd.randint(0, N); d.line([(x, 0), (x + rnd.randint(-20, 20), int(0.64 * N))], fill=(C((70, 100, 190)) + (90,)), width=rnd.randint(2, 6))
     save(im.filter(ImageFilter.GaussianBlur(1.2)), "cv_scarf")
 
 
 def cape():
-    im, d = base((24, 44, 120))
+    im, d = base(C((24, 44, 120)))
     H = int(0.92 * N)                    # cape rect v 0.08..1.0 maps y 0..0.92N
     arr = np.zeros((H, N, 3), np.float32)
     y, x = np.mgrid[0:H, 0:N].astype(np.float32); t = y / H; u = x / N
-    top, mid, bot = np.array((52, 100, 235), np.float32), np.array((36, 70, 190), np.float32), np.array((14, 30, 110), np.float32)
+    top, mid, bot = np.array(C((52, 100, 235)), np.float32), np.array(C((36, 70, 190)), np.float32), np.array(C((14, 30, 110)), np.float32)
     c = np.where(t[..., None] < 0.5, top + (mid - top) * (t[..., None] / 0.5), mid + (bot - mid) * ((t[..., None] - 0.5) / 0.5))
     folds = 1 + 0.16 * np.sin(u * 2 * math.pi * 3.5 * (1 + 0.25 * t) + 0.5) + 0.07 * np.sin(u * 2 * math.pi * 9 + t * 4)
     arr = np.clip(c * folds[..., None], 0, 255)
@@ -83,27 +84,27 @@ def cape():
     d.rectangle([0, H - 26, N, H], fill=GOLD + (255,)); d.rectangle([0, H - 12, N, H], fill=GOLD_HI + (255,)); d.line([(0, H - 44), (N, H - 44)], fill=GOLD + (255,), width=5)
     for k in range(6):                                  # scallop filigree above the hem
         cx = (k + 0.5) * N / 6; d.arc([cx - 70, H - 150, cx + 70, H - 40], 0, 180, fill=GOLD + (255,), width=4)
-        d.line([(cx, H - 150), (cx, H - 70)], fill=(120, 190, 255, 255), width=3)
+        d.line([(cx, H - 150), (cx, H - 70)], fill=(C((120, 190, 255)) + (255,)), width=3)
     # vertical gold edge lines
     d.line([(8, 0), (8, H)], fill=GOLD + (255,), width=10); d.line([(N - 8, 0), (N - 8, H)], fill=GOLD + (255,), width=10)
     # glowing crystal emblem (aspect compensated: cape ~2.6 wide x 3.8 long on a 1024 x 942 rect)
     cx, cy = N // 2, int(H * 0.33); kx, ky = 1.0, 1.75   # r10: higher, the longer cape puts the sword over the lower third
-    glow = Image.new("RGBA", (N, N), (0, 0, 0, 0)); gd = ImageDraw.Draw(glow)
-    gd.ellipse([cx - 230, cy - 300, cx + 230, cy + 300], fill=(150, 225, 255, 255)); glow = glow.filter(ImageFilter.GaussianBlur(80))
+    glow = Image.new("RGBA", (N, N), (C((0, 0, 0)) + (0,))); gd = ImageDraw.Draw(glow)
+    gd.ellipse([cx - 230, cy - 300, cx + 230, cy + 300], fill=(C((150, 225, 255)) + (255,))); glow = glow.filter(ImageFilter.GaussianBlur(80))
     ga = np.array(glow); ga[..., 3] = (ga[..., 3] * 0.9).astype(np.uint8); im = Image.alpha_composite(im.convert("RGBA"), Image.fromarray(ga)); d = ImageDraw.Draw(im)
     def dm(r_x, r_y, col, dy=0): d.polygon([(cx, cy - r_y + dy), (cx + r_x, cy + dy), (cx, cy + r_y * 0.85 + dy), (cx - r_x, cy + dy)], fill=col + (255,))
-    dm(104, 190, GOLD_LO); dm(96, 178, GOLD); dm(84, 160, (40, 110, 255))
+    dm(104, 190, GOLD_LO); dm(96, 178, GOLD); dm(84, 160, C((40, 110, 255)))
     P = [(cx, cy - 160), (cx + 84, cy), (cx, cy + 136), (cx - 84, cy)]
-    d.polygon([P[0], P[1], (cx, cy)], fill=(190, 240, 255, 255)); d.polygon([P[0], (cx, cy), P[3]], fill=(110, 190, 255, 255))
-    d.polygon([P[3], (cx, cy), P[2]], fill=(46, 107, 255, 255)); d.polygon([(cx, cy), P[1], P[2]], fill=(25, 60, 190, 255))
+    d.polygon([P[0], P[1], (cx, cy)], fill=(C((190, 240, 255)) + (255,))); d.polygon([P[0], (cx, cy), P[3]], fill=(C((110, 190, 255)) + (255,)))
+    d.polygon([P[3], (cx, cy), P[2]], fill=(C((46, 107, 255)) + (255,))); d.polygon([(cx, cy), P[1], P[2]], fill=(C((25, 60, 190)) + (255,)))
     for sg in (-1, 1):                                    # small side crystals + branching ice lines
         for (ox, oy, s) in ((150, -60, 0.5), (210, 90, 0.4), (130, 180, 0.35)):
             x = cx + sg * ox; y = cy + oy; r = 40 * s
-            d.polygon([(x, y - r * 2.4), (x + r, y), (x, y + r * 1.8), (x - r, y)], fill=(150, 220, 255, 255), outline=GOLD + (255,))
-        d.line([(cx + sg * 90, cy - 40), (cx + sg * 150, cy - 70), (cx + sg * 215, cy - 150)], fill=(200, 240, 255, 255), width=4)
-        d.line([(cx + sg * 90, cy + 60), (cx + sg * 160, cy + 100), (cx + sg * 215, cy + 90)], fill=(200, 240, 255, 255), width=4)
-    d.line([(cx, cy + 150), (cx, cy + 330)], fill=(200, 240, 255, 255), width=5)
-    core = Image.new("RGBA", (N, N), (0, 0, 0, 0)); cd = ImageDraw.Draw(core); cd.ellipse([cx - 50, cy - 95, cx + 50, cy + 80], fill=(255, 255, 255, 255)); core = core.filter(ImageFilter.GaussianBlur(26))
+            d.polygon([(x, y - r * 2.4), (x + r, y), (x, y + r * 1.8), (x - r, y)], fill=(C((150, 220, 255)) + (255,)), outline=GOLD + (255,))
+        d.line([(cx + sg * 90, cy - 40), (cx + sg * 150, cy - 70), (cx + sg * 215, cy - 150)], fill=(C((200, 240, 255)) + (255,)), width=4)
+        d.line([(cx + sg * 90, cy + 60), (cx + sg * 160, cy + 100), (cx + sg * 215, cy + 90)], fill=(C((200, 240, 255)) + (255,)), width=4)
+    d.line([(cx, cy + 150), (cx, cy + 330)], fill=(C((200, 240, 255)) + (255,)), width=5)
+    core = Image.new("RGBA", (N, N), (C((0, 0, 0)) + (0,))); cd = ImageDraw.Draw(core); cd.ellipse([cx - 50, cy - 95, cx + 50, cy + 80], fill=(C((255, 255, 255)) + (255,))); core = core.filter(ImageFilter.GaussianBlur(26))
     im = Image.alpha_composite(im.convert("RGBA"), core); d = ImageDraw.Draw(im)
     # r10: emissive mask = the emblem shapes only (crisp crystal, no glow cloud, no white collar)
     ek = Image.new("L", (N, N), 0); ed = ImageDraw.Draw(ek)
@@ -123,18 +124,18 @@ def cape():
 
 
 def sword():
-    im = Image.new("RGBA", (N, N), (0, 0, 0, 255)); d = ImageDraw.Draw(im)
+    im = Image.new("RGBA", (N, N), (C((0, 0, 0)) + (255,))); d = ImageDraw.Draw(im)
     bands = {  # 8 horizontal bands, band k at v in [k/8,(k+1)/8] -> y from bottom
-        "blade": [(0, (30, 120, 235)), (0.5, (96, 205, 255)), (1, (225, 252, 255))],
-        "core": [(0, (150, 225, 255)), (0.5, (225, 250, 255)), (1, (255, 255, 255))],
-        "gold": [(0, (110, 78, 16)), (0.5, GOLD), (1, (255, 240, 170))],
-        "sapphire": [(0, (14, 38, 150)), (0.5, (46, 107, 255)), (1, (120, 175, 255))],
-        "navy": [(0, (6, 12, 44)), (0.5, (20, 38, 110)), (1, (60, 92, 190))],
-        "crystal": [(0, (60, 160, 240)), (0.5, (130, 220, 255)), (1, (240, 255, 255))],
-        "wrap": [(0, (10, 20, 70)), (0.35, (14, 28, 90)), (0.5, (30, 70, 200)), (0.65, (60, 120, 255)), (1, (14, 28, 90))]}
+        "blade": [(0, C((30, 120, 235))), (0.5, C((96, 205, 255))), (1, C((225, 252, 255)))],
+        "core": [(0, C((150, 225, 255))), (0.5, C((225, 250, 255))), (1, C((255, 255, 255)))],
+        "gold": [(0, C((110, 78, 16))), (0.5, GOLD), (1, C((255, 240, 170)))],
+        "sapphire": [(0, C((14, 38, 150))), (0.5, C((46, 107, 255))), (1, C((120, 175, 255)))],
+        "navy": [(0, C((6, 12, 44))), (0.5, C((20, 38, 110))), (1, C((60, 92, 190)))],
+        "crystal": [(0, C((60, 160, 240))), (0.5, C((130, 220, 255))), (1, C((240, 255, 255)))],
+        "wrap": [(0, C((10, 20, 70))), (0.35, C((14, 28, 90))), (0.5, C((30, 70, 200))), (0.65, C((60, 120, 255))), (1, C((14, 28, 90)))]}
     for k, nm in enumerate(["blade", "core", "gold", "sapphire", "navy", "crystal", "wrap"]):
         y0 = sv((k + 1) / 8); y1 = sv(k / 8); hgrad(d, (0, y0, N, y1), bands[nm])
-    d.rectangle([0, 0, N, sv(7 / 8) - 1], fill=(210, 230, 255, 255))
+    d.rectangle([0, 0, N, sv(7 / 8) - 1], fill=(C((210, 230, 255)) + (255,)))
     save(im, "cv_sword")
 
 

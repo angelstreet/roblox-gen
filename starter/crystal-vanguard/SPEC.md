@@ -38,4 +38,4 @@ Write one line in NOTES.md saying whether the hair is part of the crown mesh.
 Front, 3/4, side, 3/4 back, back on the block R15 proxy; palette recognisably the same as the concept (white/blue/gold); every product visible; no black or empty frames. Compare against `2d/crystal_vanguard_full_concept.png` privately.
 
 ## How to build it
-A first cold-agent build exists in `examples/crystal-vanguard/` (`./run_all.sh r3`, about 30 s; set `BLENDER=` on Linux). Improve it, do not start over. Weak points are listed in its NOTES.md. API: `docs/BUILDER_CHEATSHEET.md`. Follow `skills/roblox-2d-concept` first, then `skills/roblox-avatar-fashion`. Do not upload or spend anything without the human's yes.
+A first cold-agent build exists in `examples/crystal-vanguard/` (`./run_all.sh <tag>`, about 20 s; uses `blender` on PATH, or set `BLENDER=/path/to/blender`). Improve it, do not start over. Weak points are listed in its NOTES.md. API: `docs/BUILDER_CHEATSHEET.md`. Follow `skills/roblox-2d-concept` first, then `skills/roblox-avatar-fashion`. Do not upload or spend anything without the human's yes.

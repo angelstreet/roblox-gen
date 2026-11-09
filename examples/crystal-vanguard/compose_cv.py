@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Compose the v5 render sheet (front, 3/4, side, 3/4 back, back) and a private side-by-side with the quality reference.
-Usage: python3 compose_v5.py [tag]  -> out/v5/<tag>_sheet.png, out/v5/<tag>_vs_reference.png (comparison only, never shipped)"""
+"""Compose the Crystal Vanguard render sheet (front, 3/4, side, 3/4 back, back).
+Usage: python3 compose_cv.py <tag>  -> out/<tag>_sheet.png"""
 import os, sys
 from PIL import Image, ImageDraw, ImageFont
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "out"); tag = sys.argv[1] if len(sys.argv) > 1 else "r1"
@@ -14,7 +14,9 @@ try: font = next(ImageFont.truetype(p, 30) for p in FONTS if os.path.exists(p))
 except Exception: font = ImageFont.load_default()
 for k, im in enumerate(ims):
     sheet.paste(im, (k * w, 60)); d.text((k * w + 20, 14), views[k], fill=(200, 200, 200), font=font)
-d.text((w * 2 + 200, 14), "Crystal Vanguard (Eevee, block R15 proxy)", fill=(212, 175, 55), font=font)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from palette import SET_NAME
+title = f"{SET_NAME} (Eevee, block R15 proxy)"   # right-aligned so it never overlaps a view label or the edge
+d.text((w * 5 - 20 - d.textlength(title, font=font), 14), title, fill=(212, 175, 55), font=font)
 sheet.save(os.path.join(OUT, f"{tag}_sheet.png"))
 ref = os.environ.get("ROBLOX_GEN_REFERENCE", "")  # optional private quality-bar image; comparison output is never shipped
 if ref and os.path.exists(ref):

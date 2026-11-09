@@ -14,8 +14,8 @@ Meshes are authored relative to their attachment (origin = attachment point). Th
 | `sm(t)`, `spow(x,p)` | smoothstep and signed power helpers for height profiles |
 | `tris(ob)` | triangle count |
 
-Palette swatches: a bottom strip of flat colours (`SW` dict in lib/rgen_mesh.py, shared by reference; the Crystal Vanguard example overrides it with 8 swatches). Name a swatch string where a UV rect is expected.
-Simple path (about 17-30 s, no AO bakes, no meta.json): `examples/crystal-vanguard/run_all.sh <tag>` runs make_clothing_cv -> paint_cv -> build_cv -> render_cv -> compose_cv in that order.
+Palette swatches: a bottom strip of flat colours (`SW` dict in lib/rgen_mesh.py, shared by reference; the Crystal Vanguard example overrides it with 8 swatches). Name a swatch string where a UV rect is expected. Colours of the Crystal Vanguard example come from `examples/crystal-vanguard/palette.py` (`C()` themes every authored colour; edit `THEME` for a new set).
+Simple path (about 17-30 s, no AO bakes, no meta.json): `examples/crystal-vanguard/run_all.sh <tag>` runs make_clothing_cv -> make_face_cv -> paint_cv -> build_cv -> render_cv -> compose_cv in that order.
 `sheet()` also accepts `pole_row0=True` (collapse the first row to a point, for domes) and `rim_skip_cols`. Heavy path (distance-band trims, AO): `examples/tidewatch-warden/`.
 
 ## Importing a GLB blockout safely

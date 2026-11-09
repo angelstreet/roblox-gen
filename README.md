@@ -27,7 +27,7 @@ plates, belt, skirt). Rendered on a block R15 proxy in Blender.*
 1. **Roblox account** and **Roblox Studio** (create.roblox.com), for testing before you pay anything.
 2. **Open Cloud API key** with Assets read+write (create.roblox.com/dashboard/credentials) and your **numeric** user id.
    Put both in `~/.config/tidewatch/.env` (see `.env.example`). Never commit it.
-3. **Blender 4.x** (free), run headless (`Blender -b -P script.py`).
+3. **Blender 4.2 or newer** (free, tested with 4.5), run headless (`Blender -b -P script.py`).
 4. **Python 3** with `pillow` and `numpy`.
 5. Optional: an AI coding agent (Claude Code, Codex, ...).
 
@@ -52,6 +52,12 @@ cp -R skills/roblox-avatar-fashion ~/.claude/skills/
 Then ask: *"Generate the default Tidewatch Warden set and show me the render sheet."*
 
 ## Run the default example
+One command (from the repo root; ~10 min, or ~2.5 min with `NOBAKE=1`, which skips the AO bakes):
+```bash
+examples/tidewatch-warden/run_all.sh r4          # -> examples/tidewatch-warden/out/v5/r4_sheet.png
+examples/crystal-vanguard/run_all.sh r10         # second set, ~20 s -> examples/crystal-vanguard/out/r10_sheet.png
+```
+Both scripts use `blender` on PATH, else the macOS app; override with `BLENDER=/path/to/blender`. Step by step:
 All commands run from `examples/tidewatch-warden/` (after the repo-root prerequisites check). On Linux/Windows use the `blender` on your PATH instead of the macOS path; flags after `--` are `key=value` pairs.
 ```bash
 # macOS: use /Applications/Blender.app/Contents/MacOS/Blender where it says blender
@@ -59,17 +65,27 @@ cd examples/tidewatch-warden
 python3 make_clothing_v5.py
 blender -b -P build_v5.py
 python3 paint_v5.py
-blender -b out/v5/v5_build.blend -P render_v5.py -- tag=r3 export=1
-python3 compose_v5.py r3          # writes out/v5/r3_sheet.png (the render sheet)
+blender -b out/v5/v5_build.blend -P render_v5.py -- tag=r4 export=1
+python3 compose_v5.py r4          # writes out/v5/r4_sheet.png (the render sheet)
 ```
-Outputs land in `out/v5/`: `r3_sheet.png`, `tidewatch_shirt_v5.png`, `tidewatch_pants_v5.png`, one `.fbx` per accessory. If `ROBLOX_GEN_REFERENCE` is set, a private `r3_vs_reference.png` is also written: never commit or ship it.
+Outputs land in `out/v5/`: `<tag>_sheet.png`, `tidewatch_shirt_v5.png`, `tidewatch_pants_v5.png`, one `.fbx` per accessory. Optional (normally unset, skip it): if `ROBLOX_GEN_REFERENCE` is set, a private `<tag>_vs_reference.png` is also written: never commit or ship it.
 
 Upload privately and test in Studio (needs the key): `SSL_CERT_FILE=/etc/ssl/cert.pem python3 upload_assets.py out/v5/*.fbx out/v5/*.png`.
 Details, measurements and every trap found are in the skill file.
 
 ## Make your own set
-Copy `examples/tidewatch-warden/`, then change the palette, emblem and names in `make_clothing_v5.py`, `build_v5.py`
-and `paint_v5.py`. Keep the same pipeline.
+Fast path (recommended, ~20 s per build): copy `examples/crystal-vanguard/` to `examples/<your-set>/` (keep it two levels
+deep: scripts import `../../lib` and the sword reads `../../starter/crystal-vanguard/3d/*.glb`).
+1. **Colours**: edit `palette.py` only. `THEME` recolours four families (metal, plate, cloth, crystal) by hue shift and
+   saturation/value multipliers; a tested emerald+silver theme is in its docstring. `SET_NAME` titles the render sheet.
+2. **Names**: the FBX file names are the `FBX` dict in `render_cv.py`; the release copies in the folder
+   (`crystal_vanguard_shirt.png`, `_pants.png`, `_face.png`) are named in `NOTES.md` and `make_face_cv.py`; rename them.
+3. **Shapes / emblem**: `build_cv.py` (one `build_*()` per accessory, API in `docs/BUILDER_CHEATSHEET.md`) and the emblem
+   drawing in `paint_cv.py` (`cape()`). Keep swatch names (`gold`, `crystal`, ...) stable: `build_cv.py` refers to them.
+4. `./run_all.sh <tag>`, look at `out/<tag>_sheet.png`, then upload privately and run `docs/studio/ugc_check.lua`.
+5. Replace `NOTES.md`, `STUDIO_TEST.md` and the wear script ids with your own; keep originality (no copied outfits/emblems).
+Heavy path (AO bakes, distance-band trims, ~10 min): copy `examples/tidewatch-warden/` and edit `make_clothing_v5.py`,
+`build_v5.py`, `paint_v5.py`. On macOS use `sed -i ''` for in-place renames.
 
 ## Rules and honesty
 - Originality: use references as a quality bar only. Never copy another creator's outfit, emblem or name.

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Upload Tidewatch assets to YOUR Roblox account (private) via Open Cloud Assets API.
 Reads ~/.config/tidewatch/.env :  ROBLOX_API_KEY=...   ROBLOX_USER_ID=...
-Usage: python3 upload_assets.py out/tidewatch_shirt.png [more files]
-Status: written from the documented API shape, NOT yet run against Roblox.
+Usage: SSL_CERT_FILE=/etc/ssl/cert.pem python3 upload_assets.py out/v5/tidewatch_shirt_v5.png [more files]   (works for any set's files)
+Status: used for every private upload since 2026-11-08 (PNG -> Decal, FBX -> Model); prints the asset id per file.
 Images -> assetType Decal. Meshes via Open Cloud need FBX (assetType Model); OBJ is not accepted.
 """
 import sys, os, json, time, mimetypes, uuid, urllib.request

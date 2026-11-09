@@ -5,8 +5,8 @@ description: Build and test Roblox avatar fashion (classic shirt/pants textures,
 
 # Roblox avatar fashion pipeline (verified 2026-11-08)
 
-Project files (in this repo): `examples/tidewatch-warden/` (all pipeline scripts, README.md with asset IDs, QUALITY_PLAN.md, `ref/` with the v5 render sheet and v2 shirt/pants). Scripts write to `out/` next to them.
-Start here for a new set: copy tidewatch/, change palette/emblem/name in `make_clothing_v5.py` + `build_v5.py`/`paint_v5.py`, then run the v5 pipeline (see "v5 pipeline" below). Open Cloud key lives in `~/.config/tidewatch/.env` (ROBLOX_API_KEY, ROBLOX_USER_ID=<numeric id>, never print it).
+Project files (in this repo): `examples/tidewatch-warden/` (all pipeline scripts, README.md, private asset IDs in `docs/studio/wear_tidewatch.lua` and `examples/tidewatch-warden/docs/HISTORY_v1-v4.md`, QUALITY_PLAN.md, `ref/` with the v5 render sheet and v2 shirt/pants). Scripts write to `out/` next to them.
+Start here for a new set: copy `examples/crystal-vanguard/` (fast, ~20 s build, one `run_all.sh`) or `examples/tidewatch-warden/` (heavier: AO bakes, distance-band trims), change palette/emblem/names, keep the `../../lib` import (shared code, never copy it), run its `run_all.sh <tag>`. Open Cloud key lives in `~/.config/tidewatch/.env` (ROBLOX_API_KEY, ROBLOX_USER_ID=<numeric id>, never print it).
 Workflow that worked: build with Blender headless, review the render sheet, upload privately via Open Cloud, test on a Studio rig via the command bar, compare to the reference only privately. For a big quality jump, delegate to an Opus subagent with the reference image + this skill (it produced v5 from v4).
 Rule: references are a QUALITY BAR only. Ship original designs, names, emblems. Never sell a copy of someone's outfit.
 
@@ -49,7 +49,7 @@ With these, run the wear script (`docs/studio/wear_crystal_vanguard.lua`) via `e
 
 ## Known quality limits
 - Procedural sphere+cone hoods look crude; hood must be sized ~1.2-1.4x head (head 1.16 studs), sculpted in Blender, with cloth folds and a real cowl. Layered clothing needs cages (not done yet).
-- Not yet tested: UGC validation tool, Marketplace publish, R6, in-game.
+- Tested on Crystal Vanguard (2026-11-09): R6, Rthro Normal/Slender scales, walk/run/jump/fall poses, in-game try-on (experiences/showroom). Not tested: Roblox's own UGC validator (paid upload flow), Marketplace publish, real Rthro mesh bundles.
 - Limits and fees (read 2026-11-09): `docs/MARKETPLACE_RULES.md` (per-type boxes in the attachment frame, 4k tris, watertight, 2048 textures; 80 Robux upload + 1000-1500 advance per rigid item, ID verification; Premium to publish unverified). Pre-check every set with `docs/studio/ugc_check.lua` before any upload talk. Re-verify before paying.
 
 ## FBX via Open Cloud -> Studio (verified 2026-11-08, hood_v2.py)
@@ -60,18 +60,18 @@ With these, run the wear script (`docs/studio/wear_crystal_vanguard.lua`) via `e
 - Accessory: Humanoid:AddAccessory(acc); RemoveAccessories() destroys them (re-load assets to re-add).
 - Result: hood_v2 measured 1.63x1.61x1.61, 2206 tris, sits ~0.045 high (origin rounding); fix by lowering export origin 0.045.
 
-## Body accessories (mantle, cape) - verified 2026-11-09, tidewatch/mantle_cape.py
+## Body accessories (mantle, cape) - verified 2026-11-09, examples/tidewatch-warden/mantle_cape.py
 - Real R15 UpperTorso attachments: NeckAttachment (0,0.849,0), BodyBackAttachment (0,-0.212,0.502); rig front is -Z local, back +Z (Blender -y front, +y back).
 - Author each mesh relative to its own attachment (origin = attachment) and export with no extra offset. A double offset hid the cape inside the torso.
 - Meshes with a real texture (cape emblem): paint PNG, upload as Decal, resolve image id with InsertService, set mp.TextureID. Set UVs per vertex after `bm.verts.index_update()` (stale indices collapsed all UVs onto one texel).
 - Studio command bar via app_type needs `overwrite_existing: true`; click Run (element index) after. Re-running an old command re-adds accessories: remove duplicates with `.Parent=nil`.
 - Sizes measured in Studio: mantle 2.37x0.83x1.50, cape 1.85x3.51x0.48 (importer reports a few percent different from Blender).
 
-## Clothing painting v2 (painter in lib/rgen_clothing.py; Tidewatch use in tidewatch/make_clothing.py)
+## Clothing painting v2 (painter in lib/rgen_clothing.py; Tidewatch use in examples/tidewatch-warden/make_clothing.py)
 - Paint each template face on its own 4x canvas, shadows baked before shapes (`apply_shadow_now`), metal = 3-stop ramp + dark rim, glow = blurred layer, then downsample per face. Much closer to a pro look than flat fills.
 - Shoulder accessories: Right/LeftShoulderAttachment sit at the arm-top centre (arm-local y=0.62, arm centre x=+-1.47 from torso centre). Author the plate relative to that point, mirror for the other side, same FBX/pivot recipe.
 
-## v5 pipeline lessons (2026-11-09, tidewatch/build_v5.py + paint_v5.py + render_v5.py; Builder in lib/rgen_mesh.py)
+## v5 pipeline lessons (2026-11-09, examples/tidewatch-warden/build_v5.py + paint_v5.py + render_v5.py; Builder in lib/rgen_mesh.py)
 - Real blocky R15 rig (measured in Studio): Head centre is 0.576 above NeckAttachment (not 0.9); UpperTorso 1.70 tall, LowerTorso 0.40 tall (torso spans 2.1 below the neck); Waist{Front,Center,Back}Attachment = LowerTorso-local (0,-0.2,-0.502/0/+0.502) = neck frame z -2.098; feet bottom ~ -4.29 below the neck; arm top ~ -0.05. Hat box bottom (attach -1.25) means a hood hem cannot go below head-centre -0.615, and the torso top (neck z 0) means it should stay above head-centre -0.52.
 - Clean edges: build every cloth piece as a parametric grid whose borders ARE grid lines (face opening = per-row angular range, seam rows welded with remove_doubles), two shells + rim quads. No boolean cuts, no decimate -> no sawtooth hems.
 - Shells: offset the inner shell along finite-difference normals; for welded seam rows use wrap-around differences or the inner shell cracks. recalc_face_normals works once the shell is closed.
@@ -84,14 +84,14 @@ With these, run the wear script (`docs/studio/wear_crystal_vanguard.lua`) via `e
 1. `python3 make_clothing_v5.py` (classic shirt/pants)
 2. `/Applications/Blender.app/Contents/MacOS/Blender -b -P build_v5.py` (meshes, meta.json, Cycles AO bakes -> out/v5/)
 3. `python3 paint_v5.py` (UV textures)
-4. `Blender -b out/v5/v5_build.blend -P render_v5.py -- tag=r3 export=1` (Eevee views + FBX)
-5. `python3 compose_v5.py r3` -> `out/v5/r3_sheet.png` (without a tag argument the name is `v5_sheet.png`) (front, 3/4, side, 3/4 back, back)
+4. `Blender -b out/v5/v5_build.blend -P render_v5.py -- tag=<tag> export=1` (Eevee views + FBX)
+5. `python3 compose_v5.py <tag>` -> `out/v5/<tag>_sheet.png` (without a tag argument the name is `v5_sheet.png`) (front, 3/4, side, 3/4 back, back)
 6. `SSL_CERT_FILE=/etc/ssl/cert.pem python3 upload_assets.py <files>`; resolve Decal -> image ids in Studio; wear on rig.
-Tidewatch v5 asset IDs are in README.md (hood 125983264677959, mantle 134418525303305, cape 127866209640438, pauldrons 124776217777333/71062800685242, belt 85906048945961, skirt 76247706672366, textures as Decals).
+Tidewatch private asset IDs (owner account) are in `docs/studio/wear_tidewatch.lua` (current: r4 cape 102873019853819, r4 skirt 104883722977485, others v5) and `examples/tidewatch-warden/docs/HISTORY_v1-v4.md`.
 
 ## Known gaps after v5 (next work)
-- Folds are procedural (no hand sculpt), hood reads smooth CG; no hair/face/hero prop (staff); plain lower arms; cape tab above mantle; rigid skirt clips legs in walk animations (needs layered clothing/cages or split skirt).
-- Not tested: side view in Studio, animations, R6/Rthro, UGC validation tool, Marketplace publish.
+- Folds are procedural (no hand sculpt), hood reads smooth CG; no hair/face/hero prop (staff); plain lower arms; long rigid cape/skirt back panels still meet the run back-kick (needs layered clothing/cages). Fixed in r4: cape tab above the mantle, skirt in walk (open-front tail skirt) (was: split skirt).
+- Tidewatch not tested yet: R6/Rthro, emissive glow. Studio side view and walk were checked in r4.
 - Fees/rules: see `docs/MARKETPLACE_RULES.md`; re-verify on create.roblox.com before paying.
 - Reference image (roblox1.jpeg) = quality bar only; never ship a copy. Keep comparison images private.
 
