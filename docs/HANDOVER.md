@@ -59,3 +59,12 @@ one-shell pauldrons, lined cape with collar and pointed hem, layered hair with b
 Uploaded privately (ids in `docs/studio/wear_crystal_vanguard.lua`), Studio-tested (STUDIO_TEST.md "r21"): passes ugc_check,
 walk clean, run back-kick still clips the cape. Next for this set: sharpen the blurry pauldron-top filigree, close the collar
 gaps, a fur look for the collar, sharper hair spikes, and layered clothing for the cape.
+
+## Update 2026-11-09 (evening): can cheaper models keep the quality?
+Cold from-scratch test, same brief per model, judged against Crystal Vanguard r27 (checks + render + Studio):
+- **Sonnet ("Ember Warden", obsidian/ember): PASS.** Original shapes, every check passes, clean in Studio; painted craft ~80% of r27.
+  Its doc/lib gaps were fixed in 69a7dda (helpers to lib, generic check scripts, Blender exit codes, gem fix, 0.892 hair limit).
+- **Haiku ("Thornwood Druid", bark/moss): technically clean but below the bar.** No hair, thin antlers, flat mantle, plain staff,
+  Crystal Vanguard clothing layout recoloured; stopped after 2 of the expected rounds. Its doc gaps were fixed in 2f2125f.
+  The shortfall is effort and design judgement, not missing instructions.
+Use Sonnet (or better) to build new sets; Haiku for recolours/renames and checks. Neither test set is in the repo (scratch only).
