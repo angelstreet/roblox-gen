@@ -1,7 +1,7 @@
 # roblox-gen
 
 Help creators, and the AI agents that work for them, **generate Roblox content**: avatar clothing, 3D accessories
-and (next) experiences. The repo is both a human guide and an agent skill: point an AI coding agent at it and it
+and experiences. The repo is both a human guide and an agent skill: point an AI coding agent at it and it
 can reproduce the default example, then make your own set.
 
 ![Tidewatch Warden v5 render sheet](docs/tidewatch-v5-sheet.png)
@@ -11,15 +11,17 @@ plates, belt, skirt). Rendered on a block R15 proxy in Blender.*
 
 ![Crystal Vanguard sheet](docs/crystal-vanguard-sheet.png)
 
-*Second set: Crystal Vanguard, built by Sonnet, refined by Haiku from the same repo.*
+*Second set: Crystal Vanguard (r10): swept mane, long flared cape, emissive crystals, face decal; built by Sonnet/Haiku, refined by Opus from the same repo.*
 
 ## What you can generate
 | Output | How | Status |
 |---|---|---|
 | Classic shirt / pants (585x559 PNG) | Python painting on the official template UVs | works, tested in Studio |
 | 3D accessories (hat, back, shoulder, waist) | Blender headless -> FBX -> Open Cloud upload -> worn in Studio | works, tested in Studio |
-| Layered clothing, hair, faces, props | not done yet | open |
-| Experiences (places, scripts) | not done yet | planned |
+| Rigid hair, face decal (display), emissive glow | Blender strands, painted decal, SurfaceAppearance emissive masks | works, tested in Studio (Crystal Vanguard r10) |
+| Layered clothing (cages) | not done yet | open |
+| Experiences (places, scripts) | Luau built in Studio through the Studio MCP | first one: `experiences/showroom/` (try-on showroom), tested in Play |
+| Marketplace pre-check | `docs/studio/ugc_check.lua` + `docs/MARKETPLACE_RULES.md` | local check of the documented limits; the official validator is the paid upload flow |
 
 ## Prerequisites
 1. **Roblox account** and **Roblox Studio** (create.roblox.com), for testing before you pay anything.
@@ -36,7 +38,9 @@ The key file path `~/.config/tidewatch/.env` is outside the repo on purpose (the
 
 ## Starter sets
 - `examples/tidewatch-warden/`: finished default example.
-- `examples/crystal-vanguard/`: first cold-agent build of the set below (Sonnet, about 60% of the concept's polish; weak points in its NOTES.md).
+- `examples/crystal-vanguard/`: the set below, r10 (passes the Marketplace size/triangle/watertight pre-check at all body scales; history and weak points in its NOTES.md, Studio results in STUDIO_TEST.md).
+- `lib/`: shared code both examples import (`rgen_mesh.py` Builder/swatches/body proxy, `rgen_clothing.py` Face painter).
+- `experiences/`: places and scripts (stage 4).
 - `starter/crystal-vanguard/`: concept art, prompts, sword blockout GLB and an exact spec for a second set. Agents: build it with `skills/roblox-2d-concept` (2D first) then `skills/roblox-avatar-fashion` (3D). See `docs/PIPELINE.md`.
 
 ## For AI agents

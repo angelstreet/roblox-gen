@@ -15,4 +15,5 @@ shoulder plates, belt, skirt) and, later, experiences.
    explicit yes. Re-verify current fees/rules on create.roblox.com.
 5. Originality: references are a quality bar only. Never copy another creator's outfit, emblem or name.
 
-Studio: prefer the Studio MCP tools; see the skill's "Studio MCP" section.
+Studio: prefer the Studio MCP tools; see the skill's "Studio MCP" section. Wear scripts, animation poses and the Marketplace
+pre-check live in `docs/studio/`; experiences (stage 4) in `experiences/`. Shared Python lives in `lib/`: import it, never copy it into a set.

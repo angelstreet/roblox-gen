@@ -67,11 +67,11 @@ With these, run the wear script (`docs/studio/wear_crystal_vanguard.lua`) via `e
 - Studio command bar via app_type needs `overwrite_existing: true`; click Run (element index) after. Re-running an old command re-adds accessories: remove duplicates with `.Parent=nil`.
 - Sizes measured in Studio: mantle 2.37x0.83x1.50, cape 1.85x3.51x0.48 (importer reports a few percent different from Blender).
 
-## Clothing painting v2 (tidewatch/make_clothing.py)
+## Clothing painting v2 (painter in lib/rgen_clothing.py; Tidewatch use in tidewatch/make_clothing.py)
 - Paint each template face on its own 4x canvas, shadows baked before shapes (`apply_shadow_now`), metal = 3-stop ramp + dark rim, glow = blurred layer, then downsample per face. Much closer to a pro look than flat fills.
 - Shoulder accessories: Right/LeftShoulderAttachment sit at the arm-top centre (arm-local y=0.62, arm centre x=+-1.47 from torso centre). Author the plate relative to that point, mirror for the other side, same FBX/pivot recipe.
 
-## v5 pipeline lessons (2026-11-09, tidewatch/build_v5.py + paint_v5.py + render_v5.py)
+## v5 pipeline lessons (2026-11-09, tidewatch/build_v5.py + paint_v5.py + render_v5.py; Builder in lib/rgen_mesh.py)
 - Real blocky R15 rig (measured in Studio): Head centre is 0.576 above NeckAttachment (not 0.9); UpperTorso 1.70 tall, LowerTorso 0.40 tall (torso spans 2.1 below the neck); Waist{Front,Center,Back}Attachment = LowerTorso-local (0,-0.2,-0.502/0/+0.502) = neck frame z -2.098; feet bottom ~ -4.29 below the neck; arm top ~ -0.05. Hat box bottom (attach -1.25) means a hood hem cannot go below head-centre -0.615, and the torso top (neck z 0) means it should stay above head-centre -0.52.
 - Clean edges: build every cloth piece as a parametric grid whose borders ARE grid lines (face opening = per-row angular range, seam rows welded with remove_doubles), two shells + rim quads. No boolean cuts, no decimate -> no sawtooth hems.
 - Shells: offset the inner shell along finite-difference normals; for welded seam rows use wrap-around differences or the inner shell cracks. recalc_face_normals works once the shell is closed.
@@ -80,7 +80,7 @@ With these, run the wear script (`docs/studio/wear_crystal_vanguard.lua`) via `e
 - Box-like pauldrons must have closed fronts (cap shells), an arc sheet extruded in depth reads as a thin line from the front.
 - Contrast check: cloth texture ~(21,25,38) lit / (6,7,12) shade renders near-black; (30,36,54) already reads mid grey under a product light.
 
-## v5 pipeline (run all commands from `examples/tidewatch-warden/`; the Open Cloud key is needed only for step 6; on Linux use `blender` on PATH; run order, from examples/tidewatch-warden/README.md)
+## v5 pipeline (one command: `examples/tidewatch-warden/run_all.sh <tag>`, ~10 min; or step by step, run all commands from `examples/tidewatch-warden/`; the Open Cloud key is needed only for step 6; on Linux use `blender` on PATH; run order, from examples/tidewatch-warden/README.md)
 1. `python3 make_clothing_v5.py` (classic shirt/pants)
 2. `/Applications/Blender.app/Contents/MacOS/Blender -b -P build_v5.py` (meshes, meta.json, Cycles AO bakes -> out/v5/)
 3. `python3 paint_v5.py` (UV textures)

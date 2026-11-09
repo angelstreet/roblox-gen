@@ -4,9 +4,9 @@ Frame (same as tidewatch): x lateral (+x = character's left), y depth (front = -
 Writes out/cv_build.blend. UV layout: every non-sword item uses an 8-swatch strip at the bottom of its atlas (v 0..0.06)."""
 import bpy, bmesh, math, os, random, sys
 from mathutils import Vector, Matrix
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import build_v5 as B
-from build_v5 import Builder, sm, spow
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "lib"))
+import rgen_mesh as B                     # shared Builder / swatches / body proxy (lib/rgen_mesh.py)
+from rgen_mesh import Builder, sm, spow
 
 HERE = os.path.dirname(os.path.abspath(__file__)); OUT = os.path.join(HERE, "out"); os.makedirs(OUT, exist_ok=True)
 GLB = os.path.join(HERE, "..", "..", "starter", "crystal-vanguard", "3d", "crystal_vanguard_sword_blockout.glb")

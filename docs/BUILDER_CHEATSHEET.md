@@ -1,4 +1,5 @@
-# Builder cheat sheet (examples/*/build_v5.py) - read this instead of the 470-line file
+# Builder cheat sheet (lib/rgen_mesh.py) - read this instead of the code
+Import from a set folder: `sys.path.insert(0, os.path.join(HERE, "..", "..", "lib")); import rgen_mesh as B`.
 
 `Builder(name)`: one accessory = one bmesh + one UV layer "UVMap". Y-up Blender scene, UV v=0 is the BOTTOM of the texture.
 Meshes are authored relative to their attachment (origin = attachment point). The block R15 proxy is `body()`.
@@ -13,7 +14,7 @@ Meshes are authored relative to their attachment (origin = attachment point). Th
 | `sm(t)`, `spow(x,p)` | smoothstep and signed power helpers for height profiles |
 | `tris(ob)` | triangle count |
 
-Palette swatches: a bottom strip of flat colours (`SW` dict in build_v5.py; the Crystal Vanguard example overrides it with 8 swatches). Name a swatch string where a UV rect is expected.
+Palette swatches: a bottom strip of flat colours (`SW` dict in lib/rgen_mesh.py, shared by reference; the Crystal Vanguard example overrides it with 8 swatches). Name a swatch string where a UV rect is expected.
 Simple path (about 17-30 s, no AO bakes, no meta.json): `examples/crystal-vanguard/run_all.sh <tag>` runs make_clothing_cv -> paint_cv -> build_cv -> render_cv -> compose_cv in that order.
 `sheet()` also accepts `pole_row0=True` (collapse the first row to a point, for domes) and `rim_skip_cols`. Heavy path (distance-band trims, AO): `examples/tidewatch-warden/`.
 

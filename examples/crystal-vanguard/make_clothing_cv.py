@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Crystal Vanguard - classic shirt + pants (585x559) painted on the official template rectangles.
-Reuses the 4x Face painter from ../tidewatch-warden/make_clothing.py (copied next to this file as make_clothing.py).
+Uses the shared 4x Face painter in lib/rgen_clothing.py.
 Usage: python3 make_clothing_cv.py  -> out/cv_shirt.png, out/cv_pants.png"""
 import os, math
 from PIL import Image
-from make_clothing import Face, S, SHIRT, PANTS, W, H
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "lib"))
+from rgen_clothing import Face, S, SHIRT, PANTS, W, H
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "out"); os.makedirs(OUT, exist_ok=True)
 WHITE_T, WHITE_B = (250, 251, 255), (176, 192, 232)     # silver-white armor  #F8F9FF .. shaded toward #CAD8FF/blue

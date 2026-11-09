@@ -10,7 +10,7 @@ Never start 3D before the 2D gate below is passed. A concept image is NOT a UV t
 
 ## Inputs
 - A text brief or the starter kit in `starter/<set>/` (concept PNGs, prompts, optional blockout GLB).
-- Official Roblox classic clothing templates (585x559). The face rectangles are in the `roblox-avatar-fashion` skill; `examples/tidewatch-warden/make_clothing.py` already has the `Face` painter and the exact rectangles.
+- Official Roblox classic clothing templates (585x559). The face rectangles are in the `roblox-avatar-fashion` skill; `lib/rgen_clothing.py` has the shared `Face` painter and the exact rectangles.
 
 ## Steps
 1. **Concept art** (human or image AI; an agent without an image generator asks the human). Prompts live in `starter/crystal-vanguard/crystal_vanguard_prompts.md` (A avatar, B weapon, C materials, D clothing, E consistency). Save approved front/side/back images under `starter/<set>/2d/`.
@@ -20,7 +20,7 @@ Never start 3D before the 2D gate below is passed. A concept image is NOT a UV t
 5. **2D gate (all must be true)**: palette in SPEC.md; shirt/pants PNG exactly 585x559; template overlay image saved; every 3D accessory listed with attachment; a `2d_preview.png` that shows shirt+pants mapped on a block R15 (use the Blender proxy: `examples/crystal-vanguard/render_cv.py ... preview2d=1`; `render_preview.py` belongs to the old v1 pipeline and does not work for new sets). Then go to stage 2.
 
 ## Using the Face painter with a new palette
-`from make_clothing import Face` paints one template face on a 4x canvas; its defaults are Tidewatch bronze/aqua. Pass your own colours: `metal()` takes a 3-stop ramp `top/mid/bot` (see `examples/crystal-vanguard/make_clothing_cv.py` for gold, silver and sapphire ramps). Check palette use with `python3 scripts/check_palette.py <png> <hex>...`.
+`from rgen_clothing import Face` (add `../../lib` to sys.path) paints one template face on a 4x canvas; its defaults are Tidewatch bronze/aqua. Pass your own colours: `metal()` takes a 3-stop ramp `top/mid/bot` (see `examples/crystal-vanguard/make_clothing_cv.py` for gold, silver and sapphire ramps). Check palette use with `python3 scripts/check_palette.py <png> <hex>...`.
 
 ## Rules
 - Originality: no franchise characters, logos, text. References are a quality bar only.
