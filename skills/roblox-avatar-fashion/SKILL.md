@@ -76,3 +76,7 @@ Tidewatch v5 asset IDs are in README.md (hood 125983264677959, mantle 1344185253
 - Not tested: side view in Studio, animations, R6/Rthro, UGC validation tool, Marketplace publish.
 - Fees/rules (80 Robux upload + advance, ID verification, Premium to sell) are agent-reported: re-verify on create.roblox.com before paying.
 - Reference image (roblox1.jpeg) = quality bar only; never ship a copy. Keep comparison images private.
+
+## Driving Studio with computer-use (trap, 2026-11-09)
+- If Studio opens on its Home screen (no place open), the template tiles are a canvas: background `app_click`/`app_key` cannot press them and File > New is disabled. A human click or full-screen control (`request_full_control`, needs the user at the keyboard) is required. Keep a place open before starting an unattended agent run.
+- Ready-made wear script: `docs/studio/wear_crystal_vanguard.lua`.
