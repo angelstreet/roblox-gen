@@ -53,7 +53,7 @@ With these, run the wear script (`docs/studio/wear_crystal_vanguard.lua`) via `e
 - Limits and fees (read 2026-11-09): `docs/MARKETPLACE_RULES.md` (per-type boxes in the attachment frame, 4k tris, watertight, 2048 textures; 80 Robux upload + 1000-1500 advance per rigid item, ID verification; Premium to publish unverified). Pre-check every set with `docs/studio/ugc_check.lua` before any upload talk. Re-verify before paying.
 
 ## FBX via Open Cloud -> Studio (verified 2026-11-08, hood_v2.py)
-- Open Cloud accepts FBX as assetType Model only with content type `model/fbx` (upload_assets.py does this). No file picker needed.
+- Open Cloud accepts FBX as assetType Model only with content type `model/fbx` (scripts/upload_assets.py does this). No file picker needed.
 - Blender FBX export needs `global_scale=0.01` (else the mesh arrives 100x: 162 studs). axis_forward='-Z', axis_up='Y'.
 - Imported MeshPart.PivotOffset carries a 90 deg X rotation: build the accessory attachment with `CFrame.new(mp.PivotOffset.Position)` (position only). With the rotation the hood lies on its side.
 - Mesh arrives untextured: upload the palette PNG (Decal), resolve its image id via InsertService, set mp.TextureID. "Asset content representation is being generated" = mesh still processing, wait a few seconds.
@@ -86,7 +86,7 @@ With these, run the wear script (`docs/studio/wear_crystal_vanguard.lua`) via `e
 3. `python3 paint_v5.py` (UV textures)
 4. `Blender -b out/v5/v5_build.blend -P render_v5.py -- tag=<tag> export=1` (Eevee views + FBX)
 5. `python3 compose_v5.py <tag>` -> `out/v5/<tag>_sheet.png` (without a tag argument the name is `v5_sheet.png`) (front, 3/4, side, 3/4 back, back)
-6. `SSL_CERT_FILE=/etc/ssl/cert.pem python3 upload_assets.py <files>`; resolve Decal -> image ids in Studio; wear on rig.
+6. `SSL_CERT_FILE=/etc/ssl/cert.pem python3 ../../scripts/upload_assets.py <files>`; resolve Decal -> image ids in Studio; wear on rig.
 Tidewatch private asset IDs (owner account) are in `docs/studio/wear_tidewatch.lua` (current: r4 cape 102873019853819, r4 skirt 104883722977485, others v5) and `examples/tidewatch-warden/docs/HISTORY_v1-v4.md`.
 
 ## Known gaps after v5 (next work)

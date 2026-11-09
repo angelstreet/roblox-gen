@@ -10,14 +10,16 @@ then the two skills in `skills/`. This file is the owner's working note for the 
 - **Crystal Vanguard r10** (`examples/crystal-vanguard/`): swept mane (watertight, Hair box), long flared cape, sword lowered into the
   Waist box, emissive glow (SurfaceAppearance masks), face decal, richer clothing filigree. Passes `docs/studio/ugc_check.lua`
   (size boxes at Classic/Rthro Normal/Slender, <= 4000 tris, watertight, 1024 textures). Tested in Studio on R15, R6, Rthro
-  scales and walk/run/jump/fall poses (`STUDIO_TEST.md`). Colours are one file: `palette.py` (`THEME`, `SET_NAME`).
+  scales and walk/run/jump/fall poses (`STUDIO_TEST.md`). Colours and release names are one file: `palette.py` (`THEME`, `NAMES`, `SET_NAME`).
 - **Tidewatch r4** (`examples/tidewatch-warden/`): cape tucked under the mantle (tab fixed), open-front tail skirt (walk clip fixed),
   side view checked; `run_all.sh <tag>` (~10 min, `NOBAKE=1` ~2.5 min).
 - Shared code in `lib/` (`rgen_mesh.py` Builder/swatches/body proxy, `rgen_clothing.py` Face painter); both examples import it.
 - **Experiences**: `experiences/showroom/build_showroom.lua` (plinths, turntable, bloom, "Try on" prompt), tested in Play.
 - Marketplace limits and fees: `docs/MARKETPLACE_RULES.md` (read 2026-11-09). Nothing was published or paid.
-- Cold-agent tests on commit b431738: Haiku 6/10, Sonnet 7/10. Their findings (Linux BLENDER override, tag drift, stale paths,
-  ugc_check rig name, emissive cost, palette spread over 3 files, wrong "make your own set" path, title overlap) were fixed after.
+- Cold-agent tests (fresh clone, no uploads/Studio): round 1 on b431738 Haiku 6, Sonnet 7; round 2 on 0d8bd56 Haiku 6, Sonnet 7
+  (Sonnet themed a new "Ember Sentinel" set through palette.py). Fixed after each round: Linux BLENDER override, tag drift,
+  stale paths, ugc_check rig name, emissive cost, palette in one file (THEME, NAMES, SET_NAME), release_cv.py, uploader moved to
+  scripts/, full new-set recipe in README (delete, theme, build, upload, wear script, pre-check), themed sheet. Round 3 result: see git log.
 
 ## Rules from the owner
 - Autonomous: do the next step, do not ask "should I continue". Ask only for money, credentials, publishing, deleting shared data.

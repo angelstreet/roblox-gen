@@ -2,7 +2,7 @@
 """Crystal Vanguard face decal (r10): original determined face for the blocky head, transparent PNG.
 Used on the Blender proxy head (render) and as the Head "face" Decal on the Studio test rig. NOT a sellable item:
 classic faces are not UGC; it only replaces the placeholder squares so the renders/screenshots judge the whole look.
-Usage: python3 make_face_cv.py -> out/cv_face.png (512x512) and crystal_vanguard_face.png"""
+Usage: python3 make_face_cv.py -> out/cv_face.png (512x512)"""
 import os, shutil
 from PIL import Image, ImageDraw, ImageFilter
 from palette import C   # colour theme: edit palette.py for a new set
@@ -42,5 +42,5 @@ for sg in (-1, 1):
 d.line(P([(232, 352), (262, 356), (284, 349)]), fill=INK + (255,), width=6 * S, joint="curve")
 d.line(P([(284, 349), (290, 344)]), fill=INK + (255,), width=5 * S)
 im = im.resize((512, 512), Image.LANCZOS)
-im.save(os.path.join(OUT, "cv_face.png")); shutil.copy(os.path.join(OUT, "cv_face.png"), os.path.join(HERE, "crystal_vanguard_face.png"))
+im.save(os.path.join(OUT, "cv_face.png"))   # release copy (palette.NAMES["face"]) is made by release_cv.py
 print("face ->", os.path.join(OUT, "cv_face.png"))

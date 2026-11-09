@@ -39,6 +39,7 @@ Cost to list the whole Crystal Vanguard set as non-limited (6 rigid items + shir
 - without glow (no emissive masks): uploads 8 x 80 = 640, advances 5 x 1000 (2 pauldrons, cape, scarf, sword) + 1000 (crown as
   Hair; 1500 as Hat) + 2 x 10 = 6,020; total about 6,660 Robux (7,160 with the crown as Hat).
 - with glow as built in r10 (all 6 rigid items carry an emissive mask): uploads 6 x 500 + 2 x 80 = 3,160, advances from the
-  emissive table (Hair 5000, Back/Neck/Shoulder 5000 each, Waist: check the page) + 20: roughly 33,000 Robux. Glow is a big cost
+  emissive table (Hair 5000, Back/Neck/Shoulder 5000 each; the Waist emissive advance was not read) + 20: roughly 33,000
+  Robux. PARTIAL estimate: re-read the fees page before any decision. Glow is a big cost
   multiplier: ship emissive only on the items that need it (sword, cape) or not at all.
 Never pay without the owner's yes.

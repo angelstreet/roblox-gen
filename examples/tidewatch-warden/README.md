@@ -4,7 +4,8 @@ An original hooded outfit: near-black navy robe cloth, thin bronze trims, pearl 
 "Tidemark" emblem. Seven 3D accessories plus a classic shirt and pants. Built by the v5 pipeline.
 
 ## Run (from this folder)
-One command: `./run_all.sh r4` (all five steps below, ~10 min; `NOBAKE=1` skips the AO bakes for a quick look).
+One command: `./run_all.sh r4` (all five steps below, ~10 min on an M-series Mac) or `NOBAKE=1 ./run_all.sh r4` (skips the AO bakes,
+~2.5 min; the sheet looks flatter than the committed `ref/v5_sheet.png`).
 
 Needs only Blender >= 4.2, Python 3, `pillow`, `numpy`. No Roblox key or Studio for rendering. Use `blender` on PATH
 (macOS: `/Applications/Blender.app/Contents/MacOS/Blender`). On headless Linux read `../../docs/LINUX_HEADLESS.md` first.
@@ -14,11 +15,11 @@ Needs only Blender >= 4.2, Python 3, `pillow`, `numpy`. No Roblox key or Studio 
 | 1 | `python3 make_clothing_v5.py` | 2 s | `tidewatch_shirt_v5.png`, `tidewatch_pants_v5.png` |
 | 2 | `blender -b -P build_v5.py` | ~2 min | `v5_build.blend`, `meta.json`, `ao_*.png` |
 | 3 | `python3 paint_v5.py` | ~2 min | `tex_*.png` |
-| 4 | `blender -b out/v5/v5_build.blend -P render_v5.py -- tag=r3 export=1` | ~6 min (software GL) | `r3_*.png`, one `.fbx` per accessory |
-| 5 | `python3 compose_v5.py r3` | 2 s | `r3_sheet.png` (**the render sheet**) |
+| 4 | `blender -b out/v5/v5_build.blend -P render_v5.py -- tag=r4 export=1` | ~6 min (software GL) | `r4_*.png`, one `.fbx` per accessory |
+| 5 | `python3 compose_v5.py r4` | 2 s | `r4_sheet.png` (**the render sheet**) |
 
-Optional: `ROBLOX_GEN_REFERENCE=/path/to/image.jpg python3 compose_v5.py r3` also writes a private `r3_vs_reference.png`. Never commit or ship it.
-Upload (needs the key): `SSL_CERT_FILE=/etc/ssl/cert.pem python3 upload_assets.py out/v5/*.fbx out/v5/tex_*.png`.
+Optional: `ROBLOX_GEN_REFERENCE=/path/to/image.jpg python3 compose_v5.py r4` also writes a private `r4_vs_reference.png`. Never commit or ship it.
+Upload privately (needs the key; run from this folder): `SSL_CERT_FILE=/etc/ssl/cert.pem python3 ../../scripts/upload_assets.py out/v5/*.fbx out/v5/tex_*.png out/v5/tidewatch_*_v5.png`.
 
 ## Accessories
 | Item | Attachment |
@@ -35,7 +36,7 @@ Hood bbox relative to HatAttachment: x +-0.86, y -0.86..0.87, z -1.14..+0.47 (li
 
 ## Studio test (2026-11-09, private uploads)
 All accessories + shirt/pants worn on an R15 rig; front and back checked. Measured rig numbers and every trap are in
-`../../skills/roblox-avatar-fashion/SKILL.md`. Private test asset IDs (only usable by the uploader): see `docs/HISTORY_v1-v4.md`.
+`../../skills/roblox-avatar-fashion/SKILL.md`. Private test asset IDs (only usable by the uploader): see `examples/tidewatch-warden/docs/HISTORY_v1-v4.md` (v5) and `docs/studio/wear_tidewatch.lua` (current, r4).
 
 ## Round r4 (2026-11-09, Studio MCP; shots `../../docs/studio/tidewatch/`)
 Studio test with `docs/studio/wear_tidewatch.lua` (v5 uploads) found two problems, fixed in `build_v5.py`:
@@ -51,4 +52,4 @@ Still open: the run back-kick reaches a long rigid back panel (same as every lon
 
 ## Known gaps
 Procedural folds (no hand sculpt), no hair/face/prop, run back-kick vs long back panels, not tested on R6/Rthro, no emissive glow.
-Earlier iterations (v1-v4) are in `docs/HISTORY_v1-v4.md` and `make_clothing_v1.py`, `hood_v2.py`, `mantle_cape.py`, `shoulders.py`.
+Earlier iterations (v1-v4) are in `examples/tidewatch-warden/docs/HISTORY_v1-v4.md` and `make_clothing_v1.py`, `hood_v2.py`, `mantle_cape.py`, `shoulders.py`.

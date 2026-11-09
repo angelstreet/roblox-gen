@@ -44,6 +44,7 @@ Still open: no Studio test, no cages, sword pose unverified in Roblox, face is a
 
 ## Round 4 (r10, Opus + a Sonnet subagent for the clothing, 2026-11-09; sheet `render_sheet.png` = r10, Studio shots `docs/studio/r10/`)
 Driven by the Studio tests (animation clipping, `docs/studio/ugc_check.lua`) and the handover quality list.
+Sizes below are Studio order W x H x D (x, y up, z depth); the build's EXPORT lines print Blender order x, y (depth), z (up).
 | Item | Change | Result |
 |---|---|---|
 | Crown + hair | 64 open tufts + temple wings replaced by 70 CLOSED tapered 5-gon strands in 4 groups (swept-up top spikes, back mane of spiky locks flicking outward, thin side locks behind the temples, short fringe under the band), clamped to the Hair box | 3572 tris, watertight, 1.64 x 1.89 x 2.01, passes Hair at Classic/Normal/Slender (as Hat it still fails Normal/Slender depth: submit as **Hair**) |

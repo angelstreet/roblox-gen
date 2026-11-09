@@ -1,7 +1,7 @@
 -- Wears the Crystal Vanguard set (r10) on a new rig. Paste into Roblox Studio's command bar and Run, or send it with the
 -- Studio MCP `execute_luau` tool (datamodel Edit). Edit the CONFIG block to test other bodies.
 -- Asset IDs are private test uploads of the repo owner's account (only that account can load them); re-upload with
--- examples/tidewatch-warden/upload_assets.py under your own account and replace the IDs.
+-- scripts/upload_assets.py under your own account and replace the IDs (README "Make your own set" steps 5-6).
 local CONFIG = {
   name = "CVRig",                       -- rig name in workspace (an existing rig with this name is removed first)
   rigType = Enum.HumanoidRigType.R15,   -- or Enum.HumanoidRigType.R6

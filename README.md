@@ -27,7 +27,7 @@ plates, belt, skirt). Rendered on a block R15 proxy in Blender.*
 1. **Roblox account** and **Roblox Studio** (create.roblox.com), for testing before you pay anything.
 2. **Open Cloud API key** with Assets read+write (create.roblox.com/dashboard/credentials) and your **numeric** user id.
    Put both in `~/.config/tidewatch/.env` (see `.env.example`). Never commit it.
-3. **Blender 4.2 or newer** (free, tested with 4.5), run headless (`Blender -b -P script.py`).
+3. **Blender 4.2 or newer** (free, tested with 4.5), run headless (`blender -b -P script.py`; on macOS `blender` = `/Applications/Blender.app/Contents/MacOS/Blender`).
 4. **Python 3** with `pillow` and `numpy`.
 5. Optional: an AI coding agent (Claude Code, Codex, ...).
 
@@ -70,22 +70,32 @@ python3 compose_v5.py r4          # writes out/v5/r4_sheet.png (the render sheet
 ```
 Outputs land in `out/v5/`: `<tag>_sheet.png`, `tidewatch_shirt_v5.png`, `tidewatch_pants_v5.png`, one `.fbx` per accessory. Optional (normally unset, skip it): if `ROBLOX_GEN_REFERENCE` is set, a private `<tag>_vs_reference.png` is also written: never commit or ship it.
 
-Upload privately and test in Studio (needs the key): `SSL_CERT_FILE=/etc/ssl/cert.pem python3 upload_assets.py out/v5/*.fbx out/v5/*.png`.
+Upload privately and test in Studio (needs the key): `SSL_CERT_FILE=/etc/ssl/cert.pem python3 ../../scripts/upload_assets.py out/v5/*.fbx out/v5/*.png`.
 Details, measurements and every trap found are in the skill file.
 
 ## Make your own set
-Fast path (recommended, ~20 s per build): copy `examples/crystal-vanguard/` to `examples/<your-set>/` (keep it two levels
-deep: scripts import `../../lib` and the sword reads `../../starter/crystal-vanguard/3d/*.glb`).
-1. **Colours**: edit `palette.py` only. `THEME` recolours four families (metal, plate, cloth, crystal) by hue shift and
-   saturation/value multipliers; a tested emerald+silver theme is in its docstring. `SET_NAME` titles the render sheet.
-2. **Names**: the FBX file names are the `FBX` dict in `render_cv.py`; the release copies in the folder
-   (`crystal_vanguard_shirt.png`, `_pants.png`, `_face.png`) are named in `NOTES.md` and `make_face_cv.py`; rename them.
-3. **Shapes / emblem**: `build_cv.py` (one `build_*()` per accessory, API in `docs/BUILDER_CHEATSHEET.md`) and the emblem
-   drawing in `paint_cv.py` (`cape()`). Keep swatch names (`gold`, `crystal`, ...) stable: `build_cv.py` refers to them.
-4. `./run_all.sh <tag>`, look at `out/<tag>_sheet.png`, then upload privately and run `docs/studio/ugc_check.lua`.
-5. Replace `NOTES.md`, `STUDIO_TEST.md` and the wear script ids with your own; keep originality (no copied outfits/emblems).
+Fast path (recommended, ~20 s per build). Example: a set called "Ember Sentinel" in `examples/ember-sentinel/`.
+1. **Copy** `examples/crystal-vanguard/` to `examples/<your-set>/` (keep it two levels deep: scripts import `../../lib`
+   and the sword reads `../../starter/crystal-vanguard/3d/*.glb`). In the copy **delete** the old release files and notes:
+   `*.fbx`, `crystal_vanguard_*.png`, `render_sheet.png`, `2d_preview.png`, `NOTES.md`, `STUDIO_TEST.md`, `out/`.
+   `run_all.sh` regenerates the release files under your names.
+2. **Colours + names: `palette.py` only.** `SET_NAME`, `NAMES` (FBX files, shirt/pants/face PNGs) and `THEME` (hue shift,
+   saturation and value multipliers for four families: metal, plate, cloth, crystal). Read its docstring first: it lists the
+   authored hues, which colour lands in which family (the bright cape is "crystal", not "cloth") and two tested themes.
+3. **Shapes / emblem** (optional): `build_cv.py` (one `build_*()` per accessory, API in `docs/BUILDER_CHEATSHEET.md`) and the
+   emblem drawing in `paint_cv.py` (`cape()`). Keep swatch names (`gold`, `crystal`, ...) stable: `build_cv.py` refers to them.
+4. **Build**: `./run_all.sh <tag>` and look at `out/<tag>_sheet.png` (whole outfit in your colours?). Iterate.
+5. **Upload privately** (needs the key; nothing is published): from your set folder
+   `SSL_CERT_FILE=/etc/ssl/cert.pem python3 ../../scripts/upload_assets.py *.fbx out/tex_*.png out/emit_*.png <shirt> <pants> <face>`
+   (PNG -> Decal id, FBX -> Model id, printed per file).
+6. **Studio test**: copy `docs/studio/wear_crystal_vanguard.lua` to `docs/studio/wear_<your-set>.lua`, put your ids in its
+   `items` table (mesh id, texture Decal id, attachment, emissive mask id), shirt/pants/face ids, `CONFIG.name` and
+   `CONFIG.glowTint`; run it with the Studio MCP `execute_luau`. The ids in the shipped wear scripts are the repo owner's
+   private uploads: they load only on that account, so everyone else re-uploads first.
+7. **Marketplace pre-check**: run your wear script with `CONFIG.rigType = Enum.HumanoidRigType.R6` and `CONFIG.name = "CV_R6"`
+   (or set `RIG` in `docs/studio/ugc_check.lua` to your rig name), then run `ugc_check.lua`. Limits and fees: `docs/MARKETPLACE_RULES.md`.
 Heavy path (AO bakes, distance-band trims, ~10 min): copy `examples/tidewatch-warden/` and edit `make_clothing_v5.py`,
-`build_v5.py`, `paint_v5.py`. On macOS use `sed -i ''` for in-place renames.
+`build_v5.py`, `paint_v5.py` (no `palette.py` there yet). On macOS use `sed -i ''` for in-place renames.
 
 ## Rules and honesty
 - Originality: use references as a quality bar only. Never copy another creator's outfit, emblem or name.

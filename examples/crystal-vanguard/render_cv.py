@@ -6,8 +6,8 @@ OUT = os.path.dirname(bpy.data.filepath)
 args = dict(a.split("=") for a in (sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []))
 VIEWS = args.get("views", "front,back,side,q34,q34back").split(","); TAG = args.get("tag", "r1")
 ITEMS = ["cv_crown", "cv_scarf", "cv_cape", "cv_pauldron_r", "cv_pauldron_l", "cv_sword"]
-FBX = {"cv_crown": "crystal_crown", "cv_scarf": "navy_scarf", "cv_cape": "sapphire_cape", "cv_pauldron_r": "vanguard_pauldron_r",
-       "cv_pauldron_l": "vanguard_pauldron_l", "cv_sword": "crystal_vanguard_blade"}
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__))); from palette import NAMES
+FBX = NAMES["fbx"]                     # export file names: edit them in palette.py
 ATT = {"cv_crown": (0, 0, 0.576 + 0.635), "cv_scarf": (0, 0, 0), "cv_cape": (0, 0.502, -1.061), "cv_pauldron_r": (-1.5, 0, 0),
        "cv_pauldron_l": (1.5, 0, 0), "cv_sword": (0, 0.502, -2.098)}
 sc = bpy.context.scene
