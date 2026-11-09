@@ -7,4 +7,4 @@ set -e
 [ -n "$1" ] || { echo "usage: $0 <tag>"; exit 1; }
 if [ -n "$BLENDER" ]; then B=$BLENDER; elif command -v blender >/dev/null 2>&1; then B=blender; else B=/Applications/Blender.app/Contents/MacOS/Blender; fi
 cd "$(dirname "$0")"
-python3 make_clothing_cv.py && python3 make_face_cv.py && "$B" -b -P build_cv.py && python3 paint_cv.py && "$B" -b out/cv_build.blend -P render_cv.py -- tag=$1 export=1 closeup=1 && python3 compose_cv.py $1 && python3 release_cv.py $1
+python3 make_clothing_cv.py && python3 make_face_cv.py && "$B" -b --python-exit-code 1 -P build_cv.py && python3 paint_cv.py && "$B" -b --python-exit-code 1 out/cv_build.blend -P render_cv.py -- tag=$1 export=1 closeup=1 && python3 compose_cv.py $1 && python3 release_cv.py $1 && python3 ../../scripts/texel_density.py . && "$B" -b out/cv_build.blend --python-exit-code 1 -P ../../scripts/clip_check.py

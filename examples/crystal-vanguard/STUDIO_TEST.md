@@ -127,3 +127,11 @@ Studio re-test (2026-11-09, Studio MCP, shots `docs/studio/r21/`):
 - Upload trap: a fresh upload can stay unloadable in Studio for several minutes although Open Cloud reports Decal and Image
   Approved; `ContentProvider:PreloadAsync` status is not reliable (it reported Failure for textures that render). Judge by eye.
 - r27 ids are in `docs/studio/wear_crystal_vanguard.lua`; the r27 rig is on the showroom plinth in the test place.
+
+## r28 (2026-11-09): crown inside the Slender Hair front limit
+The specs page prints the Slender Hair depth as "2.08 (1.892 front, 1.189 behind)"; front + behind must be 2.08, so 1.892 is a
+typo for 0.892 (found by a cold Sonnet run). The r27 crown reached 0.92 in front (centre crystal). r28 moves the centre crystal
+in (radius 0.76 -> 0.72) and clamps strands at 0.87: front 0.88, PASS. Crown re-uploaded (FBX 128339367815294, texture
+132245125027444, unchanged emissive mask); `ugc_check.lua` and `render_cv.py` now use 0.892.
+New generic checks run by run_all.sh: `scripts/texel_density.py` (OK) and `scripts/clip_check.py` (all pairs; cape vs pauldron
+77/78 and cape vs scarf 108 / crown 206 are hidden volume overlaps that no Studio view shows).

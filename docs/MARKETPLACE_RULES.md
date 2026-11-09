@@ -13,7 +13,7 @@ Sources (re-read before paying anything; numbers change):
 | Type | Classic | Rthro Normal | Rthro Slender |
 |---|---|---|---|
 | Hat | 3 x 4 x 3 | 1.87 x 2.5 x 1.87 | 1.78 x 2.5 x 1.78 |
-| Hair | 3 x 5 (2 up, 3 down) x 3.5 (1.5 front, 2 behind) | 1.87 x 3.12 (1.25 up, 1.875 down) x 2.18 (0.9375 front, 1.25 behind) | 1.78 x 3.12 (1.25 up, 1.875 down) x 2.08 (1.892 front, 1.189 behind) |
+| Hair | 3 x 5 (2 up, 3 down) x 3.5 (1.5 front, 2 behind) | 1.87 x 3.12 (1.25 up, 1.875 down) x 2.18 (0.9375 front, 1.25 behind) | 1.78 x 3.12 (1.25 up, 1.875 down) x 2.08 (page says "1.892 front, 1.189 behind": a typo, front + behind must be 2.08, so use **0.892 front**) |
 | Face | 3 x 2 x 2 | 1.87 x 1.25 x 1.25 | 1.78 x 1.25 x 1.18 |
 | Neck | 3 x 3 x 2 | 2.95 x 3.68 x 2.16 | 2.59 x 3.39 x 1.92 |
 | Shoulder (shoulder attachments) | 3 x 3 x 3 | 2.67 x 4.40 x 3.09 | 2.37 x 3.96 x 2.75 |

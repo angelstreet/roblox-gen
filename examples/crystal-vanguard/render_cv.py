@@ -71,7 +71,7 @@ if args.get("closeup") == "1":      # sword alone, upright, front and 3/4
         sc.render.filepath = os.path.join(OUT, f"{TAG}_{n}.png"); bpy.ops.render.render(write_still=True)
 # Marketplace boxes (docs/MARKETPLACE_RULES.md, Rthro Slender = tightest), attachment frame, Blender axes: x, y depth (+y behind), z up.
 # (xmin, xmax, ymin, ymax, zmin, zmax). Crown is submitted as Hair.
-LIMITS = {"cv_crown": (-0.89, 0.89, -0.93, 1.18, -1.87, 1.25), "cv_scarf": (-1.295, 1.295, -0.96, 0.96, -1.695, 1.695),
+LIMITS = {"cv_crown": (-0.89, 0.89, -0.892, 1.18, -1.87, 1.25), "cv_scarf": (-1.295, 1.295, -0.96, 0.96, -1.695, 1.695),
           "cv_cape": (-4.32, 4.32, -1.443, 2.886, -3.5, 3.5), "cv_pauldron_r": (-1.185, 1.185, -1.375, 1.375, -1.98, 1.98),
           "cv_pauldron_l": (-1.185, 1.185, -1.375, 1.375, -1.98, 1.98), "cv_sword": (-1.88, 1.88, -3.36, 3.36, -1.885, 1.414)}
 

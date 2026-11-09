@@ -86,6 +86,10 @@ Fast path (recommended, ~1 min per build). Example: a set called "Ember Sentinel
    authored hues, which colour lands in which family (the bright cape is "crystal", not "cloth") and two tested themes.
 3. **Shapes / emblem** (optional): `build_cv.py` (one `build_*()` per accessory, API in `docs/BUILDER_CHEATSHEET.md`) and the
    emblem drawing in `paint_cv.py` (`cape()`). Keep swatch names (`gold`, `crystal`, ...) stable: `build_cv.py` refers to them.
+   **New items or new shapes** touch these together (a cold Sonnet built "Ember Warden" this way on 2026-11-09):
+   `build_*()` + the `__main__` item list in `build_cv.py`; the painter for its UV regions in `paint_cv.py` (+ emissive mask);
+   `ITEMS`, `ATT` (attachment offset) and `LIMITS` (size box, `docs/MARKETPLACE_RULES.md`) in `render_cv.py`; `NAMES` in
+   `palette.py`; the wear script rows. Lay out UVs with `iso_rect()` and author every vertex inside the item's box.
 4. **Build**: `./run_all.sh <tag>` and look at `out/<tag>_sheet.png` (whole outfit in your colours?). Iterate.
 5. **Upload privately** (needs the key; nothing is published): from your set folder
    `SSL_CERT_FILE=/etc/ssl/cert.pem python3 ../../scripts/upload_assets.py *.fbx out/tex_*.png out/emit_*.png <shirt> <pants> <face>`

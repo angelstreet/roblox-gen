@@ -5,7 +5,7 @@ Both are module-level dicts shared by reference: a set may clear/extend SW (crys
 tbox/SHIRT/FACES: textured R15 block proxy for renders (official 585x559 template rects).
 Import from a set folder:  sys.path.insert(0, os.path.join(HERE, "..", "..", "lib")); import rgen_mesh as B
 Frame: x lateral (+x = character's left), y depth (front = -y), z up, 1 unit = 1 stud, origin = NeckAttachment."""
-import bpy, bmesh, math
+import bpy, bmesh, math, os
 from mathutils import Vector
 
 META = {}
@@ -130,7 +130,8 @@ class Builder:
         self.face(rings[-1], uvs[-1]); self.face(rings[0][::-1], uvs[0][::-1]); self.flat_mode = 0
 
     def gem(self, c, rx, rz, depth_dir, col="aqua"):
-        d = depth_dir.normalized(); up = Vector((0, 0, 1)); side = d.cross(up).normalized(); self.flat_mode = 1
+        d = depth_dir.normalized(); up = Vector((0, 0, 1)) if abs(d.z) < 0.9 else Vector((0, 1, 0))   # d parallel to z gave a zero cross product -> degenerate, open gem
+        side = d.cross(up).normalized(); up = side.cross(d).normalized() if abs(d.z) >= 0.9 else up; self.flat_mode = 1
         eq = [c + side * rx, c + up * rz, c - side * rx, c - up * rz]
         vs = [self.bm.verts.new(p) for p in eq]; t = self.bm.verts.new(c + d * rx * 0.9); b = self.bm.verts.new(c - d * rx * 0.3)
         for k in range(4):
@@ -172,3 +173,81 @@ def tbox(name, size, centre, rects, img):
     t = nt.nodes.new("ShaderNodeTexImage"); t.image = img; t.interpolation = "Linear"
     bs = nt.nodes["Principled BSDF"]; nt.links.new(t.outputs["Color"], bs.inputs["Base Color"]); bs.inputs["Roughness"].default_value = 0.75
     me.materials.append(m); return ob
+
+
+# ---------------------------------------------------------------- shared helpers (moved from crystal-vanguard/build_cv.py, 2026-11-09)
+def iso_rect(grid, u0, u1, v1, S, min_frac=0.5, v_scale=1.0):
+    """r26: UV rect + per-row v positions giving the SAME texel density along u and v (GPU mip selection without anisotropic
+    filtering follows the denser direction, so an anisotropic layout smears the other one in Studio). The rect spans u0..u1 at the
+    top edge v1; its height follows from the grid's physical row/column lengths and the atlas size S. Rows shorter than min_frac of
+    the longest row (fan rows near a pole) are treated as min_frac long: a fan cannot be isotropic at its pole.
+    Returns (rect, v_rows, height_frac)."""
+    NV, NU = len(grid) - 1, len(grid[0]) - 1
+    rowlen = [sum((grid[j][i + 1] - grid[j][i]).length for i in range(NU)) for j in range(NV + 1)]
+    mx = max(rowlen); eff = [max(l, min_frac * mx) for l in rowlen]; wpx = (u1 - u0) * S; bands = []
+    for j in range(NV):
+        col = sum((grid[j + 1][i] - grid[j][i]).length for i in range(NU + 1)) / (NU + 1)
+        bands.append(col * wpx / ((eff[j] + eff[j + 1]) / 2))
+    tot = sum(bands) * v_scale; cum = [0.0]                       # v_scale > 1: a little more v density (for faces whose columns are stretched, e.g. a pointed hem)
+    for h in bands: cum.append(cum[-1] + h * v_scale / tot)
+    return (u0, v1 - tot / S, u1, v1), cum, tot / S
+
+
+def tex_material(me, name):
+    mat = bpy.data.materials.new("mat_" + name); mat.use_nodes = True; me.materials.append(mat)
+
+
+def tris(ob): return sum(len(p.vertices) - 2 for p in ob.data.polygons)
+
+
+def bipyramid(b, base, axis, w, h, sides=6, mid=0.35, swatches=("crystal", "ice", "sapphire", "crystal", "ice", "sapphire")):
+    """faceted crystal: apex bottom at base, widest ring at mid*h, apex top at base+axis*h"""
+    ax = axis.normalized(); t = ax.cross(Vector((0, 1, 0)) if abs(ax.y) < 0.9 else Vector((1, 0, 0))).normalized(); s = ax.cross(t)
+    ring = [b.bm.verts.new(base + ax * h * mid + (t * math.cos(2 * math.pi * k / sides) + s * math.sin(2 * math.pi * k / sides)) * w) for k in range(sides)]
+    top = b.bm.verts.new(base + ax * h); bot = b.bm.verts.new(base)
+    b.flat_mode = 1
+    for k in range(sides):
+        k2 = (k + 1) % sides; sw = swatches[k % len(swatches)]
+        b.face([ring[k], ring[k2], top], [SW[sw]] * 3); b.face([ring[k2], ring[k], bot], [SW[sw if k % 2 else "sapphire"]] * 3)
+    b.flat_mode = 0
+
+
+def bake_ao(ob, size, others, out_dir, samples=24):
+    """Cycles AO bake into the item's UV atlas -> out/ao_<item>.png (same recipe as tidewatch build_v5.py; world distance 0.45 = local occlusion)"""
+    sc = bpy.context.scene; sc.render.engine = "CYCLES"; sc.cycles.samples = samples; sc.cycles.device = "CPU"
+    if sc.world is None: sc.world = bpy.data.worlds.new("bakeworld")
+    sc.world.light_settings.distance = 0.45
+    for o in others: o.hide_render = True
+    ob.hide_render = False
+    img = bpy.data.images.new("ao_" + ob.name, size, size); mat = ob.data.materials[0]; nt = mat.node_tree
+    t = nt.nodes.new("ShaderNodeTexImage"); t.image = img; nt.nodes.active = t
+    bpy.ops.object.select_all(action="DESELECT"); ob.select_set(True); bpy.context.view_layer.objects.active = ob
+    sc.render.bake.margin = 6
+    bpy.ops.object.bake(type="AO")
+    img.filepath_raw = os.path.join(out_dir, f"ao_{ob.name}.png"); img.file_format = "PNG"; img.save()
+    nt.nodes.remove(t)
+    for o in others: o.hide_render = False
+
+
+def body_proxy(shirt_png, pants_png, face_png=None, head_c=0.576):
+    """block R15 proxy wearing the classic shirt/pants (+ optional face decal plane) for renders and clip checks"""
+    sh = bpy.data.images.load(shirt_png); pa = bpy.data.images.load(pants_png)
+    P = {"t": SHIRT["t"], "rl": SHIRT["ra"], "ll": SHIRT["la"]}
+    objs = [tbox("torso", (2, 1, 2.1), (0, 0, -1.05), SHIRT["t"], sh), tbox("armR", (1, 1, 2.1), (-1.5, 0, -1.05), SHIRT["ra"], sh),
+            tbox("armL", (1, 1, 2.1), (1.5, 0, -1.05), SHIRT["la"], sh), tbox("legR", (1, 1, 2.19), (-0.5, 0, -3.195), P["rl"], pa),
+            tbox("legL", (1, 1, 2.19), (0.5, 0, -3.195), P["ll"], pa)]
+    bpy.ops.mesh.primitive_cube_add(size=1); hd = bpy.context.object; hd.name = "head"; hd.scale = (1.16, 1.16, 1.18); hd.location = (0, 0, head_c)
+    bv = hd.modifiers.new("b", "BEVEL"); bv.width = 0.14; bv.segments = 3
+    m = bpy.data.materials.new("skin"); m.use_nodes = True; m.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.78, 0.55, 0.42, 1)
+    hd.data.materials.append(m)
+    fp = face_png                                   # face decal on a plane just in front of the head's front face
+    if fp and os.path.exists(fp):
+        bpy.ops.mesh.primitive_plane_add(size=1); fc = bpy.context.object; fc.name = "face"
+        fc.rotation_euler = (math.radians(90), 0, 0); fc.scale = (1.16, 1.18, 1.0); fc.location = (0, -0.585, head_c)
+        fm = bpy.data.materials.new("face"); fm.use_nodes = True; nt = fm.node_tree; bs = nt.nodes["Principled BSDF"]
+        ti = nt.nodes.new("ShaderNodeTexImage"); ti.image = bpy.data.images.load(fp)
+        nt.links.new(ti.outputs["Color"], bs.inputs["Base Color"]); nt.links.new(ti.outputs["Alpha"], bs.inputs["Alpha"])
+        try: fm.surface_render_method = "DITHERED"
+        except Exception: fm.blend_method = "HASHED"
+        fc.data.materials.append(fm); objs.append(fc)
+    return objs + [hd]

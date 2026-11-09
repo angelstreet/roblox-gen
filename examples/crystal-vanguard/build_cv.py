@@ -6,7 +6,8 @@ import bpy, bmesh, math, os, random, sys
 from mathutils import Vector, Matrix
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "lib"))
 import rgen_mesh as B                     # shared Builder / swatches / body proxy (lib/rgen_mesh.py)
-from rgen_mesh import Builder, sm, spow
+from rgen_mesh import Builder, sm, spow, iso_rect, tex_material, tris, bipyramid   # shared (lib/rgen_mesh.py)
+import rgen_mesh
 
 HERE = os.path.dirname(os.path.abspath(__file__)); OUT = os.path.join(HERE, "out"); os.makedirs(OUT, exist_ok=True)
 GLB = os.path.join(HERE, "..", "..", "starter", "crystal-vanguard", "3d", "crystal_vanguard_sword_blockout.glb")
@@ -18,42 +19,6 @@ for k, n in enumerate(CELLS): B.SW[n] = ((k + 0.5) / 8, 0.03)
 B.SW.update({"bronze": B.SW["gold"], "pearl": B.SW["silver"], "aqua": B.SW["crystal"], "dark": B.SW["navy"]})
 def cell(n, a=0.2, b=0.8):       # small rect inside a swatch cell (for sheet() r_out/r_in)
     u = B.SW[n][0]; return (u - 0.05, 0.012, u + 0.05, 0.048)
-
-
-def iso_rect(grid, u0, u1, v1, S, min_frac=0.5, v_scale=1.0):
-    """r26: UV rect + per-row v positions giving the SAME texel density along u and v (GPU mip selection without anisotropic
-    filtering follows the denser direction, so an anisotropic layout smears the other one in Studio). The rect spans u0..u1 at the
-    top edge v1; its height follows from the grid's physical row/column lengths and the atlas size S. Rows shorter than min_frac of
-    the longest row (fan rows near a pole) are treated as min_frac long: a fan cannot be isotropic at its pole.
-    Returns (rect, v_rows, height_frac)."""
-    NV, NU = len(grid) - 1, len(grid[0]) - 1
-    rowlen = [sum((grid[j][i + 1] - grid[j][i]).length for i in range(NU)) for j in range(NV + 1)]
-    mx = max(rowlen); eff = [max(l, min_frac * mx) for l in rowlen]; wpx = (u1 - u0) * S; bands = []
-    for j in range(NV):
-        col = sum((grid[j + 1][i] - grid[j][i]).length for i in range(NU + 1)) / (NU + 1)
-        bands.append(col * wpx / ((eff[j] + eff[j + 1]) / 2))
-    tot = sum(bands) * v_scale; cum = [0.0]                       # v_scale > 1: a little more v density (for faces whose columns are stretched, e.g. a pointed hem)
-    for h in bands: cum.append(cum[-1] + h * v_scale / tot)
-    return (u0, v1 - tot / S, u1, v1), cum, tot / S
-
-
-def tex_material(me, name):
-    mat = bpy.data.materials.new("mat_" + name); mat.use_nodes = True; me.materials.append(mat)
-
-
-def tris(ob): return sum(len(p.vertices) - 2 for p in ob.data.polygons)
-
-
-def bipyramid(b, base, axis, w, h, sides=6, mid=0.35, swatches=("crystal", "ice", "sapphire", "crystal", "ice", "sapphire")):
-    """faceted crystal: apex bottom at base, widest ring at mid*h, apex top at base+axis*h"""
-    ax = axis.normalized(); t = ax.cross(Vector((0, 1, 0)) if abs(ax.y) < 0.9 else Vector((1, 0, 0))).normalized(); s = ax.cross(t)
-    ring = [b.bm.verts.new(base + ax * h * mid + (t * math.cos(2 * math.pi * k / sides) + s * math.sin(2 * math.pi * k / sides)) * w) for k in range(sides)]
-    top = b.bm.verts.new(base + ax * h); bot = b.bm.verts.new(base)
-    b.flat_mode = 1
-    for k in range(sides):
-        k2 = (k + 1) % sides; sw = swatches[k % len(swatches)]
-        b.face([ring[k], ring[k2], top], [B.SW[sw]] * 3); b.face([ring[k2], ring[k], bot], [B.SW[sw if k % 2 else "sapphire"]] * 3)
-    b.flat_mode = 0
 
 
 # ------------------------------------------------------------------ CROWN + HAIR (HatAttachment)
@@ -84,8 +49,8 @@ def build_crown():
     HR = (0.0, 0.50, 1.0, 0.92)                                        # strand UV rect: u around the strand (0.25 = outer face), v root -> tip
     def strand(path, w0, flat=1.5, sides=7):
         """closed tapered spike: flattened rings (wide along the dome surface, thin radially) with ONE frame per strand, smooth shaded,
-        capped base, sharp tip; every vertex clamped to the Hair box (|x| 0.88, y -0.92..1.17)"""
-        CL = lambda p: Vector((max(-0.88, min(0.88, p.x)), max(-0.92, min(1.17, p.y)), p.z))
+        capped base, sharp tip; every vertex clamped to the Hair box (|x| 0.88, y -0.87..1.17; Slender Hair front is 0.892, the page's 1.892 is a typo)"""
+        CL = lambda p: Vector((max(-0.88, min(0.88, p.x)), max(-0.87, min(1.17, p.y)), p.z))
         path = [CL(p) for p in path]; n = len(path) - 1
         rad0 = path[0] - Vector((0, 0.04, HC)); rad0.z *= 0.4; rad0.normalize()
         rings, vs_uv = [], []
@@ -167,7 +132,7 @@ def build_crown():
     # --- centre crystal in a gold diamond frame on the front of the band (concept), smaller crystals to the sides, temple shards
     b.extrude([(0, 0.26), (0.17, 0.02), (0, -0.14), (-0.17, 0.02)], Vector((0, -0.745, HC + 0.50)), Vector((1, 0, 0)), Vector((0, 0, 1)), 0.05, 0.015, "gold")
     for ang, hh, w, z0 in ((0, .74, .14, 0.50), (24, .44, .10, 0.50), (-24, .44, .10, 0.50), (50, .32, .085, 0.50), (-50, .32, .085, 0.50), (92, .40, .09, 0.50), (-92, .40, .09, 0.50)):
-        a = math.radians(ang); r = 0.74 if abs(ang) > 10 else 0.76
+        a = math.radians(ang); r = 0.74 if abs(ang) > 10 else 0.72   # r28: centre 0.76 -> 0.72 keeps it inside the Slender Hair front 0.892
         base = Vector((r * math.sin(a), -r * math.cos(a), HC + z0)); out = Vector((math.sin(a), -math.cos(a), 0))
         axis = (Vector((0, 0, 1)) + out * (0.14 + 0.08 * (abs(ang) > 80))).normalized()
         bipyramid(b, base, axis, w, hh, 6)
@@ -405,45 +370,8 @@ def place_sword(ob):
     ob.data.transform(Matrix.Translation((0, 0, dz))); print("sword lowered", round(dz, 3))
 
 
-def bake_ao(ob, size, others, samples=24):
-    """Cycles AO bake into the item's UV atlas -> out/ao_<item>.png (same recipe as tidewatch build_v5.py; world distance 0.45 = local occlusion)"""
-    sc = bpy.context.scene; sc.render.engine = "CYCLES"; sc.cycles.samples = samples; sc.cycles.device = "CPU"
-    if sc.world is None: sc.world = bpy.data.worlds.new("bakeworld")
-    sc.world.light_settings.distance = 0.45
-    for o in others: o.hide_render = True
-    ob.hide_render = False
-    img = bpy.data.images.new("ao_" + ob.name, size, size); mat = ob.data.materials[0]; nt = mat.node_tree
-    t = nt.nodes.new("ShaderNodeTexImage"); t.image = img; nt.nodes.active = t
-    bpy.ops.object.select_all(action="DESELECT"); ob.select_set(True); bpy.context.view_layer.objects.active = ob
-    sc.render.bake.margin = 6
-    bpy.ops.object.bake(type="AO")
-    img.filepath_raw = os.path.join(OUT, f"ao_{ob.name}.png"); img.file_format = "PNG"; img.save()
-    nt.nodes.remove(t)
-    for o in others: o.hide_render = False
-
-
-def body_proxy(shirt_png, pants_png):
-    sh = bpy.data.images.load(shirt_png); pa = bpy.data.images.load(pants_png)
-    P = {"t": B.SHIRT["t"], "rl": B.SHIRT["ra"], "ll": B.SHIRT["la"]}
-    objs = [B.tbox("torso", (2, 1, 2.1), (0, 0, -1.05), B.SHIRT["t"], sh), B.tbox("armR", (1, 1, 2.1), (-1.5, 0, -1.05), B.SHIRT["ra"], sh),
-            B.tbox("armL", (1, 1, 2.1), (1.5, 0, -1.05), B.SHIRT["la"], sh), B.tbox("legR", (1, 1, 2.19), (-0.5, 0, -3.195), P["rl"], pa),
-            B.tbox("legL", (1, 1, 2.19), (0.5, 0, -3.195), P["ll"], pa)]
-    bpy.ops.mesh.primitive_cube_add(size=1); hd = bpy.context.object; hd.name = "head"; hd.scale = (1.16, 1.16, 1.18); hd.location = (0, 0, HC)
-    bv = hd.modifiers.new("b", "BEVEL"); bv.width = 0.14; bv.segments = 3
-    m = bpy.data.materials.new("skin"); m.use_nodes = True; m.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.78, 0.55, 0.42, 1)
-    hd.data.materials.append(m)
-    # r10: face decal (make_face_cv.py) on a plane just in front of the head's front face
-    fp = os.path.join(OUT, "cv_face.png")
-    if os.path.exists(fp):
-        bpy.ops.mesh.primitive_plane_add(size=1); fc = bpy.context.object; fc.name = "face"
-        fc.rotation_euler = (math.radians(90), 0, 0); fc.scale = (1.16, 1.18, 1.0); fc.location = (0, -0.585, HC)
-        fm = bpy.data.materials.new("face"); fm.use_nodes = True; nt = fm.node_tree; bs = nt.nodes["Principled BSDF"]
-        ti = nt.nodes.new("ShaderNodeTexImage"); ti.image = bpy.data.images.load(fp)
-        nt.links.new(ti.outputs["Color"], bs.inputs["Base Color"]); nt.links.new(ti.outputs["Alpha"], bs.inputs["Alpha"])
-        try: fm.surface_render_method = "DITHERED"
-        except Exception: fm.blend_method = "HASHED"
-        fc.data.materials.append(fm); objs.append(fc)
-    return objs + [hd]
+def bake_ao(ob, size, others, samples=24): return rgen_mesh.bake_ao(ob, size, others, OUT, samples)
+def body_proxy(shirt_png, pants_png): return rgen_mesh.body_proxy(shirt_png, pants_png, os.path.join(OUT, "cv_face.png"), HC)
 
 
 if __name__ == "__main__":

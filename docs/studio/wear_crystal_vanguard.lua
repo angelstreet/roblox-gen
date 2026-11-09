@@ -1,4 +1,4 @@
--- Wears the Crystal Vanguard set (r27) on a new rig. Paste into Roblox Studio's command bar and Run, or send it with the
+-- Wears the Crystal Vanguard set (r28) on a new rig. Paste into Roblox Studio's command bar and Run, or send it with the
 -- Studio MCP `execute_luau` tool (datamodel Edit). Edit the CONFIG block to test other bodies.
 -- Asset IDs are private test uploads of the repo owner's account (only that account can load them); re-upload with
 -- scripts/upload_assets.py under your own account and replace the IDs (README "Make your own set" steps 5-6).
@@ -38,7 +38,7 @@ if CONFIG.face then
   local w = Instance.new("WeldConstraint"); w.Part0 = h; w.Part1 = plate; w.Parent = plate; plate.Parent = rig
 end
 local items = {  -- {mesh FBX id, texture Decal id, attachment, emissive mask Decal id}  (r27, private uploads 2026-11-09)
-  {118900723489336, 103473604786167, "HatAttachment",           124669010937682},  -- crown + swept hair, back locks (Hair box) [r24]
+  {128339367815294, 132245125027444, "HatAttachment",           124669010937682},  -- crown + swept hair, back locks [r28: inside Slender Hair front 0.892]
   {107914732371581, 123458809909251, "RightShoulderAttachment", 118064032692895},  -- pauldron R, 2048, isotropic UVs [r27]
   {102002362093146, 123458809909251, "LeftShoulderAttachment",  118064032692895},  -- pauldron L (shares the R texture) [r27]
   {80996663812632,  94510574270528,  "BodyBackAttachment",      93506916301596},   -- cape, fur collar, isotropic UVs [r27]
